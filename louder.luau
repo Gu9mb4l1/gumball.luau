@@ -340,6 +340,12 @@ AntiAimGroup:AddToggle('Underground', {
     Callback = function(Value) end
 }):AddKeyPicker('UndergroundKeybind', { Default = 'U', NoUI = true, Text = 'Underground keybind' })
 
+for _, Label in next, WindowFrame:GetDescendants() do
+    if Label:IsA('TextLabel') and Label:FindFirstChildOfClass('UIListLayout') and Label:FindFirstChildWhichIsA('Frame') then
+        Label.Size = UDim2.new(0, 150, 1, 0)
+    end
+end
+
 for _, Frame in next, WindowFrame:GetDescendants() do
     if Frame:IsA('Frame') then
         local Layout = Frame:FindFirstChildOfClass('UIListLayout')
