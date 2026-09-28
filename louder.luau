@@ -22,6 +22,10 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
+local DefaultWidth = 620
+local DefaultHeight = 650
+local MinimumWidth = DefaultWidth - 150
+local MinimumHeight = DefaultHeight - 150
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
@@ -41,10 +45,6 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local Resizing = false
         local StartMousePosition
         local StartWindowSize
-        local DefaultWidth = 620
-        local DefaultHeight = 650
-        local MinimumWidth = DefaultWidth - 150
-        local MinimumHeight = DefaultHeight - 150
         local ResizeChangedConnection
         local ResizeEndedConnection
         local SizeConnection
@@ -175,8 +175,12 @@ for _, Frame in next, WindowFrame:GetDescendants() do
     if Frame:IsA('Frame') then
         local Layout = Frame:FindFirstChildOfClass('UIListLayout')
 
-        if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 then
+        if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 and Layout.AbsoluteContentSize.X > 0 then
             Frame.ClipsDescendants = true
+            DefaultWidth = Layout.AbsoluteContentSize.X + 28
+            MinimumWidth = DefaultWidth - 150
+            WindowFrame.Size = UDim2.fromOffset(DefaultWidth, DefaultHeight)
+            break
         end
     end
 end
