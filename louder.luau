@@ -1,4 +1,4 @@
--- Gumball - .gg/gu9mball
+-- Gumball UI
 -- Gumball - .gg/gu9mball
 
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
@@ -17,15 +17,15 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(30, 30),
+    Size = UDim2.fromOffset(700, 600),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 30
-local DefaultHeight = 30
-local MinimumWidth = DefaultWidth - 30
-local MinimumHeight = DefaultHeight - 30
+local DefaultWidth = 700
+local DefaultHeight = 600
+local MinimumWidth = DefaultWidth - 150
+local MinimumHeight = DefaultHeight - 150
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
@@ -65,6 +65,7 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeStroke.Thickness = 1
         ResizeStroke.Transparency = 0.2
         ResizeStroke.Parent = ResizeHandle
+        Library:AddToRegistry(ResizeStroke, { Color = 'AccentColor' })
 
         local ResizeLineA = Instance.new('Frame')
         ResizeLineA.BackgroundColor3 = Library.AccentColor
@@ -93,6 +94,10 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeLineC.ZIndex = 11
         ResizeLineC.Parent = ResizeHandle
 
+        for _, Line in next, { ResizeLineA, ResizeLineB, ResizeLineC } do
+            Library:AddToRegistry(Line, { BackgroundColor3 = 'AccentColor' })
+        end
+
         ResizeHandle.MouseEnter:Connect(function()
             ResizeHandle.BackgroundColor3 = Color3.fromRGB(0, 75, 85)
         end)
@@ -109,8 +114,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
             Resizing = true
             StartMousePosition = UserInputService:GetMouseLocation()
             StartWindowSize = Vector2.new(
-                math.max(WindowFrame.AbsoluteSize.X, MinimumWidth),
-                math.max(WindowFrame.AbsoluteSize.Y, MinimumHeight)
+                math.clamp(WindowFrame.AbsoluteSize.X, MinimumWidth, DefaultWidth),
+                math.clamp(WindowFrame.AbsoluteSize.Y, MinimumHeight, DefaultHeight)
             )
         end)
 
@@ -122,8 +127,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.max(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth)
-                local Height = math.max(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight)
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth, DefaultWidth)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight, DefaultHeight)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
@@ -134,8 +139,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         SizeConnection = WindowFrame:GetPropertyChangedSignal('Size'):Connect(function()
             local Width = WindowFrame.Size.X.Offset
             local Height = WindowFrame.Size.Y.Offset
-            local LimitedWidth = math.max(Width, MinimumWidth)
-            local LimitedHeight = math.max(Height, MinimumHeight)
+            local LimitedWidth = math.clamp(Width, MinimumWidth, DefaultWidth)
+            local LimitedHeight = math.clamp(Height, MinimumHeight, DefaultHeight)
 
             if Width ~= LimitedWidth or Height ~= LimitedHeight then
                 WindowFrame.Size = UDim2.fromOffset(LimitedWidth, LimitedHeight)
@@ -345,6 +350,35 @@ for _, Label in next, WindowFrame:GetDescendants() do
         Label.Size = UDim2.new(0, 180, 1, 0)
     end
 end
+
+for Idx, Option in next, Options do
+    if Option.Type == 'KeyPicker' and Idx ~= 'MenuKeybind' then
+        Option:SetValue({ 'None', Option.Mode or 'Toggle' })
+    end
+end
+
+for _, Label in next, WindowFrame:GetDescendants() do
+    if Label:IsA('TextLabel') and Label.Text == 'None' then
+        Label.Text = '...'
+    end
+end
+
+local KeybindInputService = game:GetService('UserInputService')
+KeybindInputService.InputBegan:Connect(function(Input)
+    if Input.KeyCode == Enum.KeyCode.Escape then
+        for Idx, Option in next, Options do
+            if Option.Type == 'KeyPicker' and Option.Value == 'Escape' then
+                Option:SetValue({ 'None', Option.Mode or 'Toggle' })
+
+                for _, Label in next, WindowFrame:GetDescendants() do
+                    if Label:IsA('TextLabel') and Label.Text == 'None' then
+                        Label.Text = '...'
+                    end
+                end
+            end
+        end
+    end
+end)
 
 for _, Frame in next, WindowFrame:GetDescendants() do
     if Frame:IsA('Frame') then
