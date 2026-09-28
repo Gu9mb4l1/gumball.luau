@@ -46,16 +46,14 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeHandle.ZIndex = 10
         ResizeHandle.Parent = WindowFrame
 
-        ResizeHandle.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if not WindowFrame.Parent then
-                    return
-                end
-
-                Resizing = true
-                StartMousePosition = UserInputService:GetMouseLocation()
-                StartWindowSize = WindowFrame.AbsoluteSize
+        ResizeHandle.MouseButton1Down:Connect(function()
+            if not WindowFrame.Parent then
+                return
             end
+
+            Resizing = true
+            StartMousePosition = UserInputService:GetMouseLocation()
+            StartWindowSize = WindowFrame.AbsoluteSize
         end)
 
         ResizeChangedConnection = UserInputService.InputChanged:Connect(function(Input)
@@ -119,7 +117,12 @@ MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
     Text = 'Menu keybind'
 })
 
-Library.ToggleKeybind = Options.MenuKeybind
+local UserInputService = game:GetService('UserInputService')
+UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+    if not GameProcessed and Input.KeyCode == Enum.KeyCode.RightShift then
+        Library:Toggle()
+    end
+end)
 
 -- Theme & Config managers
 ThemeManager:SetLibrary(Library)
