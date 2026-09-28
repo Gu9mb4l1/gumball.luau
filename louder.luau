@@ -109,8 +109,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
             Resizing = true
             StartMousePosition = UserInputService:GetMouseLocation()
             StartWindowSize = Vector2.new(
-                math.clamp(WindowFrame.AbsoluteSize.X, MinimumWidth, DefaultWidth),
-                math.clamp(WindowFrame.AbsoluteSize.Y, MinimumHeight, DefaultHeight)
+                math.max(WindowFrame.AbsoluteSize.X, MinimumWidth),
+                math.max(WindowFrame.AbsoluteSize.Y, MinimumHeight)
             )
         end)
 
@@ -122,8 +122,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth, DefaultWidth)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight, DefaultHeight)
+                local Width = math.max(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth)
+                local Height = math.max(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
@@ -134,8 +134,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         SizeConnection = WindowFrame:GetPropertyChangedSignal('Size'):Connect(function()
             local Width = WindowFrame.Size.X.Offset
             local Height = WindowFrame.Size.Y.Offset
-            local LimitedWidth = math.clamp(Width, MinimumWidth, DefaultWidth)
-            local LimitedHeight = math.clamp(Height, MinimumHeight, DefaultHeight)
+            local LimitedWidth = math.max(Width, MinimumWidth)
+            local LimitedHeight = math.max(Height, MinimumHeight)
 
             if Width ~= LimitedWidth or Height ~= LimitedHeight then
                 WindowFrame.Size = UDim2.fromOffset(LimitedWidth, LimitedHeight)
