@@ -1,4 +1,4 @@
--- Gumball UI
+-- Gumball - .gg/gu9mball
 -- Gumball - .gg/gu9mball
 
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
@@ -23,9 +23,9 @@ local Window = Library:CreateWindow({
 })
 
 local DefaultWidth = 620
-local DefaultHeight = 500
-local MinimumWidth = DefaultWidth - 150
-local MinimumHeight = DefaultHeight - 150
+local DefaultHeight = 350
+local MinimumWidth = DefaultWidth - 0
+local MinimumHeight = DefaultHeight - 0
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
