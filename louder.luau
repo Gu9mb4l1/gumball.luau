@@ -20,6 +20,46 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         Object.Position = UDim2.new(0, 0, 0, 0)
         Object.Size = UDim2.new(1, 0, 0, 25)
         Object.TextXAlignment = Enum.TextXAlignment.Center
+
+        local WindowFrame = Object.Parent.Parent
+        local ResizeHandle = Instance.new('TextButton')
+        local UserInputService = game:GetService('UserInputService')
+        local Resizing = false
+        local StartMousePosition
+        local StartWindowSize
+
+        ResizeHandle.BackgroundTransparency = 1
+        ResizeHandle.BorderSizePixel = 0
+        ResizeHandle.Size = UDim2.new(0, 14, 0, 14)
+        ResizeHandle.Position = UDim2.new(1, -14, 1, -14)
+        ResizeHandle.Text = ''
+        ResizeHandle.ZIndex = 10
+        ResizeHandle.Parent = WindowFrame
+
+        ResizeHandle.InputBegan:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Resizing = true
+                StartMousePosition = UserInputService:GetMouseLocation()
+                StartWindowSize = WindowFrame.AbsoluteSize
+            end
+        end)
+
+        ResizeHandle.InputEnded:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Resizing = false
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(Input)
+            if Resizing and Input.UserInputType == Enum.UserInputType.MouseMovement then
+                local MousePosition = UserInputService:GetMouseLocation()
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 400, 1000)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 300, 800)
+
+                WindowFrame.Size = UDim2.fromOffset(Width, Height)
+            end
+        end)
+
         break
     end
 end
@@ -45,7 +85,7 @@ MenuGroup:AddButton({
 })
 
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
-    Default = 'End',
+    Default = 'RightShift',
     NoUI = true,
     Text = 'Menu keybind'
 })
