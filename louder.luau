@@ -283,9 +283,6 @@ NotificationsGroup:AddButton({
 local CommunityGroup = Tabs['UI Settings']:AddLeftGroupbox('Community configs')
 CommunityGroup:AddLabel('No community configs configured.', true)
 
-local LuaGroup = Tabs['UI Settings']:AddRightGroupbox('Lua')
-LuaGroup:AddLabel('In development', true)
-
 Library.ToggleKeybind = Options.MenuKeybind
 
 -- Theme & Config managers
