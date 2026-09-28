@@ -17,15 +17,15 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(800, 650),
+    Size = UDim2.fromOffset(620, 720),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 800
-local DefaultHeight = 650
-local MinimumWidth = DefaultWidth - 150
-local MinimumHeight = DefaultHeight - 150
+local DefaultWidth = 620
+local DefaultHeight = 720
+local MinimumWidth = DefaultWidth - 30
+local MinimumHeight = DefaultHeight - 30
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
