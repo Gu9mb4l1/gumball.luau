@@ -64,8 +64,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local ResizeLineA = Instance.new('Frame')
         ResizeLineA.BackgroundColor3 = Library.AccentColor
         ResizeLineA.BorderSizePixel = 0
-        ResizeLineA.Position = UDim2.new(0.5, -1, 0.5, -6)
-        ResizeLineA.Size = UDim2.new(0, 2, 0, 12)
+        ResizeLineA.Position = UDim2.new(1, -4, 1, -8)
+        ResizeLineA.Size = UDim2.new(0, 2, 0, 8)
         ResizeLineA.Rotation = 45
         ResizeLineA.ZIndex = 11
         ResizeLineA.Parent = ResizeHandle
@@ -73,11 +73,20 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local ResizeLineB = Instance.new('Frame')
         ResizeLineB.BackgroundColor3 = Library.AccentColor
         ResizeLineB.BorderSizePixel = 0
-        ResizeLineB.Position = UDim2.new(0.5, -1, 0.5, -6)
-        ResizeLineB.Size = UDim2.new(0, 2, 0, 12)
-        ResizeLineB.Rotation = -45
+        ResizeLineB.Position = UDim2.new(1, -7, 1, -8)
+        ResizeLineB.Size = UDim2.new(0, 2, 0, 8)
+        ResizeLineB.Rotation = 45
         ResizeLineB.ZIndex = 11
         ResizeLineB.Parent = ResizeHandle
+
+        local ResizeLineC = Instance.new('Frame')
+        ResizeLineC.BackgroundColor3 = Library.AccentColor
+        ResizeLineC.BorderSizePixel = 0
+        ResizeLineC.Position = UDim2.new(1, -10, 1, -8)
+        ResizeLineC.Size = UDim2.new(0, 2, 0, 8)
+        ResizeLineC.Rotation = 45
+        ResizeLineC.ZIndex = 11
+        ResizeLineC.Parent = ResizeHandle
 
         ResizeHandle.MouseEnter:Connect(function()
             ResizeHandle.BackgroundColor3 = Color3.fromRGB(0, 75, 85)
@@ -105,8 +114,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 570, 1000)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 670, 900)
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 470, 620)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 570, 720)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
