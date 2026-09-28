@@ -23,6 +23,7 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         Object.TextXAlignment = Enum.TextXAlignment.Center
 
         local WindowFrame = Object.Parent.Parent
+        WindowFrame.ClipsDescendants = true
         local ResizeHandle = Instance.new('TextButton')
         local UserInputService = game:GetService('UserInputService')
         local Resizing = false
