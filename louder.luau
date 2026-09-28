@@ -211,6 +211,47 @@ MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
     Text = 'Menu keybind'
 })
 
+MenuGroup:AddSlider('MenuTransparency', {
+    Text = 'Menu transparency',
+    Default = 0,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%',
+    Callback = function(Value)
+        WindowFrame.BackgroundTransparency = Value / 100
+    end
+})
+
+MenuGroup:AddDropdown('MenuKeybindMode', {
+    Text = 'Keybind menu mode',
+    Values = { 'Toggle', 'Hold' },
+    Default = 1,
+    Callback = function(Value)
+        Options.MenuKeybind.Mode = Value
+    end
+})
+
+local NotificationsGroup = Tabs['UI Settings']:AddRightGroupbox('Notifications')
+
+NotificationsGroup:AddInput('NotificationText', {
+    Text = 'Notification text',
+    Default = 'Gumball UI loaded.'
+})
+
+NotificationsGroup:AddButton({
+    Text = 'Test notification',
+    Func = function()
+        Library:Notify(Options.NotificationText.Value, 3)
+    end
+})
+
+local CommunityGroup = Tabs['UI Settings']:AddLeftGroupbox('Community configs')
+CommunityGroup:AddLabel('No community configs configured.', true)
+
+local LuaGroup = Tabs['UI Settings']:AddRightGroupbox('Lua')
+LuaGroup:AddLabel('In development', true)
+
 Library.ToggleKeybind = Options.MenuKeybind
 
 -- Theme & Config managers
