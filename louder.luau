@@ -424,6 +424,16 @@ for _, Label in next, WindowFrame:GetDescendants() do
     end
 end
 
+for _, Scrolling in next, WindowFrame:GetDescendants() do
+    if Scrolling:IsA('ScrollingFrame') then
+        Scrolling.Active = true
+        Scrolling.ScrollingEnabled = true
+        Scrolling.ScrollBarThickness = 3
+        Scrolling.ScrollBarImageColor3 = Library.AccentColor
+        Scrolling.ClipsDescendants = true
+    end
+end
+
 local KeybindInputService = game:GetService('UserInputService')
 KeybindInputService.InputBegan:Connect(function(Input)
     if Input.KeyCode == Enum.KeyCode.Escape then
