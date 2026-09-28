@@ -618,4 +618,26 @@ ThemeManager.DefaultTheme = 'Gumball'
 ThemeManager:ApplyToTab(Tabs['UI Settings'])
 ThemeManager:ApplyTheme(Options.ThemeManager_ThemeList.Value)
 
+local CustomThemeActions = Tabs['UI Settings']:AddLeftGroupbox('Custom theme actions')
+
+CustomThemeActions:AddButton({
+    Text = 'Delete custom theme',
+    Func = function()
+        local ThemeName = Options.ThemeManager_CustomThemeList.Value
+
+        if not ThemeName or ThemeName == '' then
+            return Library:Notify('Select a custom theme first.', 3)
+        end
+
+        local ThemePath = ThemeManager.Folder .. '/themes/' .. ThemeName .. '.json'
+
+        if isfile(ThemePath) then
+            delfile(ThemePath)
+            Options.ThemeManager_CustomThemeList:SetValues(ThemeManager:ReloadCustomThemes())
+            Options.ThemeManager_CustomThemeList:SetValue(nil)
+            Library:Notify('Deleted custom theme ' .. ThemeName, 3)
+        end
+    end
+})
+
 print('Gumball UI loaded.')
