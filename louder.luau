@@ -640,4 +640,16 @@ CustomThemeActions:AddButton({
     end
 })
 
+for _, Scrolling in next, WindowFrame:GetDescendants() do
+    if Scrolling:IsA('ScrollingFrame') then
+        local Layout = Scrolling:FindFirstChildOfClass('UIListLayout')
+
+        if Layout then
+            Scrolling.Active = true
+            Scrolling.ScrollingEnabled = true
+            Scrolling.CanvasSize = UDim2.fromOffset(0, Layout.AbsoluteContentSize.Y + 8)
+        end
+    end
+end
+
 print('Gumball UI loaded.')
