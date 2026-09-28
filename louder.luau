@@ -17,13 +17,13 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(620, 720),
-    TabPadding = 8,
+    Size = UDim2.fromOffset(620, 500),
+    TabPadding = 6,
     MenuFadeTime = 0.2
 })
 
 local DefaultWidth = 620
-local DefaultHeight = 720
+local DefaultHeight = 500
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
@@ -60,9 +60,9 @@ SilentAimGroup:AddToggle('SilentAimVisualize', { Text = 'Visualize', Callback = 
 SilentAimGroup:AddToggle('SilentAimShowFov', { Text = 'Show fov', Callback = function(Value) end })
 SilentAimGroup:AddToggle('SilentAimOutline', { Text = 'Outline', Callback = function(Value) end })
 SilentAimGroup:AddToggle('SilentAimFill', { Text = 'Fill', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimFov', { Text = 'Fov', Default = 1, Min = 0, Max = 10, Rounding = 1, Suffix = 'x', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimRadius', { Text = 'Radius', Default = 85, Min = 0, Max = 300, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimHitChance', { Text = 'Hit chance', Default = 100, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+SilentAimGroup:AddSlider('SilentAimFov', { Text = 'Fov', Default = 0, Min = 0, Max = 10, Rounding = 1, Suffix = 'x', Callback = function(Value) end })
+SilentAimGroup:AddSlider('SilentAimRadius', { Text = 'Radius', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
+SilentAimGroup:AddSlider('SilentAimHitChance', { Text = 'Hit chance', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 
 local TargetingGroup = Tabs.Main:AddLeftGroupbox('Targeting')
 TargetingGroup:AddToggle('TargetVisibleOnly', { Text = 'Visible only', Callback = function(Value) end })
@@ -70,7 +70,7 @@ TargetingGroup:AddToggle('TargetIgnoreProtected', { Text = 'Ignore protected', C
 TargetingGroup:AddDropdown('TargetIgnoreIf', { Text = 'Ignore if', Values = { 'Katana deflecting', 'Invulnerable', 'Teammate' }, Default = 1, Callback = function(Value) end })
 TargetingGroup:AddToggle('TargetDisableFlash', { Text = 'Disable on flash', Callback = function(Value) end })
 TargetingGroup:AddSlider('TargetReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
-TargetingGroup:AddSlider('TargetForgetTime', { Text = 'Forget time', Default = 10, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
+TargetingGroup:AddSlider('TargetForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
 TargetingGroup:AddDropdown('TargetPart', { Text = 'Target part', Values = { 'Head', 'HumanoidRootPart', 'UpperTorso' }, Default = 1, Callback = function(Value) end })
 
 local AimbotGroup = Tabs.Main:AddRightGroupbox('Aimbot')
@@ -78,15 +78,15 @@ AimbotGroup:AddToggle('AimbotEnabled', { Text = 'Enabled', Callback = function(V
 AimbotGroup:AddToggle('AimbotManipulation', { Text = 'Manipulation', Callback = function(Value) end })
 AimbotGroup:AddToggle('AimbotClosestPart', { Text = 'Closest part', Callback = function(Value) end })
 AimbotGroup:AddToggle('AimbotVisualize', { Text = 'Visualize', Callback = function(Value) end })
-AimbotGroup:AddSlider('AimbotSmoothing', { Text = 'Smoothing', Default = 0.5, Min = 0, Max = 10, Rounding = 1, Callback = function(Value) end })
-AimbotGroup:AddSlider('AimbotFov', { Text = 'Fov', Default = 70, Min = 0, Max = 180, Rounding = 0, Callback = function(Value) end })
+AimbotGroup:AddSlider('AimbotSmoothing', { Text = 'Smoothing', Default = 0, Min = 0, Max = 10, Rounding = 1, Callback = function(Value) end })
+AimbotGroup:AddSlider('AimbotFov', { Text = 'Fov', Default = 0, Min = 0, Max = 180, Rounding = 0, Callback = function(Value) end })
 
 local TriggerbotGroup = Tabs.Main:AddRightGroupbox('Triggerbot')
 TriggerbotGroup:AddToggle('TriggerbotEnabled', { Text = 'Enabled', Callback = function(Value) end })
 TriggerbotGroup:AddSlider('TriggerReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
 TriggerbotGroup:AddSlider('TriggerReactionOffset', { Text = 'Reaction time offset', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerForgetTime', { Text = 'Forget time', Default = 10, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerMaxDistance', { Text = 'Max distance', Default = 500, Min = 0, Max = 1000, Rounding = 0, Suffix = 's', Callback = function(Value) end })
+TriggerbotGroup:AddSlider('TriggerForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
+TriggerbotGroup:AddSlider('TriggerMaxDistance', { Text = 'Max distance', Default = 0, Min = 0, Max = 1000, Rounding = 0, Suffix = 's', Callback = function(Value) end })
 TriggerbotGroup:AddDropdown('TriggerPartBlacklist', { Text = 'Part blacklist', Values = { 'HumanoidRootPart, UpperTorso', 'Head', 'Legs' }, Default = 1, Callback = function(Value) end })
 TriggerbotGroup:AddDropdown('TriggerSettings', { Text = 'Settings', Values = { 'No delay between targets', 'Default' }, Default = 1, Callback = function(Value) end })
 
@@ -95,14 +95,14 @@ WeaponsGroup:AddToggle('NoSpread', { Text = 'No spread', Callback = function(Val
 WeaponsGroup:AddToggle('FullAuto', { Text = 'Full auto', Callback = function(Value) end })
 WeaponsGroup:AddToggle('AlwaysBackstab', { Text = 'Always backstab', Callback = function(Value) end })
 WeaponsGroup:AddDropdown('GrenadeOptions', { Text = 'Grenade options', Values = { 'Explode on throw', 'Default' }, Default = 1, Callback = function(Value) end })
-WeaponsGroup:AddSlider('FireRate', { Text = 'Firerate', Default = 10, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+WeaponsGroup:AddSlider('FireRate', { Text = 'Firerate', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 WeaponsGroup:AddDropdown('RagebotPriority', { Text = 'Ragebot priority', Values = { 'Distance', 'Health', 'Crosshair' }, Default = 1, Callback = function(Value) end })
 
 local ColorCorrectionGroup = Tabs.World:AddLeftGroupbox('Color correction')
 ColorCorrectionGroup:AddToggle('ColorCorrectionEnabled', { Text = 'Enabled', Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Saturation', { Text = 'Saturation', Default = 0.5, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Contrast', { Text = 'Contrast', Default = 0.2, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Brightness', { Text = 'Brightness', Default = 0.1, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
+ColorCorrectionGroup:AddSlider('Saturation', { Text = 'Saturation', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
+ColorCorrectionGroup:AddSlider('Contrast', { Text = 'Contrast', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
+ColorCorrectionGroup:AddSlider('Brightness', { Text = 'Brightness', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
 
 local LightingGroup = Tabs.World:AddLeftGroupbox('Lighting')
 LightingGroup:AddToggle('Ambient', { Text = 'Ambient', Callback = function(Value) end })
@@ -112,7 +112,7 @@ LightingGroup:AddToggle('FogColor', { Text = 'FogColor', Callback = function(Val
 LightingGroup:AddToggle('FogEnd', { Text = 'FogEnd', Callback = function(Value) end })
 LightingGroup:AddToggle('FogStart', { Text = 'FogStart', Callback = function(Value) end })
 LightingGroup:AddToggle('ExposureCompensation', { Text = 'ExposureCompensation', Callback = function(Value) end })
-LightingGroup:AddSlider('ExposureValue', { Text = 'ExposureCompensation', Default = -1, Min = -5, Max = 5, Rounding = 0, Callback = function(Value) end })
+LightingGroup:AddSlider('ExposureValue', { Text = 'ExposureCompensation', Default = 0, Min = -5, Max = 5, Rounding = 0, Callback = function(Value) end })
 LightingGroup:AddToggle('GlobalShadows', { Text = 'GlobalShadows', Callback = function(Value) end })
 
 local SkyboxGroup = Tabs.World:AddRightGroupbox('Skybox')
@@ -122,29 +122,29 @@ SkyboxGroup:AddDropdown('SkyboxDisable', { Text = 'Disable', Values = { 'Sun, mo
 
 local BloomGroup = Tabs.World:AddRightGroupbox('Bloom')
 BloomGroup:AddToggle('BloomEnabled', { Text = 'Enable', Callback = function(Value) end })
-BloomGroup:AddSlider('BloomIntensity', { Text = 'Intensity', Default = 1, Min = 0, Max = 10, Rounding = 0, Callback = function(Value) end })
-BloomGroup:AddSlider('BloomSize', { Text = 'Size', Default = 26, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-BloomGroup:AddSlider('BloomThreshold', { Text = 'Threshold', Default = 0.5, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) end })
+BloomGroup:AddSlider('BloomIntensity', { Text = 'Intensity', Default = 0, Min = 0, Max = 10, Rounding = 0, Callback = function(Value) end })
+BloomGroup:AddSlider('BloomSize', { Text = 'Size', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
+BloomGroup:AddSlider('BloomThreshold', { Text = 'Threshold', Default = 0, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) end })
 
 local CameraGroup = Tabs.World:AddRightGroupbox('Camera')
 CameraGroup:AddToggle('AntiFlashbang', { Text = 'Anti flashbang', Callback = function(Value) end })
 CameraGroup:AddToggle('FovChanger', { Text = 'Fov changer', Callback = function(Value) end })
-CameraGroup:AddSlider('CameraFov', { Text = 'Fov', Default = 70, Min = 30, Max = 120, Rounding = 0, Callback = function(Value) end })
+CameraGroup:AddSlider('CameraFov', { Text = 'Fov', Default = 30, Min = 30, Max = 120, Rounding = 0, Callback = function(Value) end })
 CameraGroup:AddToggle('AspectRatio', { Text = 'Aspect ratio', Callback = function(Value) end })
-CameraGroup:AddSlider('RatioX', { Text = 'Ratio X', Default = 1, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
-CameraGroup:AddSlider('RatioY', { Text = 'Ratio Y', Default = 0.98, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
-CameraGroup:AddSlider('CameraBlur', { Text = 'Blur', Default = 2, Min = 0, Max = 20, Rounding = 0, Callback = function(Value) end })
+CameraGroup:AddSlider('RatioX', { Text = 'Ratio X', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
+CameraGroup:AddSlider('RatioY', { Text = 'Ratio Y', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
+CameraGroup:AddSlider('CameraBlur', { Text = 'Blur', Default = 0, Min = 0, Max = 20, Rounding = 0, Callback = function(Value) end })
 
 local EspOptionsGroup = Tabs.ESP:AddLeftGroupbox('Options')
 EspOptionsGroup:AddToggle('EspBox', { Text = 'Box', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspMovingRotation', { Text = 'Moving rotation', Callback = function(Value) end })
 EspOptionsGroup:AddSlider('EspRotation', { Text = 'Rotation', Default = 0, Min = 0, Max = 360, Rounding = 0, Suffix = ' deg', Callback = function(Value) end })
-EspOptionsGroup:AddSlider('EspRotationSpeed', { Text = 'Speed', Default = 0.1, Min = 0, Max = 5, Rounding = 1, Suffix = 'rps', Callback = function(Value) end })
+EspOptionsGroup:AddSlider('EspRotationSpeed', { Text = 'Speed', Default = 0, Min = 0, Max = 5, Rounding = 1, Suffix = 'rps', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspFill', { Text = 'Fill', Callback = function(Value) end })
 EspOptionsGroup:AddDropdown('EspFillImage', { Text = 'Fill image', Values = { 'Default', 'Gradient' }, Default = 1, Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspSkeleton', { Text = 'Skeleton', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspOutline', { Text = 'Outline', Callback = function(Value) end })
-EspOptionsGroup:AddSlider('EspThickness', { Text = 'Thickness', Default = 1, Min = 0, Max = 5, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
+EspOptionsGroup:AddSlider('EspThickness', { Text = 'Thickness', Default = 0, Min = 0, Max = 5, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspName', { Text = 'Name', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspWeapon', { Text = 'Weapon', Callback = function(Value) end })
 EspOptionsGroup:AddToggle('EspDistance', { Text = 'Distance', Callback = function(Value) end })
@@ -155,17 +155,17 @@ EspAppearanceGroup:AddToggle('EspAppearanceEnabled', { Text = 'Enabled', Callbac
 EspAppearanceGroup:AddToggle('EspColor', { Text = 'Color', Callback = function(Value) end })
 EspAppearanceGroup:AddDropdown('EspMaterial', { Text = 'Material', Values = { 'ForceField', 'Neon', 'Plastic' }, Default = 1, Callback = function(Value) end })
 EspAppearanceGroup:AddDropdown('EspDisable', { Text = 'Disable', Values = { 'None', 'Team check' }, Default = 1, Callback = function(Value) end })
-EspAppearanceGroup:AddSlider('EspTransparency', { Text = 'Transparency', Default = 100, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+EspAppearanceGroup:AddSlider('EspTransparency', { Text = 'Transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 
 local HighlightGroup = Tabs.ESP:AddRightGroupbox('Highlight')
 HighlightGroup:AddToggle('HighlightEnabled', { Text = 'Enabled', Callback = function(Value) end })
-HighlightGroup:AddSlider('HighlightFillTransparency', { Text = 'Fill transparency', Default = 2, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-HighlightGroup:AddSlider('HighlightOutlineTransparency', { Text = 'Outline transparency', Default = 1, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
+HighlightGroup:AddSlider('HighlightFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
+HighlightGroup:AddSlider('HighlightOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
 
 local EspCustomizationGroup = Tabs.ESP:AddRightGroupbox('Customization')
 EspCustomizationGroup:AddToggle('IncludeTeammates', { Text = 'Include teammates', Callback = function(Value) end })
 EspCustomizationGroup:AddDropdown('BoundingMode', { Text = 'Bounding mode', Values = { 'Dynamic', 'Static' }, Default = 1, Callback = function(Value) end })
-EspCustomizationGroup:AddSlider('FixedWidthScale', { Text = 'Fixed width scale', Default = 100, Min = 0, Max = 200, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+EspCustomizationGroup:AddSlider('FixedWidthScale', { Text = 'Fixed width scale', Default = 0, Min = 0, Max = 200, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 EspCustomizationGroup:AddDropdown('EspFont', { Text = 'Font', Values = { 'Monocraft', 'Gotham', 'Code' }, Default = 1, Callback = function(Value) end })
 EspCustomizationGroup:AddInput('NameType', { Text = 'Name type', Default = 'Name' })
 
@@ -175,12 +175,12 @@ ViewmodelGroup:AddDropdown('MuzzleFlash', { Text = 'Muzzle flash', Values = { 'D
 ViewmodelGroup:AddToggle('OverrideFps', { Text = 'Override fps', Callback = function(Value) end })
 ViewmodelGroup:AddSlider('RecoilPercent', { Text = 'Recoil percent', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 ViewmodelGroup:AddToggle('ViewmodelChams', { Text = 'Chams', Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelFillTransparency', { Text = 'Fill transparency', Default = 10, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOutlineTransparency', { Text = 'Outline transparency', Default = 1, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
+ViewmodelGroup:AddSlider('ViewmodelFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
+ViewmodelGroup:AddSlider('ViewmodelOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
 ViewmodelGroup:AddDropdown('ThroughWalls', { Text = 'Through walls', Values = { 'Default', 'Enabled' }, Default = 1, Callback = function(Value) end })
 ViewmodelGroup:AddSlider('ViewmodelOffsetX', { Text = 'Offset X', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
 ViewmodelGroup:AddSlider('ViewmodelOffsetY', { Text = 'Offset Y', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOffsetZ', { Text = 'Offset Z', Default = -0.9, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
+ViewmodelGroup:AddSlider('ViewmodelOffsetZ', { Text = 'Offset Z', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
 
 local HitEffectsGroup = Tabs.visuals:AddRightGroupbox('Hit effects')
 HitEffectsGroup:AddToggle('HitEffectsEnabled', { Text = 'Enabled', Callback = function(Value) end })
@@ -193,10 +193,10 @@ HitEffectsGroup:AddToggle('DisableDamageNumbers', { Text = 'Disable damage numbe
 
 local TargetHudGroup = Tabs.visuals:AddRightGroupbox('Target hud')
 TargetHudGroup:AddToggle('TargetHudEnabled', { Text = 'Enabled', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudOffsetX', { Text = 'Offset X', Default = 50, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudOffsetY', { Text = 'Offset Y', Default = 15, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudItemScale', { Text = 'Item scale', Default = 180, Min = 0, Max = 300, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudUiScale', { Text = 'UI scale', Default = 50, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+TargetHudGroup:AddSlider('TargetHudOffsetX', { Text = 'Offset X', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+TargetHudGroup:AddSlider('TargetHudOffsetY', { Text = 'Offset Y', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+TargetHudGroup:AddSlider('TargetHudItemScale', { Text = 'Item scale', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = '%', Callback = function(Value) end })
+TargetHudGroup:AddSlider('TargetHudUiScale', { Text = 'UI scale', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
 TargetHudGroup:AddDropdown('TargetHudShowTargets', { Text = 'Show targets', Values = { 'Ragebot', 'Aimbot', 'All' }, Default = 1, Callback = function(Value) end })
 
 local AutoLoadGroup = Tabs.Misc:AddLeftGroupbox('Auto load')
@@ -233,7 +233,7 @@ ArcadeGroup:AddToggle('AutoRespawn', { Text = 'Auto respawn', Callback = functio
 
 local NotifyHitGroup = Tabs.Misc:AddRightGroupbox('Notify hit')
 NotifyHitGroup:AddToggle('NotifyHitEnabled', { Text = 'Enabled', Callback = function(Value) end })
-NotifyHitGroup:AddSlider('NotifyDuration', { Text = 'Notify duration', Default = 2, Min = 0, Max = 10, Rounding = 0, Suffix = 's', Callback = function(Value) end })
+NotifyHitGroup:AddSlider('NotifyDuration', { Text = 'Notify duration', Default = 0, Min = 0, Max = 10, Rounding = 0, Suffix = 's', Callback = function(Value) end })
 NotifyHitGroup:AddInput('RandomNotifyText', { Text = 'Random notify text', Default = 'Hit {NAME} for {DMG} in the {PART}' })
 NotifyHitGroup:AddInput('CustomNotifyText', { Text = 'Add custom text', Default = '' })
 
@@ -246,7 +246,7 @@ MovementGroup:AddToggle('Velocity', {
 
 MovementGroup:AddSlider('VelocitySpeed', {
     Text = 'Velocity speed',
-    Default = 50,
+    Default = 0,
     Min = 0,
     Max = 200,
     Rounding = 0,
@@ -261,7 +261,7 @@ MovementGroup:AddToggle('SlideBoost', {
 
 MovementGroup:AddSlider('SlideBoostAmount', {
     Text = 'Slide boost',
-    Default = 2.5,
+    Default = 0,
     Min = 0,
     Max = 10,
     Rounding = 1,
@@ -276,7 +276,7 @@ MovementGroup:AddToggle('DoubleJump', {
 
 MovementGroup:AddSlider('DoubleJumpHeight', {
     Text = 'Double jump height',
-    Default = 1.5,
+    Default = 0,
     Min = 0,
     Max = 5,
     Rounding = 1,
@@ -291,7 +291,7 @@ MovementGroup:AddToggle('MaulSlamMultiplier', {
 
 MovementGroup:AddSlider('MaulSlamAmount', {
     Text = 'Maul slam multiplier',
-    Default = 3.5,
+    Default = 0,
     Min = 0,
     Max = 10,
     Rounding = 1,
@@ -325,7 +325,7 @@ AnimationGroup:AddInput('CustomAnimation', {
 
 AnimationGroup:AddSlider('AnimationSpeed', {
     Text = 'Speed',
-    Default = 9.9,
+    Default = 0,
     Min = 0,
     Max = 20,
     Rounding = 1,
@@ -344,7 +344,7 @@ AnimationGroup:AddSlider('AnimationStart', {
 
 AnimationGroup:AddSlider('AnimationEnd', {
     Text = 'End',
-    Default = 100,
+    Default = 0,
     Min = 0,
     Max = 100,
     Rounding = 0,
@@ -366,7 +366,7 @@ CharacterGroup:AddToggle('Fly', {
 
 CharacterGroup:AddSlider('FlySpeed', {
     Text = 'Fly speed',
-    Default = 199,
+    Default = 0,
     Min = 0,
     Max = 200,
     Rounding = 0,
