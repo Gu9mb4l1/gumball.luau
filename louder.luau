@@ -15,6 +15,15 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
+for _, Object in next, Library.ScreenGui:GetDescendants() do
+    if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
+        Object.Position = UDim2.new(0, 0, 0, 0)
+        Object.Size = UDim2.new(1, 0, 0, 25)
+        Object.TextXAlignment = Enum.TextXAlignment.Center
+        break
+    end
+end
+
 local Tabs = {
     Main = Window:AddTab('Main'),
     World = Window:AddTab('World'),
