@@ -17,13 +17,13 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(620, 650),
+    Size = UDim2.fromOffset(620, 600),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
 
 local DefaultWidth = 620
-local DefaultHeight = 650
+local DefaultHeight = 600
 local MinimumWidth = DefaultWidth - 150
 local MinimumHeight = DefaultHeight - 150
 local WindowFrame
@@ -177,7 +177,7 @@ for _, Frame in next, WindowFrame:GetDescendants() do
 
         if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 and Layout.AbsoluteContentSize.X > 0 then
             Frame.ClipsDescendants = true
-            DefaultWidth = Layout.AbsoluteContentSize.X + 48
+            DefaultWidth = Layout.AbsoluteContentSize.X + 58
             MinimumWidth = DefaultWidth - 150
             WindowFrame.Size = UDim2.fromOffset(DefaultWidth, DefaultHeight)
             break
