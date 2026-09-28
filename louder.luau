@@ -17,15 +17,13 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(700, 720),
+    Size = UDim2.fromOffset(620, 500),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 700
-local DefaultHeight = 720
-local MinimumWidth = DefaultWidth - 30
-local MinimumHeight = DefaultHeight - 30
+local DefaultWidth = 620
+local DefaultHeight = 500
 local WindowFrame
 
 for _, Object in next, Library.ScreenGui:GetDescendants() do
@@ -40,128 +38,6 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         WindowFrame = Object.Parent.Parent
         WindowFrame.ClipsDescendants = true
         Object.Parent.ClipsDescendants = true
-        local ResizeHandle = Instance.new('TextButton')
-        local UserInputService = game:GetService('UserInputService')
-        local Resizing = false
-        local StartMousePosition
-        local StartWindowSize
-        local ResizeChangedConnection
-        local ResizeEndedConnection
-        local SizeConnection
-
-        ResizeHandle.Active = true
-        ResizeHandle.AutoButtonColor = true
-        ResizeHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        ResizeHandle.BackgroundTransparency = 0.1
-        ResizeHandle.BorderSizePixel = 0
-        ResizeHandle.Size = UDim2.new(0, 14, 0, 14)
-        ResizeHandle.Position = UDim2.new(1, -14, 1, -14)
-        ResizeHandle.Text = ''
-        ResizeHandle.ZIndex = 10
-        ResizeHandle.Parent = WindowFrame
-
-        local ResizeStroke = Instance.new('UIStroke')
-        ResizeStroke.Color = Library.AccentColor
-        ResizeStroke.Thickness = 1
-        ResizeStroke.Transparency = 0.2
-        ResizeStroke.Parent = ResizeHandle
-        Library:AddToRegistry(ResizeStroke, { Color = 'AccentColor' })
-
-        local ResizeLineA = Instance.new('Frame')
-        ResizeLineA.BackgroundColor3 = Library.AccentColor
-        ResizeLineA.BorderSizePixel = 0
-        ResizeLineA.Position = UDim2.new(1, -4, 1, -8)
-        ResizeLineA.Size = UDim2.new(0, 2, 0, 8)
-        ResizeLineA.Rotation = 45
-        ResizeLineA.ZIndex = 11
-        ResizeLineA.Parent = ResizeHandle
-
-        local ResizeLineB = Instance.new('Frame')
-        ResizeLineB.BackgroundColor3 = Library.AccentColor
-        ResizeLineB.BorderSizePixel = 0
-        ResizeLineB.Position = UDim2.new(1, -7, 1, -8)
-        ResizeLineB.Size = UDim2.new(0, 2, 0, 8)
-        ResizeLineB.Rotation = 45
-        ResizeLineB.ZIndex = 11
-        ResizeLineB.Parent = ResizeHandle
-
-        local ResizeLineC = Instance.new('Frame')
-        ResizeLineC.BackgroundColor3 = Library.AccentColor
-        ResizeLineC.BorderSizePixel = 0
-        ResizeLineC.Position = UDim2.new(1, -10, 1, -8)
-        ResizeLineC.Size = UDim2.new(0, 2, 0, 8)
-        ResizeLineC.Rotation = 45
-        ResizeLineC.ZIndex = 11
-        ResizeLineC.Parent = ResizeHandle
-
-        for _, Line in next, { ResizeLineA, ResizeLineB, ResizeLineC } do
-            Library:AddToRegistry(Line, { BackgroundColor3 = 'AccentColor' })
-        end
-
-        ResizeHandle.MouseEnter:Connect(function()
-            ResizeHandle.BackgroundColor3 = Color3.fromRGB(0, 75, 85)
-        end)
-
-        ResizeHandle.MouseLeave:Connect(function()
-            ResizeHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        end)
-
-        ResizeHandle.MouseButton1Down:Connect(function()
-            if not WindowFrame.Parent then
-                return
-            end
-
-            Resizing = true
-            StartMousePosition = UserInputService:GetMouseLocation()
-            StartWindowSize = Vector2.new(
-                math.clamp(WindowFrame.AbsoluteSize.X, MinimumWidth, DefaultWidth),
-                math.clamp(WindowFrame.AbsoluteSize.Y, MinimumHeight, DefaultHeight)
-            )
-        end)
-
-        ResizeChangedConnection = UserInputService.InputChanged:Connect(function(Input)
-            if Resizing and Input.UserInputType == Enum.UserInputType.MouseMovement then
-                if not WindowFrame.Parent then
-                    Resizing = false
-                    return
-                end
-
-                local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth, DefaultWidth)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight, DefaultHeight)
-
-                pcall(function()
-                    WindowFrame.Size = UDim2.fromOffset(Width, Height)
-                end)
-            end
-        end)
-
-        SizeConnection = WindowFrame:GetPropertyChangedSignal('Size'):Connect(function()
-            local Width = WindowFrame.Size.X.Offset
-            local Height = WindowFrame.Size.Y.Offset
-            local LimitedWidth = math.clamp(Width, MinimumWidth, DefaultWidth)
-            local LimitedHeight = math.clamp(Height, MinimumHeight, DefaultHeight)
-
-            if Width ~= LimitedWidth or Height ~= LimitedHeight then
-                WindowFrame.Size = UDim2.fromOffset(LimitedWidth, LimitedHeight)
-            end
-        end)
-
-        ResizeEndedConnection = UserInputService.InputEnded:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Resizing = false
-            end
-        end)
-
-        WindowFrame.AncestryChanged:Connect(function(_, Parent)
-            if not Parent then
-                Resizing = false
-                ResizeChangedConnection:Disconnect()
-                ResizeEndedConnection:Disconnect()
-                SizeConnection:Disconnect()
-            end
-        end)
-
         break
     end
 end
