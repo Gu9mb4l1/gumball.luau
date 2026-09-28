@@ -16,13 +16,15 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
+local WindowFrame
+
 for _, Object in next, Library.ScreenGui:GetDescendants() do
     if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
         Object.Position = UDim2.new(0, 0, 0, 0)
         Object.Size = UDim2.new(1, 0, 0, 25)
         Object.TextXAlignment = Enum.TextXAlignment.Center
 
-        local WindowFrame = Object.Parent.Parent
+        WindowFrame = Object.Parent.Parent
         WindowFrame.ClipsDescendants = true
         local ResizeHandle = Instance.new('TextButton')
         local UserInputService = game:GetService('UserInputService')
@@ -46,17 +48,6 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeHandle.TextStrokeTransparency = 0.5
         ResizeHandle.ZIndex = 10
         ResizeHandle.Parent = WindowFrame
-
-        for _, Frame in next, WindowFrame:GetDescendants() do
-            if Frame:IsA('Frame') then
-                local Layout = Frame:FindFirstChildOfClass('UIListLayout')
-
-                if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 then
-                    Frame.ClipsDescendants = true
-                    break
-                end
-            end
-        end
 
         ResizeHandle.MouseButton1Down:Connect(function()
             if not WindowFrame.Parent then
@@ -112,6 +103,17 @@ local Tabs = {
     Misc = Window:AddTab('Misc'),
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
+
+for _, Frame in next, WindowFrame:GetDescendants() do
+    if Frame:IsA('Frame') then
+        local Layout = Frame:FindFirstChildOfClass('UIListLayout')
+
+        if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 then
+            Frame.ClipsDescendants = true
+            break
+        end
+    end
+end
 
 -- UI Settings
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
