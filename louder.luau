@@ -41,8 +41,13 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local Resizing = false
         local StartMousePosition
         local StartWindowSize
+        local DefaultWidth = 620
+        local DefaultHeight = 720
+        local MinimumWidth = DefaultWidth - 150
+        local MinimumHeight = DefaultHeight - 150
         local ResizeChangedConnection
         local ResizeEndedConnection
+        local SizeConnection
 
         ResizeHandle.Active = true
         ResizeHandle.AutoButtonColor = true
@@ -103,7 +108,10 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
 
             Resizing = true
             StartMousePosition = UserInputService:GetMouseLocation()
-            StartWindowSize = WindowFrame.AbsoluteSize
+            StartWindowSize = Vector2.new(
+                math.clamp(WindowFrame.AbsoluteSize.X, MinimumWidth, DefaultWidth),
+                math.clamp(WindowFrame.AbsoluteSize.Y, MinimumHeight, DefaultHeight)
+            )
         end)
 
         ResizeChangedConnection = UserInputService.InputChanged:Connect(function(Input)
@@ -114,12 +122,23 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 470, 620)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 570, 720)
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, MinimumWidth, DefaultWidth)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, MinimumHeight, DefaultHeight)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
                 end)
+            end
+        end)
+
+        SizeConnection = WindowFrame:GetPropertyChangedSignal('Size'):Connect(function()
+            local Width = WindowFrame.Size.X.Offset
+            local Height = WindowFrame.Size.Y.Offset
+            local LimitedWidth = math.clamp(Width, MinimumWidth, DefaultWidth)
+            local LimitedHeight = math.clamp(Height, MinimumHeight, DefaultHeight)
+
+            if Width ~= LimitedWidth or Height ~= LimitedHeight then
+                WindowFrame.Size = UDim2.fromOffset(LimitedWidth, LimitedHeight)
             end
         end)
 
@@ -134,6 +153,7 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 Resizing = false
                 ResizeChangedConnection:Disconnect()
                 ResizeEndedConnection:Disconnect()
+                SizeConnection:Disconnect()
             end
         end)
 
