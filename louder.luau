@@ -647,11 +647,17 @@ for _, Scrolling in next, WindowFrame:GetDescendants() do
         if Layout then
             Scrolling.Active = true
             Scrolling.ScrollingEnabled = true
-            Scrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Scrolling.CanvasSize = UDim2.fromOffset(0, 10)
+            Scrolling.AutomaticCanvasSize = Enum.AutomaticSize.None
             Scrolling.ScrollBarThickness = 4
             Scrolling.ScrollBarImageColor3 = Library.AccentColor
             Scrolling.ClipsDescendants = true
+
+            local function UpdateCanvasSize()
+                Scrolling.CanvasSize = UDim2.fromOffset(0, Layout.AbsoluteContentSize.Y + 20)
+            end
+
+            Layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(UpdateCanvasSize)
+            UpdateCanvasSize()
         end
     end
 end
