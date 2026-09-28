@@ -342,7 +342,7 @@ AntiAimGroup:AddToggle('Underground', {
 
 for _, Label in next, WindowFrame:GetDescendants() do
     if Label:IsA('TextLabel') and Label:FindFirstChildOfClass('UIListLayout') and Label:FindFirstChildWhichIsA('Frame') then
-        Label.Size = UDim2.new(0, 150, 1, 0)
+        Label.Size = UDim2.new(0, 180, 1, 0)
     end
 end
 
@@ -352,9 +352,6 @@ for _, Frame in next, WindowFrame:GetDescendants() do
 
         if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 and Layout.AbsoluteContentSize.X > 0 then
             Frame.ClipsDescendants = true
-            DefaultWidth = math.max(Layout.AbsoluteContentSize.X + 58, 620)
-            MinimumWidth = DefaultWidth - 150
-            WindowFrame.Size = UDim2.fromOffset(DefaultWidth, DefaultHeight)
 
             local TabButtons = {}
 
