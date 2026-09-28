@@ -17,12 +17,12 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(620, 720),
+    Size = UDim2.fromOffset(700, 720),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 620
+local DefaultWidth = 700
 local DefaultHeight = 720
 local MinimumWidth = DefaultWidth - 30
 local MinimumHeight = DefaultHeight - 30
