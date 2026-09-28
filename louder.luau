@@ -46,6 +46,17 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeHandle.ZIndex = 10
         ResizeHandle.Parent = WindowFrame
 
+        for _, Frame in next, WindowFrame:GetDescendants() do
+            if Frame:IsA('Frame') then
+                local Layout = Frame:FindFirstChildOfClass('UIListLayout')
+
+                if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 then
+                    Frame.ClipsDescendants = true
+                    break
+                end
+            end
+        end
+
         ResizeHandle.MouseButton1Down:Connect(function()
             if not WindowFrame.Parent then
                 return
