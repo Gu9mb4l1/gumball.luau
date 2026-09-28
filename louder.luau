@@ -11,6 +11,7 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
+    Size = UDim2.fromOffset(700, 600),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
@@ -27,38 +28,64 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local Resizing = false
         local StartMousePosition
         local StartWindowSize
+        local ResizeChangedConnection
+        local ResizeEndedConnection
 
         ResizeHandle.Active = true
-        ResizeHandle.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
-        ResizeHandle.BackgroundTransparency = 0.35
+        ResizeHandle.AutoButtonColor = true
+        ResizeHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        ResizeHandle.BackgroundTransparency = 0.1
         ResizeHandle.BorderSizePixel = 0
         ResizeHandle.Size = UDim2.new(0, 14, 0, 14)
         ResizeHandle.Position = UDim2.new(1, -14, 1, -14)
-        ResizeHandle.Text = ''
+        ResizeHandle.Font = Enum.Font.SourceSansBold
+        ResizeHandle.Text = '+'
+        ResizeHandle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ResizeHandle.TextSize = 13
+        ResizeHandle.TextStrokeTransparency = 0.5
         ResizeHandle.ZIndex = 10
         ResizeHandle.Parent = WindowFrame
 
         ResizeHandle.InputBegan:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if not WindowFrame.Parent then
+                    return
+                end
+
                 Resizing = true
                 StartMousePosition = UserInputService:GetMouseLocation()
                 StartWindowSize = WindowFrame.AbsoluteSize
             end
         end)
 
-        UserInputService.InputChanged:Connect(function(Input)
+        ResizeChangedConnection = UserInputService.InputChanged:Connect(function(Input)
             if Resizing and Input.UserInputType == Enum.UserInputType.MouseMovement then
+                if not WindowFrame.Parent then
+                    Resizing = false
+                    return
+                end
+
                 local MousePosition = UserInputService:GetMouseLocation()
                 local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 400, 1000)
                 local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 300, 800)
 
-                WindowFrame.Size = UDim2.fromOffset(Width, Height)
+                pcall(function()
+                    WindowFrame.Size = UDim2.fromOffset(Width, Height)
+                end)
             end
         end)
 
-        UserInputService.InputEnded:Connect(function(Input)
+        ResizeEndedConnection = UserInputService.InputEnded:Connect(function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                 Resizing = false
+            end
+        end)
+
+        WindowFrame.AncestryChanged:Connect(function(_, Parent)
+            if not Parent then
+                Resizing = false
+                ResizeChangedConnection:Disconnect()
+                ResizeEndedConnection:Disconnect()
             end
         end)
 
