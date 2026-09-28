@@ -18,7 +18,7 @@ local Window = Library:CreateWindow({
     Center = true,
     AutoShow = true,
     Size = UDim2.fromOffset(620, 650),
-    TabPadding = 10,
+    TabPadding = 16,
     MenuFadeTime = 0.2
 })
 
