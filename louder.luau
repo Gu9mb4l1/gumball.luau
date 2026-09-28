@@ -51,13 +51,41 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         ResizeHandle.BorderSizePixel = 0
         ResizeHandle.Size = UDim2.new(0, 14, 0, 14)
         ResizeHandle.Position = UDim2.new(1, -14, 1, -14)
-        ResizeHandle.Font = Enum.Font.SourceSansBold
-        ResizeHandle.Text = '+'
-        ResizeHandle.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ResizeHandle.TextSize = 13
-        ResizeHandle.TextStrokeTransparency = 0.5
+        ResizeHandle.Text = ''
         ResizeHandle.ZIndex = 10
         ResizeHandle.Parent = WindowFrame
+
+        local ResizeStroke = Instance.new('UIStroke')
+        ResizeStroke.Color = Library.AccentColor
+        ResizeStroke.Thickness = 1
+        ResizeStroke.Transparency = 0.2
+        ResizeStroke.Parent = ResizeHandle
+
+        local ResizeLineA = Instance.new('Frame')
+        ResizeLineA.BackgroundColor3 = Library.AccentColor
+        ResizeLineA.BorderSizePixel = 0
+        ResizeLineA.Position = UDim2.new(0.5, -1, 0.5, -6)
+        ResizeLineA.Size = UDim2.new(0, 2, 0, 12)
+        ResizeLineA.Rotation = 45
+        ResizeLineA.ZIndex = 11
+        ResizeLineA.Parent = ResizeHandle
+
+        local ResizeLineB = Instance.new('Frame')
+        ResizeLineB.BackgroundColor3 = Library.AccentColor
+        ResizeLineB.BorderSizePixel = 0
+        ResizeLineB.Position = UDim2.new(0.5, -1, 0.5, -6)
+        ResizeLineB.Size = UDim2.new(0, 2, 0, 12)
+        ResizeLineB.Rotation = -45
+        ResizeLineB.ZIndex = 11
+        ResizeLineB.Parent = ResizeHandle
+
+        ResizeHandle.MouseEnter:Connect(function()
+            ResizeHandle.BackgroundColor3 = Color3.fromRGB(0, 75, 85)
+        end)
+
+        ResizeHandle.MouseLeave:Connect(function()
+            ResizeHandle.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        end)
 
         ResizeHandle.MouseButton1Down:Connect(function()
             if not WindowFrame.Parent then
@@ -77,8 +105,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 400, 1000)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 300, 800)
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 670, 1000)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 550, 800)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
