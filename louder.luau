@@ -17,7 +17,7 @@ local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(680, 560),
+    Size = UDim2.fromOffset(640, 520),
     TabPadding = 8,
     MenuFadeTime = 0.2
 })
@@ -105,8 +105,8 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 end
 
                 local MousePosition = UserInputService:GetMouseLocation()
-                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 630, 1000)
-                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 510, 800)
+                local Width = math.clamp(StartWindowSize.X + MousePosition.X - StartMousePosition.X, 590, 1000)
+                local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 470, 800)
 
                 pcall(function()
                     WindowFrame.Size = UDim2.fromOffset(Width, Height)
