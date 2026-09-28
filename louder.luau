@@ -647,7 +647,11 @@ for _, Scrolling in next, WindowFrame:GetDescendants() do
         if Layout then
             Scrolling.Active = true
             Scrolling.ScrollingEnabled = true
-            Scrolling.CanvasSize = UDim2.fromOffset(0, Layout.AbsoluteContentSize.Y + 8)
+            Scrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Scrolling.CanvasSize = UDim2.fromOffset(0, 10)
+            Scrolling.ScrollBarThickness = 4
+            Scrolling.ScrollBarImageColor3 = Library.AccentColor
+            Scrolling.ClipsDescendants = true
         end
     end
 end
