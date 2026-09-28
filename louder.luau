@@ -7,12 +7,18 @@ local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
+Library.MainColor = Color3.fromRGB(25, 28, 34)
+Library.BackgroundColor = Color3.fromRGB(15, 17, 21)
+Library.AccentColor = Color3.fromRGB(0, 190, 220)
+Library.FontColor = Color3.fromRGB(235, 240, 245)
+Library.Font = Enum.Font.Gotham
+
 local Window = Library:CreateWindow({
     Title = 'Gumball - .gg/gu9mball',
     Center = true,
     AutoShow = true,
-    Size = UDim2.fromOffset(700, 600),
-    TabPadding = 8,
+    Size = UDim2.fromOffset(720, 600),
+    TabPadding = 5,
     MenuFadeTime = 0.2
 })
 
@@ -22,10 +28,14 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
     if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
         Object.Position = UDim2.new(0, 0, 0, 0)
         Object.Size = UDim2.new(1, 0, 0, 25)
+        Object.Font = Enum.Font.GothamBold
+        Object.TextSize = 16
+        Object.TextColor3 = Color3.fromRGB(245, 250, 255)
         Object.TextXAlignment = Enum.TextXAlignment.Center
 
         WindowFrame = Object.Parent.Parent
         WindowFrame.ClipsDescendants = true
+        Object.Parent.ClipsDescendants = true
         local ResizeHandle = Instance.new('TextButton')
         local UserInputService = game:GetService('UserInputService')
         local Resizing = false
@@ -110,7 +120,16 @@ for _, Frame in next, WindowFrame:GetDescendants() do
 
         if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 then
             Frame.ClipsDescendants = true
-            break
+        end
+    end
+end
+
+for _, Frame in next, WindowFrame:GetDescendants() do
+    if Frame:IsA('Frame') and Frame.Name == 'TabFrame' then
+        Frame.ClipsDescendants = true
+
+        if Frame.Parent then
+            Frame.Parent.ClipsDescendants = true
         end
     end
 end
@@ -131,12 +150,7 @@ MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
     Text = 'Menu keybind'
 })
 
-local UserInputService = game:GetService('UserInputService')
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if not GameProcessed and Input.KeyCode == Enum.KeyCode.RightShift then
-        Library:Toggle()
-    end
-end)
+Library.ToggleKeybind = Options.MenuKeybind
 
 -- Theme & Config managers
 ThemeManager:SetLibrary(Library)
