@@ -299,6 +299,49 @@ ThemeManager:SetFolder('Gumball')
 SaveManager:SetFolder('Gumball')
 
 SaveManager:BuildConfigSection(Tabs['UI Settings'])
+
+ThemeManager.BuiltInThemes['Gumball'] = { 9, {
+    FontColor = 'EBF0F5',
+    MainColor = '191C22',
+    AccentColor = '00BEDC',
+    BackgroundColor = '0F1115',
+    OutlineColor = '323A44'
+} }
+
+ThemeManager.BuiltInThemes['Midnight'] = { 10, {
+    FontColor = 'E8F1FF',
+    MainColor = '182235',
+    AccentColor = '4B8DFF',
+    BackgroundColor = '0D1422',
+    OutlineColor = '2C405F'
+} }
+
+ThemeManager.BuiltInThemes['Crimson'] = { 11, {
+    FontColor = 'FFF0F0',
+    MainColor = '2A171B',
+    AccentColor = 'E34B5F',
+    BackgroundColor = '160D10',
+    OutlineColor = '573039'
+} }
+
+ThemeManager.BuiltInThemes['Emerald'] = { 12, {
+    FontColor = 'EEFFF7',
+    MainColor = '142820',
+    AccentColor = '36D399',
+    BackgroundColor = '0B1511',
+    OutlineColor = '2D5A49'
+} }
+
+ThemeManager.BuiltInThemes['Violet'] = { 13, {
+    FontColor = 'F7F1FF',
+    MainColor = '241B35',
+    AccentColor = 'B27CFF',
+    BackgroundColor = '120E1C',
+    OutlineColor = '4D3A6B'
+} }
+
+ThemeManager.DefaultTheme = 'Gumball'
 ThemeManager:ApplyToTab(Tabs['UI Settings'])
+ThemeManager:ApplyTheme(Options.ThemeManager_ThemeList.Value)
 
 print('Gumball UI loaded.')
