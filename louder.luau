@@ -180,6 +180,40 @@ for _, Frame in next, WindowFrame:GetDescendants() do
             DefaultWidth = Layout.AbsoluteContentSize.X + 58
             MinimumWidth = DefaultWidth - 150
             WindowFrame.Size = UDim2.fromOffset(DefaultWidth, DefaultHeight)
+
+            local TabButtons = {}
+
+            for _, Button in next, Frame:GetChildren() do
+                if Button:IsA('Frame') then
+                    local ButtonLabel = Button:FindFirstChildWhichIsA('TextLabel')
+
+                    if ButtonLabel then
+                        local Indicator = Instance.new('Frame')
+                        Indicator.BackgroundColor3 = Library.AccentColor
+                        Indicator.BorderSizePixel = 0
+                        Indicator.Position = UDim2.new(0, 0, 1, -2)
+                        Indicator.Size = UDim2.new(1, 0, 0, 2)
+                        Indicator.Visible = false
+                        Indicator.ZIndex = 10
+                        Indicator.Parent = Button
+
+                        table.insert(TabButtons, { Button = Button, Indicator = Indicator })
+
+                        Button.InputBegan:Connect(function(Input)
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                for _, TabButton in next, TabButtons do
+                                    TabButton.Indicator.Visible = TabButton.Button == Button
+                                end
+                            end
+                        end)
+                    end
+                end
+            end
+
+            if TabButtons[1] then
+                TabButtons[1].Indicator.Visible = true
+            end
+
             break
         end
     end
