@@ -171,6 +171,175 @@ local Tabs = {
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
+local MovementGroup = Tabs.character:AddLeftGroupbox('Movement')
+
+MovementGroup:AddToggle('Velocity', {
+    Text = 'Velocity',
+    Callback = function(Value) end
+}):AddKeyPicker('VelocityKeybind', { Default = 'Q', NoUI = true, Text = 'Velocity keybind' })
+
+MovementGroup:AddSlider('VelocitySpeed', {
+    Text = 'Velocity speed',
+    Default = 50,
+    Min = 0,
+    Max = 200,
+    Rounding = 0,
+    Suffix = 's',
+    Callback = function(Value) end
+})
+
+MovementGroup:AddToggle('SlideBoost', {
+    Text = 'Slide boost',
+    Callback = function(Value) end
+}):AddKeyPicker('SlideBoostKeybind', { Default = 'X', NoUI = true, Text = 'Slide boost keybind' })
+
+MovementGroup:AddSlider('SlideBoostAmount', {
+    Text = 'Slide boost',
+    Default = 2.5,
+    Min = 0,
+    Max = 10,
+    Rounding = 1,
+    Suffix = 'x',
+    Callback = function(Value) end
+})
+
+MovementGroup:AddToggle('DoubleJump', {
+    Text = 'Double jump',
+    Callback = function(Value) end
+}):AddKeyPicker('DoubleJumpKeybind', { Default = 'Space', NoUI = true, Text = 'Double jump keybind' })
+
+MovementGroup:AddSlider('DoubleJumpHeight', {
+    Text = 'Double jump height',
+    Default = 1.5,
+    Min = 0,
+    Max = 5,
+    Rounding = 1,
+    Suffix = 'x',
+    Callback = function(Value) end
+})
+
+MovementGroup:AddToggle('MaulSlamMultiplier', {
+    Text = 'Maul slam multiplier',
+    Callback = function(Value) end
+}):AddKeyPicker('MaulSlamKeybind', { Default = 'M', NoUI = true, Text = 'Maul slam keybind' })
+
+MovementGroup:AddSlider('MaulSlamAmount', {
+    Text = 'Maul slam multiplier',
+    Default = 3.5,
+    Min = 0,
+    Max = 10,
+    Rounding = 1,
+    Suffix = 'x',
+    Callback = function(Value) end
+})
+
+MovementGroup:AddToggle('InfiniteDoubleJump', {
+    Text = 'Infinite double jump',
+    Callback = function(Value) end
+}):AddKeyPicker('InfiniteDoubleJumpKeybind', { Default = 'J', NoUI = true, Text = 'Infinite jump keybind' })
+
+local AnimationGroup = Tabs.character:AddLeftGroupbox('Animation player')
+
+AnimationGroup:AddToggle('AnimationPlayer', {
+    Text = 'Enabled',
+    Callback = function(Value) end
+}):AddKeyPicker('AnimationPlayerKeybind', { Default = 'P', NoUI = true, Text = 'Animation player keybind' })
+
+AnimationGroup:AddDropdown('AnimationType', {
+    Text = 'Animation',
+    Values = { 'Custom' },
+    Default = 1,
+    Callback = function(Value) end
+})
+
+AnimationGroup:AddInput('CustomAnimation', {
+    Text = 'Custom animation',
+    Default = ''
+})
+
+AnimationGroup:AddSlider('AnimationSpeed', {
+    Text = 'Speed',
+    Default = 9.9,
+    Min = 0,
+    Max = 20,
+    Rounding = 1,
+    Callback = function(Value) end
+})
+
+AnimationGroup:AddSlider('AnimationStart', {
+    Text = 'Start',
+    Default = 0,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%',
+    Callback = function(Value) end
+})
+
+AnimationGroup:AddSlider('AnimationEnd', {
+    Text = 'End',
+    Default = 100,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%',
+    Callback = function(Value) end
+})
+
+local CharacterGroup = Tabs.character:AddRightGroupbox('Character')
+
+CharacterGroup:AddToggle('Noclip', {
+    Text = 'Noclip',
+    Callback = function(Value) end
+}):AddKeyPicker('NoclipKeybind', { Default = 'N', NoUI = true, Text = 'Noclip keybind' })
+
+CharacterGroup:AddToggle('Fly', {
+    Text = 'Fly',
+    Callback = function(Value) end
+}):AddKeyPicker('FlyKeybind', { Default = 'F', NoUI = true, Text = 'Fly keybind' })
+
+CharacterGroup:AddSlider('FlySpeed', {
+    Text = 'Fly speed',
+    Default = 199,
+    Min = 0,
+    Max = 200,
+    Rounding = 0,
+    Callback = function(Value) end
+})
+
+local ThirdPersonGroup = Tabs.character:AddRightGroupbox('Third person')
+
+ThirdPersonGroup:AddToggle('ThirdPerson', {
+    Text = 'Enabled',
+    Callback = function(Value) end
+}):AddKeyPicker('ThirdPersonKeybind', { Default = 'T', NoUI = true, Text = 'Third person keybind' })
+
+local AntiAimGroup = Tabs.character:AddRightGroupbox('Anti aim')
+
+AntiAimGroup:AddToggle('AntiAim', {
+    Text = 'Enabled',
+    Callback = function(Value) end
+}):AddKeyPicker('AntiAimKeybind', { Default = 'Z', NoUI = true, Text = 'Anti aim keybind' })
+
+AntiAimGroup:AddDropdown('AntiAimPitch', {
+    Text = 'Pitch',
+    Values = { 'Random', 'Up', 'Down', 'Extended' },
+    Default = 1,
+    Callback = function(Value) end
+})
+
+AntiAimGroup:AddDropdown('AntiAimYaw', {
+    Text = 'Yaw',
+    Values = { 'Random', 'Spin', 'Backward' },
+    Default = 1,
+    Callback = function(Value) end
+})
+
+AntiAimGroup:AddToggle('Underground', {
+    Text = 'Underground',
+    Callback = function(Value) end
+}):AddKeyPicker('UndergroundKeybind', { Default = 'U', NoUI = true, Text = 'Underground keybind' })
+
 for _, Frame in next, WindowFrame:GetDescendants() do
     if Frame:IsA('Frame') then
         local Layout = Frame:FindFirstChildOfClass('UIListLayout')
