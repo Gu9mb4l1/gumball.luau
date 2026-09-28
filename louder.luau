@@ -28,7 +28,9 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
         local StartMousePosition
         local StartWindowSize
 
-        ResizeHandle.BackgroundTransparency = 1
+        ResizeHandle.Active = true
+        ResizeHandle.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+        ResizeHandle.BackgroundTransparency = 0.35
         ResizeHandle.BorderSizePixel = 0
         ResizeHandle.Size = UDim2.new(0, 14, 0, 14)
         ResizeHandle.Position = UDim2.new(1, -14, 1, -14)
@@ -44,12 +46,6 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
             end
         end)
 
-        ResizeHandle.InputEnded:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Resizing = false
-            end
-        end)
-
         UserInputService.InputChanged:Connect(function(Input)
             if Resizing and Input.UserInputType == Enum.UserInputType.MouseMovement then
                 local MousePosition = UserInputService:GetMouseLocation()
@@ -57,6 +53,12 @@ for _, Object in next, Library.ScreenGui:GetDescendants() do
                 local Height = math.clamp(StartWindowSize.Y + MousePosition.Y - StartMousePosition.Y, 300, 800)
 
                 WindowFrame.Size = UDim2.fromOffset(Width, Height)
+            end
+        end)
+
+        UserInputService.InputEnded:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                Resizing = false
             end
         end)
 
