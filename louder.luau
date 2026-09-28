@@ -22,7 +22,7 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 620
+local DefaultWidth = 500
 local DefaultHeight = 350
 local MinimumWidth = DefaultWidth - 0
 local MinimumHeight = DefaultHeight - 0
