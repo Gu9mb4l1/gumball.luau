@@ -15,6 +15,7 @@ local Window = Library:CreateWindow({
 
 local TitleLabel = Window.Holder:FindFirstChildWhichIsA('TextLabel', true)
 if TitleLabel then
+	TitleLabel.Size = UDim2.new(1, -14, 0, 25)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 end
 
