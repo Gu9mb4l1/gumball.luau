@@ -249,6 +249,7 @@ local function UpdateActiveToggleHudLabels()
 						Size = UDim2.new(1, 0, 0, 18),
 						TextSize = 13,
 						TextXAlignment = Enum.TextXAlignment.Left,
+						ZIndex = 110,
 						Visible = false,
 						Parent = Library.KeybindContainer
 					}, true)
@@ -308,6 +309,7 @@ local MenuKeybindHudLabel = Library:CreateLabel({
 	TextSize = 13,
 	Text = string.format('[%s] Menu (%s)', MenuKey, Options.MenuBindMode.Value),
 	TextXAlignment = Enum.TextXAlignment.Left,
+	ZIndex = 110,
 	Visible = true,
 	Parent = Library.KeybindContainer
 }, true)
