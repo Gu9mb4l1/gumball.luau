@@ -256,6 +256,46 @@ KeybindHudHeader.TextSize = 14
 KeybindHudHeader.TextXAlignment = Enum.TextXAlignment.Left
 KeybindHudHeader.ZIndex = 2
 KeybindHudHeader.Parent = KeybindHudFrame
+KeybindHudHeader.Active = true
+
+local draggingKeybindHud = false
+local keybindHudDragStart
+local keybindHudStartPosition
+KeybindHudHeader.InputBegan:Connect(function(input)
+	if not Window.Holder.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+		return
+	end
+
+	draggingKeybindHud = true
+	keybindHudDragStart = input.Position
+	keybindHudStartPosition = KeybindHudFrame.AbsolutePosition
+end)
+
+Library:GiveSignal(UserInputService.InputChanged:Connect(function(input)
+	if not draggingKeybindHud or input.UserInputType ~= Enum.UserInputType.MouseMovement then
+		return
+	end
+	if not Window.Holder.Visible then
+		draggingKeybindHud = false
+		return
+	end
+
+	local delta = input.Position - keybindHudDragStart
+	local viewportSize = workspace.CurrentCamera.ViewportSize
+	local size = KeybindHudFrame.AbsoluteSize
+	local x = math.clamp(keybindHudStartPosition.X + delta.X, 0, math.max(0, viewportSize.X - size.X))
+	local y = math.clamp(keybindHudStartPosition.Y + delta.Y, 0, math.max(0, viewportSize.Y - size.Y))
+	KeybindHudFrame.Position = UDim2.fromOffset(
+		x + size.X * KeybindHudFrame.AnchorPoint.X,
+		y + size.Y * KeybindHudFrame.AnchorPoint.Y
+	)
+end))
+
+Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		draggingKeybindHud = false
+	end
+end))
 
 local KeybindHudRowsContainer = Instance.new('Frame')
 KeybindHudRowsContainer.Name = 'Rows'
