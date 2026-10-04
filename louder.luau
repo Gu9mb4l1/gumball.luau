@@ -192,7 +192,7 @@ KeybindTransparency:OnChanged(function(value)
 	end
 end)
 
-local menuVisible = true
+local desiredMenuVisible = true
 local lastMenuMode = Options.MenuKeybind.Mode
 local RunService = game:GetService('RunService')
 
@@ -210,10 +210,7 @@ local function MatchesMenuKey(input)
 end
 
 local function SetMenuVisibility(visible)
-	if menuVisible ~= visible then
-		menuVisible = visible
-		Library:Toggle()
-	end
+	desiredMenuVisible = visible
 end
 
 Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
@@ -224,7 +221,7 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProce
 
 	local mode = Options.MenuKeybind.Mode
 	if mode == 'Toggle' then
-		SetMenuVisibility(not menuVisible)
+		SetMenuVisibility(not desiredMenuVisible)
 	elseif mode == 'Hold' then
 		SetMenuVisibility(true)
 	end
@@ -248,6 +245,10 @@ Library:GiveSignal(RunService.RenderStepped:Connect(function()
 		SetMenuVisibility(held)
 	elseif lastMenuMode ~= 'Toggle' then
 		SetMenuVisibility(false)
+	end
+
+	if Window.Holder.Visible ~= desiredMenuVisible then
+		Library:Toggle()
 	end
 
 	lastMenuMode = mode
