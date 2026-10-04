@@ -1,4 +1,7 @@
 
+local loadingStartedAt = os.clock()
+local loadingMinimumDuration = 3
+local loadingFadeDuration = 0.35
 local TweenService = game:GetService('TweenService')
 local Lighting = game:GetService('Lighting')
 local loadingParent = game:GetService('CoreGui')
@@ -95,31 +98,52 @@ TweenService:Create(loadingAccent, TweenInfo.new(0.5, Enum.EasingStyle.Quart, En
 	Size = UDim2.fromOffset(176, 3)
 }):Play()
 
-local loadingScreenFinished = false
-local function FinishLoadingScreen()
-	if loadingScreenFinished then
+local loadingScreenFinishing = false
+local loadingScreenDismissed = false
+local loadingFinishCallbacks = {}
+local function FinishLoadingScreen(onFinished)
+	if onFinished then
+		if loadingScreenDismissed then
+			onFinished()
+		else
+			table.insert(loadingFinishCallbacks, onFinished)
+		end
+	end
+
+	if loadingScreenFinishing then
 		return
 	end
-	loadingScreenFinished = true
+	loadingScreenFinishing = true
 
-	TweenService:Create(loadingOverlay, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-		BackgroundTransparency = 1
-	}):Play()
-	TweenService:Create(loadingTitle, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
-	TweenService:Create(loadingFooter, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-	TweenService:Create(loadingAccent, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
-	TweenService:Create(loadingBlur, TweenInfo.new(0.35), { Size = 0 }):Play()
-	task.delay(0.4, function()
-		if loadingGui.Parent then
-			loadingGui:Destroy()
-		end
-		if loadingBlur.Parent then
-			loadingBlur:Destroy()
-		end
+	local waitTime = math.max(0, loadingMinimumDuration - loadingFadeDuration - (os.clock() - loadingStartedAt))
+	task.delay(waitTime, function()
+		TweenService:Create(loadingOverlay, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			BackgroundTransparency = 1
+		}):Play()
+		TweenService:Create(loadingTitle, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingFooter, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingAccent, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingBlur, TweenInfo.new(loadingFadeDuration), { Size = 0 }):Play()
+		task.delay(loadingFadeDuration, function()
+			if loadingGui.Parent then
+				loadingGui:Destroy()
+			end
+			if loadingBlur.Parent then
+				loadingBlur:Destroy()
+			end
+
+			loadingScreenDismissed = true
+			for _, callback in ipairs(loadingFinishCallbacks) do
+				callback()
+			end
+			table.clear(loadingFinishCallbacks)
+		end)
 	end)
 end
 
-task.delay(45, FinishLoadingScreen)
+task.delay(45, function()
+	FinishLoadingScreen()
+end)
 
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 
@@ -140,7 +164,7 @@ if TitleLabel then
 	TitleLabel.Size = UDim2.new(1, -14, 0, 25)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 end
-Window.Holder.Visible = true
+Window.Holder.Visible = false
 
 local Tabs = {
 	Main = Window:AddTab('Main'),
@@ -323,6 +347,7 @@ KeybindTransparency:OnChanged(function(value)
 end)
 
 local desiredMenuVisible = true
+local menuReady = false
 local RunService = game:GetService('RunService')
 
 local function MatchesMenuKey(input)
@@ -335,7 +360,9 @@ end
 
 local function SetMenuVisibility(visible)
 	desiredMenuVisible = visible
-	Window.Holder.Visible = visible
+	if menuReady then
+		Window.Holder.Visible = visible
+	end
 end
 
 Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
@@ -385,7 +412,9 @@ Library:GiveSignal(RunService.RenderStepped:Connect(function()
 		SetMenuVisibility(held)
 	end
 
-	Window.Holder.Visible = desiredMenuVisible
+	if menuReady then
+		Window.Holder.Visible = desiredMenuVisible
+	end
 end))
 
 ThemeManager:SetLibrary(Library)
@@ -561,4 +590,8 @@ ThemeGroup:AddButton({
 })
 
 SaveManager:LoadAutoloadConfig()
-FinishLoadingScreen()
+FinishLoadingScreen(function()
+	menuReady = true
+	desiredMenuVisible = true
+	Window.Holder.Visible = true
+end)
