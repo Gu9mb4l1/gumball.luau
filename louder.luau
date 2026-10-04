@@ -1,154 +1,168 @@
-local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+--!strict
+-- Tabbed menu in pure Luau (runs on Lune: https://lune-org.github.io/docs)
+-- Run with:  lune run menu
 
-local Window = Library:CreateWindow({
-    Title = 'Gumball — .gg/gu9mball | Rivals',
-    Center = true,
-    AutoShow = true,
-    TabPadding = 8,
-    MenuFadeTime = 0.2
-})
+local stdio = require("@lune/stdio")
+local task = require("@lune/task")
 
--- Define Tabs
-local Tabs = {
-    Combat = Window:AddTab('Combat'),
-    Visuals = Window:AddTab('Visuals'),
-    Movement = Window:AddTab('Movement'),
-    ['UI Settings'] = Window:AddTab('UI Settings'),
+---------------------------------------------------------------------
+-- Config
+---------------------------------------------------------------------
+local WIDTH = 56
+local TAB_PADDING = 2
+local ANIM_FRAMES = 14
+local FRAME_TIME = 0.2
+
+type Tab = { name: string, lines: { string } }
+
+local tabs: { Tab } = {
+	{ name = "main", lines = { "Welcome back!", "", "Pick a tab above to get started." } },
+	{ name = "world", lines = { "> Quick Match", "> Ranked", "> Custom Game" } },
+	{ name = "esp", lines = { "Sword      100 coins", "Shield      80 coins", "Potion      25 coins" } },
+	{ name = "visuals", lines = { "Level:    12", "Wins:     48", "Playtime: 36h" } },
+	{ name = "charcter", lines = { "Music:   ON", "Sound:   ON", "Quality: High" } },
+	{ name = "misc", lines = { "Music:   ON", "Sound:   ON", "Quality: High" } },
+	{ name = "settings", lines = { "Music:   ON", "Sound:   ON", "Quality: High" } },
+
+
 }
 
--- [[ COMBAT SECTION ]]
-local AimbotGroup = Tabs.Combat:AddLeftGroupbox('Aimbot')
+---------------------------------------------------------------------
+-- Colors (ANSI)
+---------------------------------------------------------------------
+local ESC = "\27["
+local RESET = ESC .. "0m"
+local BOLD_CYAN = ESC .. "1;96m"
+local DIM = ESC .. "90m"
+local CYAN = ESC .. "96m"
+local DARK_CYAN = ESC .. "36m"
+local WHITE = ESC .. "97m"
 
-AimbotGroup:AddToggle('AimbotEnabled', {
-    Text = 'Enable Aimbot',
-    Default = false,
-    Tooltip = 'Automatically locks onto enemies',
-})
+---------------------------------------------------------------------
+-- Layout: where each tab sits on the row
+---------------------------------------------------------------------
+local positions: { { start: number, width: number } } = {}
+do
+	local x = 2
+	for i, tab in tabs do
+		local w = #tab.name + TAB_PADDING * 2
+		positions[i] = { start = x, width = w }
+		x += w + 1
+	end
+end
 
-AimbotGroup:AddToggle('SilentAim', {
-    Text = 'Silent Aim',
-    Default = false,
-    Tooltip = 'Hits targets without moving your camera',
-})
+---------------------------------------------------------------------
+-- Helpers
+---------------------------------------------------------------------
+local function easeOutCubic(t: number): number
+	return 1 - (1 - t) ^ 3
+end
 
-AimbotGroup:AddDropdown('AimPart', {
-    Values = { 'Head', 'HumanoidRootPart' },
-    Default = 1,
-    Text = 'Target Part',
-})
+local function lerp(a: number, b: number, t: number): number
+	return a + (b - a) * t
+end
 
-AimbotGroup:AddSlider('AimSmoothness', {
-    Text = 'Smoothness',
-    Default = 1,
-    Min = 1,
-    Max = 10,
-    Rounding = 1,
-})
+local function round(n: number): number
+	return math.floor(n + 0.5)
+end
 
-local FovGroup = Tabs.Combat:AddRightGroupbox('FOV Settings')
+---------------------------------------------------------------------
+-- Rendering
+---------------------------------------------------------------------
+local function render(active: number, barStart: number, barWidth: number)
+	local out: { string } = {}
 
-FovGroup:AddToggle('ShowFOV', {
-    Text = 'Show FOV Circle',
-    Default = false,
-})
+	table.insert(out, ESC .. "2J" .. ESC .. "H") -- clear screen
+	table.insert(out, "")
+	table.insert(out, " " .. WHITE .. "Gu9mball - .gg/gu9mball" .. RESET)
+	table.insert(out, "")
 
-FovGroup:AddSlider('FOVRadius', {
-    Text = 'FOV Radius',
-    Default = 150,
-    Min = 0,
-    Max = 800,
-    Rounding = 0,
-})
+	-- Tab names row
+	local row = " "
+	for i, tab in tabs do
+		local label = string.rep(" ", TAB_PADDING) .. tab.name .. string.rep(" ", TAB_PADDING)
+		row ..= (if i == active then BOLD_CYAN else DIM) .. label .. RESET .. " "
+	end
+	table.insert(out, row)
 
-FovGroup:AddLabel('FOV Color'):AddColorPicker('FOVColor', {
-    Default = Color3.new(1, 1, 1),
-})
+	-- Glow row (soft light under the active tab)
+	local s = round(barStart)
+	local e = round(barStart + barWidth) - 1
+	local glow = ""
+	for c = 1, WIDTH do
+		glow ..= (if c >= s and c <= e then DARK_CYAN .. "░" else " ")
+	end
+	table.insert(out, glow .. RESET)
 
--- [[ VISUALS SECTION ]]
-local ESPGroup = Tabs.Visuals:AddLeftGroupbox('ESP (Extra Sensory Perception)')
+	-- Line row (sliding bright indicator on a dim track)
+	local line = ""
+	for c = 1, WIDTH do
+		if c >= s and c <= e then
+			line ..= CYAN .. "━"
+		else
+			line ..= DIM .. "─"
+		end
+	end
+	table.insert(out, line .. RESET)
+	table.insert(out, "")
 
-ESPGroup:AddToggle('BoxESP', {
-    Text = 'Box ESP',
-    Default = false,
-})
+	-- Content
+	for _, text in tabs[active].lines do
+		table.insert(out, "   " .. WHITE .. text .. RESET)
+	end
 
-ESPGroup:AddToggle('TracerESP', {
-    Text = 'Snaplines / Tracers',
-    Default = false,
-})
+	table.insert(out, "")
+	table.insert(out, DIM .. string.rep("─", WIDTH) .. RESET)
+	table.insert(out, DIM .. " 1-5 jump to tab   a/d prev/next   q quit" .. RESET)
 
-ESPGroup:AddToggle('NameESP', {
-    Text = 'Player Names',
-    Default = false,
-})
+	stdio.write(table.concat(out, "\n") .. "\n")
+end
 
-ESPGroup:AddLabel('Enemy Color'):AddColorPicker('EnemyColor', {
-    Default = Color3.fromRGB(255, 0, 0),
-})
+---------------------------------------------------------------------
+-- Smooth tab switching
+---------------------------------------------------------------------
+local current = 1
 
--- [[ MOVEMENT SECTION ]]
-local MoveGroup = Tabs.Movement:AddLeftGroupbox('Enhancements')
+local function switchTo(target: number)
+	if target == current then
+		return
+	end
 
-MoveGroup:AddSlider('WalkSpeed', {
-    Text = 'WalkSpeed Multiplier',
-    Default = 16,
-    Min = 16,
-    Max = 150,
-    Rounding = 0,
-})
+	local from = positions[current]
+	local to = positions[target]
 
-MoveGroup:AddToggle('InfJump', {
-    Text = 'Infinite Jump',
-    Default = false,
-})
+	for frame = 1, ANIM_FRAMES do
+		local t = easeOutCubic(frame / ANIM_FRAMES)
+		-- name highlight flips halfway through the slide
+		local shown = if t < 0.5 then current else target
+		render(shown, lerp(from.start, to.start, t), lerp(from.width, to.width, t))
+		task.wait(FRAME_TIME)
+	end
 
--- [[ UI SETTINGS / CONFIG ]]
-local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
+	current = target
+	render(current, to.start, to.width)
+end
 
-MenuGroup:AddButton('Unload', function() Library:Unload() end)
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
+---------------------------------------------------------------------
+-- Main loop
+---------------------------------------------------------------------
+render(current, positions[current].start, positions[current].width)
 
-Library.ToggleKeybind = Options.MenuKeybind 
+while true do
+	local input = string.lower(stdio.prompt("text", "Tab"))
 
-ThemeManager:SetLibrary(Library)
-SaveManager:SetLibrary(Library)
+	if input == "q" then
+		break
+	elseif input == "d" then
+		switchTo(if current == #tabs then 1 else current + 1)
+	elseif input == "a" then
+		switchTo(if current == 1 then #tabs else current - 1)
+	else
+		local n = tonumber(input)
+		if n and n >= 1 and n <= #tabs and n == math.floor(n) then
+			switchTo(n)
+		end
+	end
+end
 
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
-
-ThemeManager:SetFolder('GumballScript')
-SaveManager:SetFolder('GumballScript/Rivals')
-
-SaveManager:BuildConfigSection(Tabs['UI Settings'])
-ThemeManager:ApplyToTab(Tabs['UI Settings'])
-
-SaveManager:LoadAutoloadConfig()
-
--- Watermark Logic
-Library:SetWatermarkVisibility(true)
-
-local FrameTimer = tick()
-local FrameCounter = 0;
-local FPS = 60;
-
-local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(function()
-    FrameCounter += 1;
-    if (tick() - FrameTimer) >= 1 then
-        FPS = FrameCounter;
-        FrameTimer = tick();
-        FrameCounter = 0;
-    end;
-
-    Library:SetWatermark(('Gumball | .gg/gu9mball | %s FPS | %s MS'):format(
-        math.floor(FPS),
-        math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
-    ));
-end);
-
-Library:OnUnload(function()
-    WatermarkConnection:Disconnect()
-    Library.Unloaded = true
-end)
+stdio.write(ESC .. "2J" .. ESC .. "H")
