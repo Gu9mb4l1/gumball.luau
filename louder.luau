@@ -424,6 +424,146 @@ Tabs.settings = Window:AddTab('settings')
 local MainGroup = Tabs.Main:AddLeftGroupbox('Main')
 MainGroup:AddLabel('Gumball')
 
+local WorldTabbox = Tabs.World:AddLeftTabbox()
+local ColorCorrectionTab = WorldTabbox:AddTab('color correction')
+local AtmosphereTab = WorldTabbox:AddTab('atmosphere')
+local LightingService = game:GetService('Lighting')
+
+local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
+WorldColorCorrection.Name = 'GumballColorCorrection'
+WorldColorCorrection.Enabled = false
+WorldColorCorrection.Saturation = 0
+WorldColorCorrection.Contrast = 0
+WorldColorCorrection.Brightness = 0
+WorldColorCorrection.TintColor = Color3.new(1, 1, 1)
+WorldColorCorrection.Parent = LightingService
+
+local WorldAtmosphere = Instance.new('Atmosphere')
+WorldAtmosphere.Name = 'GumballAtmosphere'
+WorldAtmosphere.Density = 0
+WorldAtmosphere.Offset = 0
+WorldAtmosphere.Haze = 0
+WorldAtmosphere.Glare = 0
+WorldAtmosphere.Color = Color3.new(1, 1, 1)
+WorldAtmosphere.Decay = Color3.new(1, 1, 1)
+
+local previousUnloadCallback = Library.OnUnload
+Library:OnUnload(function()
+	if previousUnloadCallback then
+		previousUnloadCallback()
+	end
+	WorldColorCorrection:Destroy()
+	WorldAtmosphere:Destroy()
+end)
+
+ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
+	Text = 'enabled',
+	Default = false
+}):OnChanged(function(value)
+	WorldColorCorrection.Enabled = value
+end)
+
+ColorCorrectionTab:AddLabel('Tint'):AddColorPicker('WorldColorCorrectionTint', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Color correction tint'
+})
+Options.WorldColorCorrectionTint:OnChanged(function(value)
+	WorldColorCorrection.TintColor = value
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionSaturation', {
+	Text = 'saturation',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Saturation = value
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionContrast', {
+	Text = 'contrast',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Contrast = value
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
+	Text = 'brightness',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Brightness = value
+end)
+
+AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
+	Text = 'enabled',
+	Default = false
+}):OnChanged(function(value)
+	WorldAtmosphere.Parent = value and LightingService or nil
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereDensity', {
+	Text = 'density',
+	Default = 0,
+	Min = 0,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldAtmosphere.Density = value
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereOffset', {
+	Text = 'offset',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldAtmosphere.Offset = value
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereHaze', {
+	Text = 'haze',
+	Default = 0,
+	Min = 0,
+	Max = 10,
+	Rounding = 1
+}):OnChanged(function(value)
+	WorldAtmosphere.Haze = value
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereGlare', {
+	Text = 'glare',
+	Default = 0,
+	Min = 0,
+	Max = 10,
+	Rounding = 1
+}):OnChanged(function(value)
+	WorldAtmosphere.Glare = value
+end)
+
+AtmosphereTab:AddLabel('Color'):AddColorPicker('WorldAtmosphereColor', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Atmosphere color'
+})
+Options.WorldAtmosphereColor:OnChanged(function(value)
+	WorldAtmosphere.Color = value
+end)
+
+AtmosphereTab:AddLabel('Decay'):AddColorPicker('WorldAtmosphereDecay', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Atmosphere decay'
+})
+Options.WorldAtmosphereDecay:OnChanged(function(value)
+	WorldAtmosphere.Decay = value
+end)
+
 local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
 	Library:Unload()
