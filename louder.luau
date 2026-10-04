@@ -412,15 +412,19 @@ if TitleLabel then
 end
 Window.Holder.Visible = false
 
-local Tabs = {
-	Main = Window:AddTab('Main'),
-	['UI Settings'] = Window:AddTab('UI Settings')
-}
+local Tabs = {}
+Tabs.Main = Window:AddTab('main')
+Tabs.World = Window:AddTab('world')
+Tabs.ESP = Window:AddTab('esp')
+Tabs.Visuals = Window:AddTab('visuals')
+Tabs.Character = Window:AddTab('character')
+Tabs.Misc = Window:AddTab('misc')
+Tabs.settings = Window:AddTab('settings')
 
 local MainGroup = Tabs.Main:AddLeftGroupbox('Main')
 MainGroup:AddLabel('Gumball')
 
-local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
+local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
 	Library:Unload()
 end)
@@ -902,7 +906,7 @@ end
 
 ThemeManager:SetFolder('Gumball')
 SaveManager:SetFolder('Gumball')
-local ConfigGroup = Tabs['UI Settings']:AddRightGroupbox('Configuration')
+local ConfigGroup = Tabs.settings:AddRightGroupbox('Configuration')
 local autoloadPath = SaveManager.Folder .. '/settings/autoload.txt'
 ConfigGroup:AddInput('SaveManager_ConfigName', { Text = 'Config name' })
 ConfigGroup:AddDropdown('SaveManager_ConfigList', {
@@ -1010,7 +1014,7 @@ end
 
 SaveManager:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName' })
 
-local ThemeGroup = ThemeManager:CreateGroupBox(Tabs['UI Settings'])
+local ThemeGroup = ThemeManager:CreateGroupBox(Tabs.settings)
 ThemeManager:CreateThemeManager(ThemeGroup)
 ThemeGroup:AddDivider()
 ThemeGroup:AddButton({
