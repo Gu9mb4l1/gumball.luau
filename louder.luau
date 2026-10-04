@@ -209,24 +209,10 @@ local KeybindTransparency = MenuGroup:AddSlider('KeybindTransparency', {
 })
 
 local KeybindFilter = 'All'
-local KeybindFilterButtons = {}
-local KeybindPopup = Library:Create('Frame', {
-	BackgroundColor3 = Library.MainColor,
-	BorderColor3 = Library.OutlineColor,
-	BorderMode = Enum.BorderMode.Inset,
-	Size = UDim2.fromOffset(112, 66),
-	Visible = false,
-	ZIndex = 250,
-	Parent = Library.ScreenGui
-})
-Library:AddToRegistry(KeybindPopup, {
-	BackgroundColor3 = 'MainColor',
-	BorderColor3 = 'OutlineColor'
-})
-Library:Create('UIListLayout', {
-	FillDirection = Enum.FillDirection.Vertical,
-	SortOrder = Enum.SortOrder.LayoutOrder,
-	Parent = KeybindPopup
+local KeybindFilterDropdown = MenuGroup:AddDropdown('KeybindFilter', {
+	Text = 'Keybind filter',
+	Values = { 'All', 'Toggle', 'Hold' },
+	Default = 'All'
 })
 
 local function ApplyKeybindFilter()
@@ -247,60 +233,34 @@ local function ApplyKeybindFilter()
 
 	Library.KeybindFrame.Size = UDim2.new(0, Library.KeybindFrame.Size.X.Offset, 0, visibleCount * 18 + 23)
 	Library.KeybindFrame.Visible = KeybindDisplayToggle.Value
-	for filter, button in pairs(KeybindFilterButtons) do
-		button.BackgroundColor3 = filter == KeybindFilter and Library.AccentColor or Library.MainColor
-		button.Text = filter == KeybindFilter and ('> ' .. filter) or filter
-	end
 end
 
-for index, filter in ipairs({ 'All', 'Toggle', 'Hold' }) do
-	local selectedFilter = filter
-	local button = Library:Create('TextButton', {
-		AutoButtonColor = false,
-		BackgroundColor3 = Library.MainColor,
-		BorderSizePixel = 0,
-		Font = Library.Font,
-		LayoutOrder = index,
-		Size = UDim2.new(1, 0, 0, 22),
-		Text = selectedFilter,
-		TextColor3 = Library.FontColor,
-		TextSize = 14,
-		ZIndex = 251,
-		Parent = KeybindPopup
-	})
-	Library:AddToRegistry(button, {
-		BackgroundColor3 = 'MainColor',
-		TextColor3 = 'FontColor'
-	})
-	Library:OnHighlight(button, button,
-		{ BackgroundColor3 = 'AccentColor' },
-		{ BackgroundColor3 = 'MainColor' }
-	)
-	button.Activated:Connect(function()
-		KeybindFilter = selectedFilter
-		KeybindPopup.Visible = false
-		ApplyKeybindFilter()
-	end)
-	KeybindFilterButtons[selectedFilter] = button
+local MenuKeybindHudLabel = Library:CreateLabel({
+	Size = UDim2.new(1, 0, 0, 18),
+	TextSize = 13,
+	Text = string.format('[%s] Menu (%s)', MenuKey, Options.MenuBindMode.Value),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Visible = true,
+	Parent = Library.KeybindContainer
+}, true)
+
+local function UpdateMenuKeybindHud()
+	MenuKeybindHudLabel.Text = string.format('[%s] Menu (%s)', MenuKey, Options.MenuBindMode.Value)
+	ApplyKeybindFilter()
 end
+
+KeybindFilterDropdown:OnChanged(function(value)
+	KeybindFilter = value or 'All'
+	ApplyKeybindFilter()
+end)
+Options.MenuBindMode:OnChanged(UpdateMenuKeybindHud)
 
 local KeybindCheckmark = KeybindDisplayToggle.TextLabel.Parent
 KeybindCheckmark.Active = true
 KeybindCheckmark.InputBegan:Connect(function(input)
-	if input.UserInputType ~= Enum.UserInputType.MouseButton2 then
-		return
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		KeybindFilterDropdown:OpenDropdown()
 	end
-
-	local mousePosition = UserInputService:GetMouseLocation()
-	local viewportSize = workspace.CurrentCamera.ViewportSize
-	local popupWidth = KeybindPopup.Size.X.Offset
-	local popupHeight = KeybindPopup.Size.Y.Offset
-	KeybindPopup.Position = UDim2.fromOffset(
-		math.clamp(mousePosition.X, 0, math.max(0, viewportSize.X - popupWidth)),
-		math.clamp(mousePosition.Y, 0, math.max(0, viewportSize.Y - popupHeight))
-	)
-	KeybindPopup.Visible = true
-	ApplyKeybindFilter()
 end)
 
 local function WatchKeybindLabel(label)
@@ -321,19 +281,6 @@ for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
 end
 Library.KeybindContainer.ChildAdded:Connect(WatchKeybindLabel)
 Library.KeybindContainer.ChildRemoved:Connect(ApplyKeybindFilter)
-Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
-	if input.UserInputType ~= Enum.UserInputType.MouseButton1 or not KeybindPopup.Visible then
-		return
-	end
-
-	local mousePosition = UserInputService:GetMouseLocation()
-	local popupPosition = KeybindPopup.AbsolutePosition
-	local popupSize = KeybindPopup.AbsoluteSize
-	if mousePosition.X < popupPosition.X or mousePosition.X > popupPosition.X + popupSize.X
-		or mousePosition.Y < popupPosition.Y or mousePosition.Y > popupPosition.Y + popupSize.Y then
-		KeybindPopup.Visible = false
-	end
-end))
 
 KeybindDisplayToggle:OnChanged(ApplyKeybindFilter)
 KeybindTransparency:OnChanged(function(value)
@@ -384,6 +331,7 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProce
 			MenuKey = keyName
 			waitingForMenuKey = false
 			MenuBindLabel:SetText('Menu bind: ' .. MenuKey)
+			UpdateMenuKeybindHud()
 			Library:Notify('Menu key set to ' .. MenuKey, 2)
 		end
 		return
@@ -424,7 +372,7 @@ end))
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({ 'MenuBindMode', 'ShowKeybinds', 'KeybindTransparency' })
+SaveManager:SetIgnoreIndexes({ 'MenuBindMode', 'KeybindFilter', 'ShowKeybinds', 'KeybindTransparency' })
 
 for _, parser in next, SaveManager.Parser do
 	local loadOption = parser.Load
