@@ -227,8 +227,8 @@ local KeybindHudFrame = Instance.new('Frame')
 KeybindHudFrame.Name = 'Panel'
 KeybindHudFrame.AnchorPoint = Vector2.new(0, 0.5)
 KeybindHudFrame.Position = UDim2.new(0, 10, 0.5, 0)
-KeybindHudFrame.Size = UDim2.fromOffset(240, 32)
-KeybindHudFrame.BackgroundColor3 = Library.MainColor
+KeybindHudFrame.Size = UDim2.fromOffset(260, 36)
+KeybindHudFrame.BackgroundColor3 = Color3.fromRGB(17, 24, 34)
 KeybindHudFrame.BorderSizePixel = 0
 KeybindHudFrame.Visible = false
 KeybindHudFrame.ZIndex = 1
@@ -237,6 +237,14 @@ KeybindHudFrame.Parent = KeybindHudGui
 local KeybindHudCorner = Instance.new('UICorner')
 KeybindHudCorner.CornerRadius = UDim.new(0, 4)
 KeybindHudCorner.Parent = KeybindHudFrame
+
+local KeybindHudGradient = Instance.new('UIGradient')
+KeybindHudGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 39, 48)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(13, 18, 27))
+})
+KeybindHudGradient.Rotation = 90
+KeybindHudGradient.Parent = KeybindHudFrame
 
 local KeybindHudStroke = Instance.new('UIStroke')
 KeybindHudStroke.Color = Library.OutlineColor
@@ -252,15 +260,33 @@ local KeybindHudHeader = Instance.new('TextLabel')
 KeybindHudHeader.Name = 'Header'
 KeybindHudHeader.BackgroundTransparency = 1
 KeybindHudHeader.Position = UDim2.fromOffset(8, 5)
-KeybindHudHeader.Size = UDim2.new(1, -16, 0, 18)
+KeybindHudHeader.Size = UDim2.new(1, -108, 0, 18)
 KeybindHudHeader.Font = Library.Font
-KeybindHudHeader.Text = 'KEYBINDS'
+KeybindHudHeader.Text = 'GUMBALL / BINDS'
 KeybindHudHeader.TextColor3 = Library.AccentColor
-KeybindHudHeader.TextSize = 14
+KeybindHudHeader.TextSize = 12
 KeybindHudHeader.TextXAlignment = Enum.TextXAlignment.Left
 KeybindHudHeader.ZIndex = 2
 KeybindHudHeader.Parent = KeybindHudFrame
 KeybindHudHeader.Active = true
+
+local KeybindHudCount = Instance.new('TextLabel')
+KeybindHudCount.Name = 'Count'
+KeybindHudCount.AnchorPoint = Vector2.new(1, 0)
+KeybindHudCount.Position = UDim2.new(1, -56, 0, 5)
+KeybindHudCount.Size = UDim2.fromOffset(26, 18)
+KeybindHudCount.BackgroundColor3 = Library.AccentColor
+KeybindHudCount.BackgroundTransparency = 0.82
+KeybindHudCount.BorderSizePixel = 0
+KeybindHudCount.Font = Library.Font
+KeybindHudCount.Text = '0'
+KeybindHudCount.TextColor3 = Color3.fromRGB(225, 250, 246)
+KeybindHudCount.TextSize = 11
+KeybindHudCount.ZIndex = 2
+KeybindHudCount.Parent = KeybindHudFrame
+local KeybindHudCountCorner = Instance.new('UICorner')
+KeybindHudCountCorner.CornerRadius = UDim.new(0, 3)
+KeybindHudCountCorner.Parent = KeybindHudCount
 
 local KeybindHudAccent = Instance.new('Frame')
 KeybindHudAccent.Name = 'Accent'
@@ -358,8 +384,8 @@ end
 local KeybindHudRowsContainer = Instance.new('Frame')
 KeybindHudRowsContainer.Name = 'Rows'
 KeybindHudRowsContainer.BackgroundTransparency = 1
-KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 27)
-KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -32)
+KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 30)
+KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -34)
 KeybindHudRowsContainer.ZIndex = 2
 KeybindHudRowsContainer.Parent = KeybindHudFrame
 
@@ -456,16 +482,22 @@ local function UpdateKeybindHudRows()
 		if not label or not label.Parent then
 			label = Instance.new('TextLabel')
 			label.Name = 'KeybindRow'
+			label.BackgroundColor3 = Library.AccentColor
 			label.BackgroundTransparency = 1
-			label.Size = UDim2.new(1, 0, 0, 18)
+			label.Size = UDim2.new(1, 0, 0, 19)
 			label.Font = Library.Font
 			label.TextColor3 = Library.FontColor
-			label.TextSize = 13
+			label.TextSize = 12
 			label.TextXAlignment = Enum.TextXAlignment.Left
 			label.TextYAlignment = Enum.TextYAlignment.Center
 			label.ZIndex = 3
 			label.Parent = KeybindHudRowsContainer
-			label.BackgroundColor3 = Library.AccentColor
+			local rowCorner = Instance.new('UICorner')
+			rowCorner.CornerRadius = UDim.new(0, 3)
+			rowCorner.Parent = label
+			local rowPadding = Instance.new('UIPadding')
+			rowPadding.PaddingLeft = UDim.new(0, 5)
+			rowPadding.Parent = label
 			KeybindHudLabels[row.Id] = label
 		end
 		label.LayoutOrder = order
@@ -481,7 +513,8 @@ local function UpdateKeybindHudRows()
 		end
 	end
 
-	KeybindHudFrame.Size = UDim2.fromOffset(240, 34 + #rows * 20)
+	KeybindHudFrame.Size = UDim2.fromOffset(260, 36 + #rows * 21)
+	KeybindHudCount.Text = tostring(#rows)
 	KeybindHudFrame.Visible = KeybindDisplayToggle.Value
 	Library.KeybindFrame.Visible = false
 end
