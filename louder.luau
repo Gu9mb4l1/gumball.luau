@@ -607,6 +607,51 @@ Options.WorldAtmosphereDecay:OnChanged(function(value)
 	end
 end)
 
+local function SyncWorldEffects()
+	if worldEffectsUnloaded then
+		return
+	end
+
+	local colorCorrectionValues = {
+		Enabled = WorldColorCorrectionToggle.Value,
+		Saturation = Options.WorldColorCorrectionSaturation.Value,
+		Contrast = Options.WorldColorCorrectionContrast.Value,
+		Brightness = Options.WorldColorCorrectionBrightness.Value,
+		TintColor = Options.WorldColorCorrectionTint.Value
+	}
+	for property, value in pairs(colorCorrectionValues) do
+		if WorldColorCorrection[property] ~= value then
+			WorldColorCorrection[property] = value
+		end
+	end
+
+	local atmosphereParent = WorldAtmosphereToggle.Value and LightingService or nil
+	if WorldAtmosphere.Parent ~= atmosphereParent then
+		local success = pcall(function()
+			WorldAtmosphere.Parent = atmosphereParent
+		end)
+		if not success then
+			WorldAtmosphere = Instance.new('Atmosphere')
+			WorldAtmosphere.Name = 'GumballAtmosphere'
+			WorldAtmosphere.Parent = atmosphereParent
+		end
+	end
+
+	local atmosphereValues = {
+		Density = Options.WorldAtmosphereDensity.Value,
+		Offset = Options.WorldAtmosphereOffset.Value,
+		Haze = Options.WorldAtmosphereHaze.Value,
+		Glare = Options.WorldAtmosphereGlare.Value,
+		Color = Options.WorldAtmosphereColor.Value,
+		Decay = Options.WorldAtmosphereDecay.Value
+	}
+	for property, value in pairs(atmosphereValues) do
+		if WorldAtmosphere[property] ~= value then
+			WorldAtmosphere[property] = value
+		end
+	end
+end
+
 local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
 	Library:Unload()
@@ -1053,6 +1098,7 @@ Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
 end))
 
 Library:GiveSignal(RunService.RenderStepped:Connect(function()
+	SyncWorldEffects()
 	UpdateKeybindHudDrag()
 	local mode = Options.MenuBindMode.Value
 	if mode == 'Always' then
