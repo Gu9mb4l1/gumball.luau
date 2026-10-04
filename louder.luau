@@ -293,6 +293,7 @@ local dragDetectorCreated, dragDetector = pcall(function()
 end)
 if dragDetectorCreated then
 	nativeKeybindHudDrag = dragDetector
+	nativeKeybindHudDrag.Enabled = false
 	nativeKeybindHudDrag.Parent = KeybindHudFrame
 end
 
@@ -318,7 +319,9 @@ end))
 
 local function UpdateKeybindHudDrag()
 	if nativeKeybindHudDrag then
-		KeybindHudFrame.Active = menuReady and Window.Holder.Visible
+		local canDragKeybindHud = menuReady and Window.Holder.Visible and KeybindHudFrame.Visible
+		KeybindHudFrame.Active = canDragKeybindHud
+		nativeKeybindHudDrag.Enabled = canDragKeybindHud
 		return
 	end
 	if not draggingKeybindHud then
