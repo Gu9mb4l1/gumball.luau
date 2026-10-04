@@ -1,4 +1,126 @@
 
+local TweenService = game:GetService('TweenService')
+local Lighting = game:GetService('Lighting')
+local loadingParent = game:GetService('CoreGui')
+if type(gethui) == 'function' then
+	local success, hiddenGui = pcall(gethui)
+	if success and hiddenGui then
+		loadingParent = hiddenGui
+	end
+end
+
+local oldLoadingGui = loadingParent:FindFirstChild('GumballLoadingScreen')
+if oldLoadingGui then
+	oldLoadingGui:Destroy()
+end
+
+local oldLoadingBlur = Lighting:FindFirstChild('GumballLoadingBlur')
+if oldLoadingBlur then
+	oldLoadingBlur:Destroy()
+end
+
+local loadingBlur = Instance.new('BlurEffect')
+loadingBlur.Name = 'GumballLoadingBlur'
+loadingBlur.Size = 18
+loadingBlur.Parent = Lighting
+
+local loadingGui = Instance.new('ScreenGui')
+loadingGui.Name = 'GumballLoadingScreen'
+loadingGui.IgnoreGuiInset = true
+loadingGui.ResetOnSpawn = false
+loadingGui.DisplayOrder = 10000
+loadingGui.Parent = loadingParent
+
+local loadingOverlay = Instance.new('Frame')
+loadingOverlay.Name = 'Overlay'
+loadingOverlay.Size = UDim2.fromScale(1, 1)
+loadingOverlay.BackgroundColor3 = Color3.fromRGB(8, 12, 18)
+loadingOverlay.BackgroundTransparency = 0.16
+loadingOverlay.BorderSizePixel = 0
+loadingOverlay.Parent = loadingGui
+
+local loadingTitle = Instance.new('TextLabel')
+loadingTitle.Name = 'Title'
+loadingTitle.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingTitle.Position = UDim2.new(0.5, 0, 0.5, -38)
+loadingTitle.Size = UDim2.new(1, -32, 0, 48)
+loadingTitle.BackgroundTransparency = 1
+loadingTitle.Font = Enum.Font.FredokaOne
+loadingTitle.Text = 'Gumball Louding'
+loadingTitle.TextColor3 = Color3.fromRGB(245, 250, 255)
+loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
+loadingTitle.TextYAlignment = Enum.TextYAlignment.Center
+loadingTitle.TextSize = 36
+loadingTitle.TextTransparency = 1
+loadingTitle.Parent = loadingOverlay
+
+local loadingAccent = Instance.new('Frame')
+loadingAccent.Name = 'Accent'
+loadingAccent.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingAccent.Position = UDim2.new(0.5, 0, 0.5, 4)
+loadingAccent.Size = UDim2.fromOffset(0, 3)
+loadingAccent.BackgroundColor3 = Color3.fromRGB(80, 220, 190)
+loadingAccent.BorderSizePixel = 0
+loadingAccent.Parent = loadingOverlay
+
+local loadingFooter = Instance.new('TextLabel')
+loadingFooter.Name = 'Footer'
+loadingFooter.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingFooter.Position = UDim2.new(0.5, 0, 0.5, 32)
+loadingFooter.Size = UDim2.new(1, -32, 0, 30)
+loadingFooter.BackgroundTransparency = 1
+loadingFooter.Font = Enum.Font.FredokaOne
+loadingFooter.Text = 'join .gg/gu9mball'
+loadingFooter.TextColor3 = Color3.fromRGB(160, 190, 205)
+loadingFooter.TextXAlignment = Enum.TextXAlignment.Center
+loadingFooter.TextYAlignment = Enum.TextYAlignment.Center
+loadingFooter.TextSize = 18
+loadingFooter.TextTransparency = 1
+loadingFooter.Parent = loadingOverlay
+
+local loadingScale = Instance.new('UIScale')
+loadingScale.Scale = 0.92
+loadingScale.Parent = loadingTitle
+
+TweenService:Create(loadingTitle, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	TextTransparency = 0
+}):Play()
+TweenService:Create(loadingScale, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	Scale = 1
+}):Play()
+TweenService:Create(loadingFooter, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.12), {
+	TextTransparency = 0
+}):Play()
+TweenService:Create(loadingAccent, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, 0.12), {
+	Size = UDim2.fromOffset(176, 3)
+}):Play()
+
+local loadingScreenFinished = false
+local function FinishLoadingScreen()
+	if loadingScreenFinished then
+		return
+	end
+	loadingScreenFinished = true
+
+	TweenService:Create(loadingOverlay, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		BackgroundTransparency = 1
+	}):Play()
+	TweenService:Create(loadingTitle, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+	TweenService:Create(loadingFooter, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
+	TweenService:Create(loadingAccent, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(loadingBlur, TweenInfo.new(0.35), { Size = 0 }):Play()
+	task.delay(0.4, function()
+		if loadingGui.Parent then
+			loadingGui:Destroy()
+		end
+		if loadingBlur.Parent then
+			loadingBlur:Destroy()
+		end
+	end)
+end
+
+task.delay(45, FinishLoadingScreen)
+
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
@@ -439,3 +561,4 @@ ThemeGroup:AddButton({
 })
 
 SaveManager:LoadAutoloadConfig()
+FinishLoadingScreen()
