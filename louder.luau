@@ -234,7 +234,11 @@ local function ApplyKeybindFilter()
 	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
 		if label:IsA('TextLabel') then
 			local mode = label.Text:match('%(([^()]*)%)$')
-			label.Visible = mode ~= nil and (KeybindFilter == 'All' or mode == KeybindFilter)
+			local shouldShow = false
+			if mode then
+				shouldShow = KeybindFilter == 'All' or mode == KeybindFilter
+			end
+			label.Visible = shouldShow
 			if label.Visible then
 				visibleCount += 1
 			end
