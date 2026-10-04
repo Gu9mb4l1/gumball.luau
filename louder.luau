@@ -446,14 +446,16 @@ WorldAtmosphere.Haze = 0
 WorldAtmosphere.Glare = 0
 WorldAtmosphere.Color = Color3.new(1, 1, 1)
 WorldAtmosphere.Decay = Color3.new(1, 1, 1)
+local worldEffectsUnloaded = false
 
 local previousUnloadCallback = Library.OnUnload
 Library:OnUnload(function()
+	worldEffectsUnloaded = true
 	if previousUnloadCallback then
 		previousUnloadCallback()
 	end
 	WorldColorCorrection:Destroy()
-	WorldAtmosphere:Destroy()
+	WorldAtmosphere.Parent = nil
 end)
 
 local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
@@ -470,6 +472,9 @@ ColorCorrectionTab:AddLabel('Tint'):AddColorPicker('WorldColorCorrectionTint', {
 })
 Options.WorldColorCorrectionTint:OnChanged(function(value)
 	WorldColorCorrection.TintColor = value
+	if value ~= Color3.new(1, 1, 1) and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
 end)
 
 ColorCorrectionTab:AddSlider('WorldColorCorrectionSaturation', {
@@ -511,12 +516,22 @@ ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
 	end
 end)
 
-AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
+local WorldAtmosphereToggle = AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
 	Text = 'enabled',
 	Default = false
-}):OnChanged(function(value)
+})
+WorldAtmosphereToggle:OnChanged(function(value)
+	if worldEffectsUnloaded then
+		return
+	end
 	WorldAtmosphere.Parent = value and LightingService or nil
 end)
+
+local function EnableWorldAtmosphereForEdit()
+	if not worldEffectsUnloaded and not WorldAtmosphereToggle.Value then
+		WorldAtmosphereToggle:SetValue(true)
+	end
+end
 
 AtmosphereTab:AddSlider('WorldAtmosphereDensity', {
 	Text = 'density',
@@ -526,6 +541,9 @@ AtmosphereTab:AddSlider('WorldAtmosphereDensity', {
 	Rounding = 2
 }):OnChanged(function(value)
 	WorldAtmosphere.Density = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 AtmosphereTab:AddSlider('WorldAtmosphereOffset', {
@@ -536,6 +554,9 @@ AtmosphereTab:AddSlider('WorldAtmosphereOffset', {
 	Rounding = 2
 }):OnChanged(function(value)
 	WorldAtmosphere.Offset = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 AtmosphereTab:AddSlider('WorldAtmosphereHaze', {
@@ -546,6 +567,9 @@ AtmosphereTab:AddSlider('WorldAtmosphereHaze', {
 	Rounding = 1
 }):OnChanged(function(value)
 	WorldAtmosphere.Haze = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 AtmosphereTab:AddSlider('WorldAtmosphereGlare', {
@@ -556,6 +580,9 @@ AtmosphereTab:AddSlider('WorldAtmosphereGlare', {
 	Rounding = 1
 }):OnChanged(function(value)
 	WorldAtmosphere.Glare = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 AtmosphereTab:AddLabel('Color'):AddColorPicker('WorldAtmosphereColor', {
@@ -564,6 +591,9 @@ AtmosphereTab:AddLabel('Color'):AddColorPicker('WorldAtmosphereColor', {
 })
 Options.WorldAtmosphereColor:OnChanged(function(value)
 	WorldAtmosphere.Color = value
+	if value ~= Color3.new(1, 1, 1) then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 AtmosphereTab:AddLabel('Decay'):AddColorPicker('WorldAtmosphereDecay', {
@@ -572,6 +602,9 @@ AtmosphereTab:AddLabel('Decay'):AddColorPicker('WorldAtmosphereDecay', {
 })
 Options.WorldAtmosphereDecay:OnChanged(function(value)
 	WorldAtmosphere.Decay = value
+	if value ~= Color3.new(1, 1, 1) then
+		EnableWorldAtmosphereForEdit()
+	end
 end)
 
 local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
