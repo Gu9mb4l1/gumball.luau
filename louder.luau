@@ -1,4 +1,5 @@
--- Gumball UI
+-- Gumball Menu Louded! 
+-- Gumball Script's Will Apear Soon. Menu Keybind (rightshift)
 -- Gumball - .gg/gu9mball
 
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
