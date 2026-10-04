@@ -501,9 +501,9 @@ local function UpdateKeybindHudRows()
 			KeybindHudLabels[row.Id] = label
 		end
 		label.LayoutOrder = order
-		label.Text = row.Active and ('> ' .. row.Text) or row.Text
+		label.Text = row.Text
 		label.TextColor3 = row.Active and Library.AccentColor or Library.FontColor
-		label.BackgroundTransparency = row.Active and 0.88 or 1
+		label.BackgroundTransparency = 1
 	end
 
 	for id, label in pairs(KeybindHudLabels) do
