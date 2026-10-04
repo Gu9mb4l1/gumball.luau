@@ -227,8 +227,8 @@ local KeybindHudFrame = Instance.new('Frame')
 KeybindHudFrame.Name = 'Panel'
 KeybindHudFrame.AnchorPoint = Vector2.new(0, 0.5)
 KeybindHudFrame.Position = UDim2.new(0, 10, 0.5, 0)
-KeybindHudFrame.Size = UDim2.fromOffset(260, 36)
-KeybindHudFrame.BackgroundColor3 = Color3.fromRGB(17, 24, 34)
+KeybindHudFrame.Size = UDim2.fromOffset(230, 32)
+KeybindHudFrame.BackgroundColor3 = Library.MainColor
 KeybindHudFrame.BorderSizePixel = 0
 KeybindHudFrame.Visible = false
 KeybindHudFrame.ZIndex = 1
@@ -237,19 +237,13 @@ KeybindHudFrame.Parent = KeybindHudGui
 local KeybindHudCorner = Instance.new('UICorner')
 KeybindHudCorner.CornerRadius = UDim.new(0, 4)
 KeybindHudCorner.Parent = KeybindHudFrame
-
-local KeybindHudGradient = Instance.new('UIGradient')
-KeybindHudGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 39, 48)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(13, 18, 27))
-})
-KeybindHudGradient.Rotation = 90
-KeybindHudGradient.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudFrame, { BackgroundColor3 = 'MainColor' })
 
 local KeybindHudStroke = Instance.new('UIStroke')
 KeybindHudStroke.Color = Library.OutlineColor
 KeybindHudStroke.Thickness = 1.2
 KeybindHudStroke.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudStroke, { Color = 'OutlineColor' })
 Library:OnUnload(function()
 	if KeybindHudGui.Parent then
 		KeybindHudGui:Destroy()
@@ -260,33 +254,38 @@ local KeybindHudHeader = Instance.new('TextLabel')
 KeybindHudHeader.Name = 'Header'
 KeybindHudHeader.BackgroundTransparency = 1
 KeybindHudHeader.Position = UDim2.fromOffset(8, 5)
-KeybindHudHeader.Size = UDim2.new(1, -108, 0, 18)
+KeybindHudHeader.Size = UDim2.new(1, -42, 0, 16)
 KeybindHudHeader.Font = Library.Font
-KeybindHudHeader.Text = 'GUMBALL / BINDS'
-KeybindHudHeader.TextColor3 = Library.AccentColor
-KeybindHudHeader.TextSize = 12
+KeybindHudHeader.Text = 'BINDS'
+KeybindHudHeader.TextColor3 = Library.FontColor
+KeybindHudHeader.TextSize = 11
 KeybindHudHeader.TextXAlignment = Enum.TextXAlignment.Left
 KeybindHudHeader.ZIndex = 2
 KeybindHudHeader.Parent = KeybindHudFrame
 KeybindHudHeader.Active = true
+Library:AddToRegistry(KeybindHudHeader, { TextColor3 = 'FontColor' })
 
 local KeybindHudCount = Instance.new('TextLabel')
 KeybindHudCount.Name = 'Count'
 KeybindHudCount.AnchorPoint = Vector2.new(1, 0)
-KeybindHudCount.Position = UDim2.new(1, -56, 0, 5)
-KeybindHudCount.Size = UDim2.fromOffset(26, 18)
+KeybindHudCount.Position = UDim2.new(1, -8, 0, 5)
+KeybindHudCount.Size = UDim2.fromOffset(22, 16)
 KeybindHudCount.BackgroundColor3 = Library.AccentColor
-KeybindHudCount.BackgroundTransparency = 0.82
+KeybindHudCount.BackgroundTransparency = 0.78
 KeybindHudCount.BorderSizePixel = 0
 KeybindHudCount.Font = Library.Font
 KeybindHudCount.Text = '0'
-KeybindHudCount.TextColor3 = Color3.fromRGB(225, 250, 246)
-KeybindHudCount.TextSize = 11
+KeybindHudCount.TextColor3 = Library.FontColor
+KeybindHudCount.TextSize = 10
 KeybindHudCount.ZIndex = 2
 KeybindHudCount.Parent = KeybindHudFrame
 local KeybindHudCountCorner = Instance.new('UICorner')
 KeybindHudCountCorner.CornerRadius = UDim.new(0, 3)
 KeybindHudCountCorner.Parent = KeybindHudCount
+Library:AddToRegistry(KeybindHudCount, {
+	BackgroundColor3 = 'AccentColor',
+	TextColor3 = 'FontColor'
+})
 
 local KeybindHudAccent = Instance.new('Frame')
 KeybindHudAccent.Name = 'Accent'
@@ -295,21 +294,7 @@ KeybindHudAccent.BorderSizePixel = 0
 KeybindHudAccent.Size = UDim2.new(1, 0, 0, 2)
 KeybindHudAccent.ZIndex = 2
 KeybindHudAccent.Parent = KeybindHudFrame
-
-local KeybindHudDragHint = Instance.new('TextLabel')
-KeybindHudDragHint.Name = 'DragHint'
-KeybindHudDragHint.BackgroundTransparency = 1
-KeybindHudDragHint.AnchorPoint = Vector2.new(1, 0)
-KeybindHudDragHint.Position = UDim2.new(1, -8, 0, 5)
-KeybindHudDragHint.Size = UDim2.fromOffset(42, 18)
-KeybindHudDragHint.Font = Library.Font
-KeybindHudDragHint.Text = 'MOVE'
-KeybindHudDragHint.TextColor3 = Library.FontColor
-KeybindHudDragHint.TextTransparency = 0.35
-KeybindHudDragHint.TextSize = 10
-KeybindHudDragHint.TextXAlignment = Enum.TextXAlignment.Right
-KeybindHudDragHint.ZIndex = 2
-KeybindHudDragHint.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudAccent, { BackgroundColor3 = 'AccentColor' })
 
 local draggingKeybindHud = false
 local keybindHudGrabOffset
@@ -384,8 +369,8 @@ end
 local KeybindHudRowsContainer = Instance.new('Frame')
 KeybindHudRowsContainer.Name = 'Rows'
 KeybindHudRowsContainer.BackgroundTransparency = 1
-KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 30)
-KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -34)
+KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 25)
+KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -29)
 KeybindHudRowsContainer.ZIndex = 2
 KeybindHudRowsContainer.Parent = KeybindHudFrame
 
@@ -484,10 +469,10 @@ local function UpdateKeybindHudRows()
 			label.Name = 'KeybindRow'
 			label.BackgroundColor3 = Library.AccentColor
 			label.BackgroundTransparency = 1
-			label.Size = UDim2.new(1, 0, 0, 19)
+			label.Size = UDim2.new(1, 0, 0, 17)
 			label.Font = Library.Font
 			label.TextColor3 = Library.FontColor
-			label.TextSize = 12
+			label.TextSize = 11
 			label.TextXAlignment = Enum.TextXAlignment.Left
 			label.TextYAlignment = Enum.TextYAlignment.Center
 			label.ZIndex = 3
@@ -498,10 +483,17 @@ local function UpdateKeybindHudRows()
 			local rowPadding = Instance.new('UIPadding')
 			rowPadding.PaddingLeft = UDim.new(0, 5)
 			rowPadding.Parent = label
+			Library:AddToRegistry(label, {
+				BackgroundColor3 = 'AccentColor',
+				TextColor3 = function()
+					return label:GetAttribute('GumballActive') and Library.AccentColor or Library.FontColor
+				end
+			})
 			KeybindHudLabels[row.Id] = label
 		end
 		label.LayoutOrder = order
 		label.Text = row.Text
+		label:SetAttribute('GumballActive', row.Active)
 		label.TextColor3 = row.Active and Library.AccentColor or Library.FontColor
 		label.BackgroundTransparency = 1
 	end
@@ -513,7 +505,7 @@ local function UpdateKeybindHudRows()
 		end
 	end
 
-	KeybindHudFrame.Size = UDim2.fromOffset(260, 36 + #rows * 21)
+	KeybindHudFrame.Size = UDim2.fromOffset(230, 32 + #rows * 19)
 	KeybindHudCount.Text = tostring(#rows)
 	KeybindHudFrame.Visible = KeybindDisplayToggle.Value
 	Library.KeybindFrame.Visible = false
