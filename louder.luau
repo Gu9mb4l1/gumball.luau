@@ -43,6 +43,16 @@ local KeybindDisplayToggle = MenuGroup:AddToggle('ShowKeybinds', {
 	Tooltip = 'Show active keybinds on the left side of the screen'
 })
 
+local KeybindTransparency = MenuGroup:AddSlider('KeybindTransparency', {
+	Text = 'Keybind transparency',
+	Default = 0,
+	Min = 0,
+	Max = 100,
+	Rounding = 0,
+	Suffix = '%',
+	Tooltip = '0 is opaque; 100 is fully transparent'
+})
+
 local KeybindFilter = 'All'
 local KeybindFilterButtons = {}
 local KeybindPopup = Library:Create('Frame', {
@@ -80,10 +90,12 @@ local function ApplyKeybindFilter()
 	Library.KeybindFrame.Visible = KeybindDisplayToggle.Value
 	for filter, button in pairs(KeybindFilterButtons) do
 		button.BackgroundColor3 = filter == KeybindFilter and Library.AccentColor or Library.MainColor
+		button.Text = filter == KeybindFilter and ('> ' .. filter) or filter
 	end
 end
 
 for index, filter in ipairs({ 'All', 'Toggle', 'Hold' }) do
+	local selectedFilter = filter
 	local button = Library:Create('TextButton', {
 		AutoButtonColor = false,
 		BackgroundColor3 = Library.MainColor,
@@ -91,7 +103,7 @@ for index, filter in ipairs({ 'All', 'Toggle', 'Hold' }) do
 		Font = Library.Font,
 		LayoutOrder = index,
 		Size = UDim2.new(1, 0, 0, 22),
-		Text = filter,
+		Text = selectedFilter,
 		TextColor3 = Library.FontColor,
 		TextSize = 14,
 		ZIndex = 251,
@@ -106,11 +118,11 @@ for index, filter in ipairs({ 'All', 'Toggle', 'Hold' }) do
 		{ BackgroundColor3 = 'MainColor' }
 	)
 	button.Activated:Connect(function()
-		KeybindFilter = filter
+		KeybindFilter = selectedFilter
 		KeybindPopup.Visible = false
 		ApplyKeybindFilter()
 	end)
-	KeybindFilterButtons[filter] = button
+	KeybindFilterButtons[selectedFilter] = button
 end
 
 local UserInputService = game:GetService('UserInputService')
@@ -166,13 +178,26 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 end))
 
 KeybindDisplayToggle:OnChanged(ApplyKeybindFilter)
+KeybindTransparency:OnChanged(function(value)
+	local transparency = value / 100
+	Library.KeybindFrame.BackgroundTransparency = transparency
+
+	local inner = Library.KeybindFrame:FindFirstChildWhichIsA('Frame')
+	if inner then
+		inner.BackgroundTransparency = transparency
+		local accent = inner:FindFirstChildWhichIsA('Frame')
+		if accent then
+			accent.BackgroundTransparency = transparency
+		end
+	end
+end)
 
 Library.ToggleKeybind = Options.MenuKeybind
 
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind', 'ShowKeybinds' })
+SaveManager:SetIgnoreIndexes({ 'MenuKeybind', 'ShowKeybinds', 'KeybindTransparency' })
 
 for _, parser in next, SaveManager.Parser do
 	local loadOption = parser.Load
