@@ -8,7 +8,7 @@ local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 local Window = Library:CreateWindow({
 	Title = ' Gumball - .gg/gu9mball',
 	Center = true,
-	AutoShow = true,
+	AutoShow = false,
 	TabPadding = 8,
 	MenuFadeTime = 0.2
 })
@@ -18,6 +18,7 @@ if TitleLabel then
 	TitleLabel.Size = UDim2.new(1, -14, 0, 25)
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 end
+Window.Holder.Visible = true
 
 local Tabs = {
 	Main = Window:AddTab('Main'),
@@ -193,7 +194,6 @@ KeybindTransparency:OnChanged(function(value)
 end)
 
 local desiredMenuVisible = true
-local lastMenuMode = Options.MenuKeybind.Mode
 local RunService = game:GetService('RunService')
 
 local function MatchesMenuKey(input)
@@ -211,6 +211,7 @@ end
 
 local function SetMenuVisibility(visible)
 	desiredMenuVisible = visible
+	Window.Holder.Visible = visible
 end
 
 Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
@@ -243,15 +244,9 @@ Library:GiveSignal(RunService.RenderStepped:Connect(function()
 			or key == 'MB2' and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
 			or key ~= 'MB1' and key ~= 'MB2' and key ~= 'None' and UserInputService:IsKeyDown(Enum.KeyCode[key])
 		SetMenuVisibility(held)
-	elseif lastMenuMode ~= 'Toggle' then
-		SetMenuVisibility(false)
 	end
 
-	if Window.Holder.Visible ~= desiredMenuVisible then
-		Library:Toggle()
-	end
-
-	lastMenuMode = mode
+	Window.Holder.Visible = desiredMenuVisible
 end))
 
 ThemeManager:SetLibrary(Library)
