@@ -215,8 +215,62 @@ local KeybindFilterDropdown = MenuGroup:AddDropdown('KeybindFilter', {
 	Default = 'All'
 })
 
-local ActiveToggleHudLabels = {}
-local ActiveToggleHudLabelSet = {}
+local KeybindHudGui = Instance.new('ScreenGui')
+KeybindHudGui.Name = 'GumballKeybindHud'
+KeybindHudGui.IgnoreGuiInset = true
+KeybindHudGui.ResetOnSpawn = false
+KeybindHudGui.DisplayOrder = Library.ScreenGui.DisplayOrder + 1
+KeybindHudGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+KeybindHudGui.Parent = Library.ScreenGui.Parent
+
+local KeybindHudFrame = Instance.new('Frame')
+KeybindHudFrame.Name = 'Panel'
+KeybindHudFrame.AnchorPoint = Vector2.new(0, 0.5)
+KeybindHudFrame.Position = UDim2.new(0, 10, 0.5, 0)
+KeybindHudFrame.Size = UDim2.fromOffset(240, 32)
+KeybindHudFrame.BackgroundColor3 = Library.MainColor
+KeybindHudFrame.BorderSizePixel = 0
+KeybindHudFrame.Visible = false
+KeybindHudFrame.ZIndex = 1
+KeybindHudFrame.Parent = KeybindHudGui
+
+local KeybindHudStroke = Instance.new('UIStroke')
+KeybindHudStroke.Color = Library.OutlineColor
+KeybindHudStroke.Thickness = 1
+KeybindHudStroke.Parent = KeybindHudFrame
+Library:OnUnload(function()
+	if KeybindHudGui.Parent then
+		KeybindHudGui:Destroy()
+	end
+end)
+
+local KeybindHudHeader = Instance.new('TextLabel')
+KeybindHudHeader.Name = 'Header'
+KeybindHudHeader.BackgroundTransparency = 1
+KeybindHudHeader.Position = UDim2.fromOffset(8, 5)
+KeybindHudHeader.Size = UDim2.new(1, -16, 0, 18)
+KeybindHudHeader.Font = Library.Font
+KeybindHudHeader.Text = 'KEYBINDS'
+KeybindHudHeader.TextColor3 = Library.AccentColor
+KeybindHudHeader.TextSize = 14
+KeybindHudHeader.TextXAlignment = Enum.TextXAlignment.Left
+KeybindHudHeader.ZIndex = 2
+KeybindHudHeader.Parent = KeybindHudFrame
+
+local KeybindHudRowsContainer = Instance.new('Frame')
+KeybindHudRowsContainer.Name = 'Rows'
+KeybindHudRowsContainer.BackgroundTransparency = 1
+KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 27)
+KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -32)
+KeybindHudRowsContainer.ZIndex = 2
+KeybindHudRowsContainer.Parent = KeybindHudFrame
+
+local KeybindHudRowsLayout = Instance.new('UIListLayout')
+KeybindHudRowsLayout.Padding = UDim.new(0, 2)
+KeybindHudRowsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+KeybindHudRowsLayout.Parent = KeybindHudRowsContainer
+
+local KeybindHudLabels = {}
 
 local function IsKeyHeld(key)
 	if key == 'MB1' then
@@ -229,9 +283,33 @@ local function IsKeyHeld(key)
 	return keyCode ~= nil and UserInputService:IsKeyDown(keyCode)
 end
 
-local function UpdateActiveToggleHudLabels()
-	local activeUnboundToggles = {}
-	if type(Toggles) == 'table' then
+local function IsKeybindVisibleInFilter(key, mode)
+	if KeybindFilter == 'All' then
+		return true
+	elseif KeybindFilter == 'Toggle' then
+		return mode == 'Toggle'
+	end
+
+	return mode == 'Hold' and IsKeyHeld(key)
+end
+
+local function UpdateKeybindHudRows()
+	local rows = {}
+	local menuMode = Options.MenuBindMode.Value
+	if IsKeybindVisibleInFilter(MenuKey, menuMode) then
+		table.insert(rows, { Id = 'Menu', Text = string.format('[%s] Menu (%s)', MenuKey, menuMode) })
+	end
+
+	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
+		if label:IsA('TextLabel') then
+			local key, name, mode = label.Text:match('^%[([^%]]+)%]%s+(.-)%s+%(([^()]*)%)$')
+			if key and IsKeybindVisibleInFilter(key, mode) then
+				table.insert(rows, { Id = label, Text = label.Text })
+			end
+		end
+	end
+
+	if KeybindFilter == 'All' and type(Toggles) == 'table' then
 		for name, toggle in pairs(Toggles) do
 			local hasAssignedKey = false
 			for _, addon in ipairs(toggle.Addons or {}) do
@@ -242,80 +320,51 @@ local function UpdateActiveToggleHudLabels()
 			end
 
 			if toggle.Value and not hasAssignedKey then
-				activeUnboundToggles[name] = true
-				local label = ActiveToggleHudLabels[name]
-				if not label or not label.Parent then
-					label = Library:CreateLabel({
-						Size = UDim2.new(1, 0, 0, 18),
-						TextSize = 13,
-						TextXAlignment = Enum.TextXAlignment.Left,
-						ZIndex = 110,
-						Visible = false,
-						Parent = Library.KeybindContainer
-					}, true)
-					ActiveToggleHudLabels[name] = label
-					ActiveToggleHudLabelSet[label] = true
-				end
-
 				local text = toggle.TextLabel and toggle.TextLabel.Text or tostring(name)
-				local labelText = text .. ' (On)'
-				if label.Text ~= labelText then
-					label.Text = labelText
-				end
+				table.insert(rows, { Id = toggle, Text = text .. ' (On)' })
 			end
 		end
 	end
 
-	for name, label in pairs(ActiveToggleHudLabels) do
-		if not activeUnboundToggles[name] then
-			ActiveToggleHudLabels[name] = nil
-			ActiveToggleHudLabelSet[label] = nil
+	local visibleRows = {}
+	for order, row in ipairs(rows) do
+		visibleRows[row.Id] = true
+		local label = KeybindHudLabels[row.Id]
+		if not label or not label.Parent then
+			label = Instance.new('TextLabel')
+			label.Name = 'KeybindRow'
+			label.BackgroundTransparency = 1
+			label.Size = UDim2.new(1, 0, 0, 18)
+			label.Font = Library.Font
+			label.TextColor3 = Library.FontColor
+			label.TextSize = 13
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.TextYAlignment = Enum.TextYAlignment.Center
+			label.ZIndex = 3
+			label.Parent = KeybindHudRowsContainer
+			KeybindHudLabels[row.Id] = label
+		end
+		label.LayoutOrder = order
+		label.Text = row.Text
+	end
+
+	for id, label in pairs(KeybindHudLabels) do
+		if not visibleRows[id] then
+			KeybindHudLabels[id] = nil
 			label:Destroy()
 		end
 	end
+
+	KeybindHudFrame.Size = UDim2.fromOffset(240, 34 + #rows * 20)
+	KeybindHudFrame.Visible = KeybindDisplayToggle.Value
+	Library.KeybindFrame.Visible = false
 end
 
 local function ApplyKeybindFilter()
-	UpdateActiveToggleHudLabels()
-	local visibleCount = 0
-	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
-		if label:IsA('TextLabel') then
-			local shouldShow
-			if ActiveToggleHudLabelSet[label] then
-				shouldShow = KeybindFilter == 'All'
-			else
-				local key, mode = label.Text:match('^%[([^%]]+)%]%s+.-%(([^()]*)%)$')
-				if KeybindFilter == 'All' then
-					shouldShow = key ~= nil
-				elseif KeybindFilter == 'Toggle' then
-					shouldShow = key ~= nil and mode == 'Toggle'
-				else
-					shouldShow = key ~= nil and mode == 'Hold' and IsKeyHeld(key)
-				end
-			end
-			label.Visible = shouldShow == true
-			if label.Visible then
-				visibleCount += 1
-			end
-		end
-	end
-
-	Library.KeybindFrame.Size = UDim2.new(0, Library.KeybindFrame.Size.X.Offset, 0, visibleCount * 18 + 23)
-	Library.KeybindFrame.Visible = KeybindDisplayToggle.Value
+	UpdateKeybindHudRows()
 end
 
-local MenuKeybindHudLabel = Library:CreateLabel({
-	Size = UDim2.new(1, 0, 0, 18),
-	TextSize = 13,
-	Text = string.format('[%s] Menu (%s)', MenuKey, Options.MenuBindMode.Value),
-	TextXAlignment = Enum.TextXAlignment.Left,
-	ZIndex = 110,
-	Visible = true,
-	Parent = Library.KeybindContainer
-}, true)
-
 local function UpdateMenuKeybindHud()
-	MenuKeybindHudLabel.Text = string.format('[%s] Menu (%s)', MenuKey, Options.MenuBindMode.Value)
 	ApplyKeybindFilter()
 end
 
@@ -352,19 +401,13 @@ end
 Library.KeybindContainer.ChildAdded:Connect(WatchKeybindLabel)
 Library.KeybindContainer.ChildRemoved:Connect(ApplyKeybindFilter)
 
-KeybindDisplayToggle:OnChanged(ApplyKeybindFilter)
+KeybindDisplayToggle:OnChanged(function()
+	ApplyKeybindFilter()
+end)
 KeybindTransparency:OnChanged(function(value)
 	local transparency = value / 100
-	Library.KeybindFrame.BackgroundTransparency = transparency
-
-	local inner = Library.KeybindFrame:FindFirstChildWhichIsA('Frame')
-	if inner then
-		inner.BackgroundTransparency = transparency
-		local accent = inner:FindFirstChildWhichIsA('Frame')
-		if accent then
-			accent.BackgroundTransparency = transparency
-		end
-	end
+	KeybindHudFrame.BackgroundTransparency = transparency
+	KeybindHudStroke.Transparency = transparency
 end)
 
 local desiredMenuVisible = true
