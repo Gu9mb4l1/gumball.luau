@@ -32,10 +32,18 @@ local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
 	Library:Unload()
 end)
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
-	Default = 'RightShift',
-	NoUI = false,
-	Text = 'Menu keybind'
+local UserInputService = game:GetService('UserInputService')
+local MenuKey = 'RightShift'
+local waitingForMenuKey = false
+local MenuBindLabel = MenuGroup:AddLabel('Menu bind: ' .. MenuKey, true)
+MenuGroup:AddButton('Change menu key', function()
+	waitingForMenuKey = true
+	Library:Notify('Press a keyboard key. Escape cancels.', 3)
+end)
+MenuGroup:AddDropdown('MenuBindMode', {
+	Text = 'Menu key mode',
+	Values = { 'Toggle', 'Hold', 'Always' },
+	Default = 'Toggle'
 })
 
 local KeybindDisplayToggle = MenuGroup:AddToggle('ShowKeybinds', {
@@ -126,7 +134,6 @@ for index, filter in ipairs({ 'All', 'Toggle', 'Hold' }) do
 	KeybindFilterButtons[selectedFilter] = button
 end
 
-local UserInputService = game:GetService('UserInputService')
 local KeybindCheckmark = KeybindDisplayToggle.TextLabel.Parent
 KeybindCheckmark.Active = true
 KeybindCheckmark.InputBegan:Connect(function(input)
@@ -197,13 +204,8 @@ local desiredMenuVisible = true
 local RunService = game:GetService('RunService')
 
 local function MatchesMenuKey(input)
-	local key = Options.MenuKeybind.Value
 	if input.UserInputType == Enum.UserInputType.Keyboard then
-		return input.KeyCode.Name == key
-	elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
-		return key == 'MB1'
-	elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-		return key == 'MB2'
+		return input.KeyCode.Name == MenuKey
 	end
 
 	return false
@@ -216,11 +218,29 @@ end
 
 Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
 Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if (gameProcessed and Options.MenuKeybind.Value ~= 'RightShift') or not MatchesMenuKey(input) then
+	if waitingForMenuKey then
+		if input.UserInputType ~= Enum.UserInputType.Keyboard then
+			return
+		end
+
+		local keyName = input.KeyCode.Name
+		if keyName == 'Escape' then
+			waitingForMenuKey = false
+			Library:Notify('Menu key unchanged', 2)
+		elseif keyName ~= 'Unknown' then
+			MenuKey = keyName
+			waitingForMenuKey = false
+			MenuBindLabel:SetText('Menu bind: ' .. MenuKey)
+			Library:Notify('Menu key set to ' .. MenuKey, 2)
+		end
 		return
 	end
 
-	local mode = Options.MenuKeybind.Mode
+	if not MatchesMenuKey(input) then
+		return
+	end
+
+	local mode = Options.MenuBindMode.Value
 	if mode == 'Toggle' then
 		SetMenuVisibility(not desiredMenuVisible)
 	elseif mode == 'Hold' then
@@ -229,20 +249,17 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProce
 end))
 
 Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
-	if Options.MenuKeybind.Mode == 'Hold' and MatchesMenuKey(input) then
+	if Options.MenuBindMode.Value == 'Hold' and MatchesMenuKey(input) then
 		SetMenuVisibility(false)
 	end
 end))
 
 Library:GiveSignal(RunService.RenderStepped:Connect(function()
-	local mode = Options.MenuKeybind.Mode
+	local mode = Options.MenuBindMode.Value
 	if mode == 'Always' then
 		SetMenuVisibility(true)
 	elseif mode == 'Hold' then
-		local key = Options.MenuKeybind.Value
-		local held = key == 'MB1' and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
-			or key == 'MB2' and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
-			or key ~= 'MB1' and key ~= 'MB2' and key ~= 'None' and UserInputService:IsKeyDown(Enum.KeyCode[key])
+		local held = UserInputService:IsKeyDown(Enum.KeyCode[MenuKey])
 		SetMenuVisibility(held)
 	end
 
@@ -252,7 +269,7 @@ end))
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind', 'ShowKeybinds', 'KeybindTransparency' })
+SaveManager:SetIgnoreIndexes({ 'MenuBindMode', 'ShowKeybinds', 'KeybindTransparency' })
 
 for _, parser in next, SaveManager.Parser do
 	local loadOption = parser.Load
