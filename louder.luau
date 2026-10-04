@@ -232,6 +232,7 @@ KeybindHudFrame.BackgroundColor3 = Library.MainColor
 KeybindHudFrame.BorderSizePixel = 0
 KeybindHudFrame.Visible = false
 KeybindHudFrame.ZIndex = 1
+KeybindHudFrame.Active = true
 KeybindHudFrame.Parent = KeybindHudGui
 
 local KeybindHudStroke = Instance.new('UIStroke')
@@ -261,7 +262,7 @@ KeybindHudHeader.Active = true
 local draggingKeybindHud = false
 local keybindHudDragStart
 local keybindHudStartPosition
-KeybindHudHeader.InputBegan:Connect(function(input)
+local function BeginKeybindHudDrag(input)
 	if not Window.Holder.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 		return
 	end
@@ -269,18 +270,20 @@ KeybindHudHeader.InputBegan:Connect(function(input)
 	draggingKeybindHud = true
 	keybindHudDragStart = input.Position
 	keybindHudStartPosition = KeybindHudFrame.AbsolutePosition
-end)
+end
+KeybindHudFrame.InputBegan:Connect(BeginKeybindHudDrag)
+KeybindHudHeader.InputBegan:Connect(BeginKeybindHudDrag)
 
-Library:GiveSignal(UserInputService.InputChanged:Connect(function(input)
-	if not draggingKeybindHud or input.UserInputType ~= Enum.UserInputType.MouseMovement then
+local function UpdateKeybindHudDrag()
+	if not draggingKeybindHud then
 		return
 	end
-	if not Window.Holder.Visible then
+	if not Window.Holder.Visible or not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
 		draggingKeybindHud = false
 		return
 	end
 
-	local delta = input.Position - keybindHudDragStart
+	local delta = UserInputService:GetMouseLocation() - keybindHudDragStart
 	local viewportSize = workspace.CurrentCamera.ViewportSize
 	local size = KeybindHudFrame.AbsoluteSize
 	local x = math.clamp(keybindHudStartPosition.X + delta.X, 0, math.max(0, viewportSize.X - size.X))
@@ -289,13 +292,7 @@ Library:GiveSignal(UserInputService.InputChanged:Connect(function(input)
 		x + size.X * KeybindHudFrame.AnchorPoint.X,
 		y + size.Y * KeybindHudFrame.AnchorPoint.Y
 	)
-end))
-
-Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		draggingKeybindHud = false
-	end
-end))
+end
 
 local KeybindHudRowsContainer = Instance.new('Frame')
 KeybindHudRowsContainer.Name = 'Rows'
@@ -509,6 +506,7 @@ Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
 end))
 
 Library:GiveSignal(RunService.RenderStepped:Connect(function()
+	UpdateKeybindHudDrag()
 	local mode = Options.MenuBindMode.Value
 	if mode == 'Always' then
 		SetMenuVisibility(true)
