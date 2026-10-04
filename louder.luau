@@ -287,7 +287,19 @@ KeybindHudDragHint.Parent = KeybindHudFrame
 
 local draggingKeybindHud = false
 local keybindHudGrabOffset
+local nativeKeybindHudDrag
+local dragDetectorCreated, dragDetector = pcall(function()
+	return Instance.new('UIDragDetector')
+end)
+if dragDetectorCreated then
+	nativeKeybindHudDrag = dragDetector
+	nativeKeybindHudDrag.Parent = KeybindHudFrame
+end
+
 Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
+	if nativeKeybindHudDrag then
+		return
+	end
 	if not Window.Holder.Visible or not KeybindHudFrame.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 		return
 	end
@@ -305,6 +317,10 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 end))
 
 local function UpdateKeybindHudDrag()
+	if nativeKeybindHudDrag then
+		KeybindHudFrame.Active = menuReady and Window.Holder.Visible
+		return
+	end
 	if not draggingKeybindHud then
 		return
 	end
