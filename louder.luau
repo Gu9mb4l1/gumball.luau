@@ -1,5 +1,4 @@
--- Gumball Menu Louded! 
--- Gumball Script's Will Apear Soon. Menu Keybind (rightshift)
+-- Gumball UI
 -- Gumball - .gg/gu9mball
 
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
@@ -23,26 +22,6 @@ local Window = Library:CreateWindow({
     MenuFadeTime = 0.2
 })
 
-local DefaultWidth = 560
-local DefaultHeight = 450
-local WindowFrame
-
-for _, Object in next, Library.ScreenGui:GetDescendants() do
-    if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
-        Object.Position = UDim2.new(0, 0, 0, 0)
-        Object.Size = UDim2.new(1, 0, 0, 25)
-        Object.Font = Enum.Font.GothamBold
-        Object.TextSize = 16
-        Object.TextColor3 = Color3.fromRGB(245, 250, 255)
-        Object.TextXAlignment = Enum.TextXAlignment.Center
-
-        WindowFrame = Object.Parent.Parent
-        WindowFrame.ClipsDescendants = true
-        Object.Parent.ClipsDescendants = true
-        break
-    end
-end
-
 local Tabs = {
     Main = Window:AddTab('Main'),
     World = Window:AddTab('World'),
@@ -53,504 +32,356 @@ local Tabs = {
     ['UI Settings'] = Window:AddTab('UI Settings'),
 }
 
-local SilentAimGroup = Tabs.Main:AddLeftGroupbox('Silent aim')
-SilentAimGroup:AddToggle('SilentAimEnabled', { Text = 'Enabled', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimManipulation', { Text = 'Manipulation', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimClosestPart', { Text = 'Closest part', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimVisualize', { Text = 'Visualize', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimShowFov', { Text = 'Show fov', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimOutline', { Text = 'Outline', Callback = function(Value) end })
-SilentAimGroup:AddToggle('SilentAimFill', { Text = 'Fill', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimFov', { Text = 'Fov', Default = 0, Min = 0, Max = 10, Rounding = 1, Suffix = 'x', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimRadius', { Text = 'Radius', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
-SilentAimGroup:AddSlider('SilentAimHitChance', { Text = 'Hit chance', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-
-local TargetingGroup = Tabs.Main:AddLeftGroupbox('Targeting')
-TargetingGroup:AddToggle('TargetVisibleOnly', { Text = 'Visible only', Callback = function(Value) end })
-TargetingGroup:AddToggle('TargetIgnoreProtected', { Text = 'Ignore protected', Callback = function(Value) end })
-TargetingGroup:AddDropdown('TargetIgnoreIf', { Text = 'Ignore if', Values = { 'Katana deflecting', 'Invulnerable', 'Teammate' }, Default = 1, Callback = function(Value) end })
-TargetingGroup:AddToggle('TargetDisableFlash', { Text = 'Disable on flash', Callback = function(Value) end })
-TargetingGroup:AddSlider('TargetReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
-TargetingGroup:AddSlider('TargetForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
-TargetingGroup:AddDropdown('TargetPart', { Text = 'Target part', Values = { 'Head', 'HumanoidRootPart', 'UpperTorso' }, Default = 1, Callback = function(Value) end })
-
-local AimbotGroup = Tabs.Main:AddRightGroupbox('Aimbot')
-AimbotGroup:AddToggle('AimbotEnabled', { Text = 'Enabled', Callback = function(Value) end })
-AimbotGroup:AddToggle('AimbotManipulation', { Text = 'Manipulation', Callback = function(Value) end })
-AimbotGroup:AddToggle('AimbotClosestPart', { Text = 'Closest part', Callback = function(Value) end })
-AimbotGroup:AddToggle('AimbotVisualize', { Text = 'Visualize', Callback = function(Value) end })
-AimbotGroup:AddSlider('AimbotSmoothing', { Text = 'Smoothing', Default = 0, Min = 0, Max = 10, Rounding = 1, Callback = function(Value) end })
-AimbotGroup:AddSlider('AimbotFov', { Text = 'Fov', Default = 0, Min = 0, Max = 180, Rounding = 0, Callback = function(Value) end })
-
-local TriggerbotGroup = Tabs.Main:AddRightGroupbox('Triggerbot')
-TriggerbotGroup:AddToggle('TriggerbotEnabled', { Text = 'Enabled', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerReactionOffset', { Text = 'Reaction time offset', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's', Callback = function(Value) end })
-TriggerbotGroup:AddSlider('TriggerMaxDistance', { Text = 'Max distance', Default = 0, Min = 0, Max = 1000, Rounding = 0, Suffix = 's', Callback = function(Value) end })
-TriggerbotGroup:AddDropdown('TriggerPartBlacklist', { Text = 'Part blacklist', Values = { 'HumanoidRootPart, UpperTorso', 'Head', 'Legs' }, Default = 1, Callback = function(Value) end })
-TriggerbotGroup:AddDropdown('TriggerSettings', { Text = 'Settings', Values = { 'No delay between targets', 'Default' }, Default = 1, Callback = function(Value) end })
-
-local WeaponsGroup = Tabs.Main:AddRightGroupbox('Weapons')
-WeaponsGroup:AddToggle('NoSpread', { Text = 'No spread', Callback = function(Value) end })
-WeaponsGroup:AddToggle('FullAuto', { Text = 'Full auto', Callback = function(Value) end })
-WeaponsGroup:AddToggle('AlwaysBackstab', { Text = 'Always backstab', Callback = function(Value) end })
-WeaponsGroup:AddDropdown('GrenadeOptions', { Text = 'Grenade options', Values = { 'Explode on throw', 'Default' }, Default = 1, Callback = function(Value) end })
-WeaponsGroup:AddSlider('FireRate', { Text = 'Firerate', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-WeaponsGroup:AddDropdown('RagebotPriority', { Text = 'Ragebot priority', Values = { 'Distance', 'Health', 'Crosshair' }, Default = 1, Callback = function(Value) end })
-
-local ColorCorrectionGroup = Tabs.World:AddLeftGroupbox('Color correction')
-ColorCorrectionGroup:AddToggle('ColorCorrectionEnabled', { Text = 'Enabled', Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Saturation', { Text = 'Saturation', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Contrast', { Text = 'Contrast', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
-ColorCorrectionGroup:AddSlider('Brightness', { Text = 'Brightness', Default = 0, Min = -1, Max = 1, Rounding = 1, Callback = function(Value) end })
-
-local LightingGroup = Tabs.World:AddLeftGroupbox('Lighting')
-LightingGroup:AddToggle('Ambient', { Text = 'Ambient', Callback = function(Value) end })
-LightingGroup:AddToggle('ColorShiftBottom', { Text = 'ColorShift_Bottom', Callback = function(Value) end })
-LightingGroup:AddToggle('ColorShiftTop', { Text = 'ColorShift_Top', Callback = function(Value) end })
-LightingGroup:AddToggle('FogColor', { Text = 'FogColor', Callback = function(Value) end })
-LightingGroup:AddToggle('FogEnd', { Text = 'FogEnd', Callback = function(Value) end })
-LightingGroup:AddToggle('FogStart', { Text = 'FogStart', Callback = function(Value) end })
-LightingGroup:AddToggle('ExposureCompensation', { Text = 'ExposureCompensation', Callback = function(Value) end })
-LightingGroup:AddSlider('ExposureValue', { Text = 'ExposureCompensation', Default = 0, Min = -5, Max = 5, Rounding = 0, Callback = function(Value) end })
-LightingGroup:AddToggle('GlobalShadows', { Text = 'GlobalShadows', Callback = function(Value) end })
-
-local SkyboxGroup = Tabs.World:AddRightGroupbox('Skybox')
-SkyboxGroup:AddToggle('SkyboxEnabled', { Text = 'Enabled', Callback = function(Value) end })
-SkyboxGroup:AddDropdown('SkyboxSelected', { Text = 'Selected', Values = { 'Galaxy', 'Default' }, Default = 1, Callback = function(Value) end })
-SkyboxGroup:AddDropdown('SkyboxDisable', { Text = 'Disable', Values = { 'Sun, moon', 'None' }, Default = 1, Callback = function(Value) end })
-
-local BloomGroup = Tabs.World:AddRightGroupbox('Bloom')
-BloomGroup:AddToggle('BloomEnabled', { Text = 'Enable', Callback = function(Value) end })
-BloomGroup:AddSlider('BloomIntensity', { Text = 'Intensity', Default = 0, Min = 0, Max = 10, Rounding = 0, Callback = function(Value) end })
-BloomGroup:AddSlider('BloomSize', { Text = 'Size', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-BloomGroup:AddSlider('BloomThreshold', { Text = 'Threshold', Default = 0, Min = 0, Max = 1, Rounding = 1, Callback = function(Value) end })
-
-local CameraGroup = Tabs.World:AddRightGroupbox('Camera')
-CameraGroup:AddToggle('AntiFlashbang', { Text = 'Anti flashbang', Callback = function(Value) end })
-CameraGroup:AddToggle('FovChanger', { Text = 'Fov changer', Callback = function(Value) end })
-CameraGroup:AddSlider('CameraFov', { Text = 'Fov', Default = 30, Min = 30, Max = 120, Rounding = 0, Callback = function(Value) end })
-CameraGroup:AddToggle('AspectRatio', { Text = 'Aspect ratio', Callback = function(Value) end })
-CameraGroup:AddSlider('RatioX', { Text = 'Ratio X', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
-CameraGroup:AddSlider('RatioY', { Text = 'Ratio Y', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2, Callback = function(Value) end })
-CameraGroup:AddSlider('CameraBlur', { Text = 'Blur', Default = 0, Min = 0, Max = 20, Rounding = 0, Callback = function(Value) end })
-
-local EspOptionsGroup = Tabs.ESP:AddLeftGroupbox('Options')
-EspOptionsGroup:AddToggle('EspBox', { Text = 'Box', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspMovingRotation', { Text = 'Moving rotation', Callback = function(Value) end })
-EspOptionsGroup:AddSlider('EspRotation', { Text = 'Rotation', Default = 0, Min = 0, Max = 360, Rounding = 0, Suffix = ' deg', Callback = function(Value) end })
-EspOptionsGroup:AddSlider('EspRotationSpeed', { Text = 'Speed', Default = 0, Min = 0, Max = 5, Rounding = 1, Suffix = 'rps', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspFill', { Text = 'Fill', Callback = function(Value) end })
-EspOptionsGroup:AddDropdown('EspFillImage', { Text = 'Fill image', Values = { 'Default', 'Gradient' }, Default = 1, Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspSkeleton', { Text = 'Skeleton', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspOutline', { Text = 'Outline', Callback = function(Value) end })
-EspOptionsGroup:AddSlider('EspThickness', { Text = 'Thickness', Default = 0, Min = 0, Max = 5, Rounding = 0, Suffix = 'px', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspName', { Text = 'Name', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspWeapon', { Text = 'Weapon', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspDistance', { Text = 'Distance', Callback = function(Value) end })
-EspOptionsGroup:AddToggle('EspHealthbar', { Text = 'Healthbar', Callback = function(Value) end })
-
-local EspAppearanceGroup = Tabs.ESP:AddRightGroupbox('Override appearance')
-EspAppearanceGroup:AddToggle('EspAppearanceEnabled', { Text = 'Enabled', Callback = function(Value) end })
-EspAppearanceGroup:AddToggle('EspColor', { Text = 'Color', Callback = function(Value) end })
-EspAppearanceGroup:AddDropdown('EspMaterial', { Text = 'Material', Values = { 'ForceField', 'Neon', 'Plastic' }, Default = 1, Callback = function(Value) end })
-EspAppearanceGroup:AddDropdown('EspDisable', { Text = 'Disable', Values = { 'None', 'Team check' }, Default = 1, Callback = function(Value) end })
-EspAppearanceGroup:AddSlider('EspTransparency', { Text = 'Transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-
-local HighlightGroup = Tabs.ESP:AddRightGroupbox('Highlight')
-HighlightGroup:AddToggle('HighlightEnabled', { Text = 'Enabled', Callback = function(Value) end })
-HighlightGroup:AddSlider('HighlightFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-HighlightGroup:AddSlider('HighlightOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-
-local EspCustomizationGroup = Tabs.ESP:AddRightGroupbox('Customization')
-EspCustomizationGroup:AddToggle('IncludeTeammates', { Text = 'Include teammates', Callback = function(Value) end })
-EspCustomizationGroup:AddDropdown('BoundingMode', { Text = 'Bounding mode', Values = { 'Dynamic', 'Static' }, Default = 1, Callback = function(Value) end })
-EspCustomizationGroup:AddSlider('FixedWidthScale', { Text = 'Fixed width scale', Default = 0, Min = 0, Max = 200, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-EspCustomizationGroup:AddDropdown('EspFont', { Text = 'Font', Values = { 'Monocraft', 'Gotham', 'Code' }, Default = 1, Callback = function(Value) end })
-EspCustomizationGroup:AddInput('NameType', { Text = 'Name type', Default = 'Name' })
-
-local ViewmodelGroup = Tabs.visuals:AddLeftGroupbox('Viewmodel')
-ViewmodelGroup:AddToggle('ShowCosmeticsChanger', { Text = 'Show cosmetics changer', Callback = function(Value) end })
-ViewmodelGroup:AddDropdown('MuzzleFlash', { Text = 'Muzzle flash', Values = { 'Default', 'Disabled' }, Default = 1, Callback = function(Value) end })
-ViewmodelGroup:AddToggle('OverrideFps', { Text = 'Override fps', Callback = function(Value) end })
-ViewmodelGroup:AddSlider('RecoilPercent', { Text = 'Recoil percent', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-ViewmodelGroup:AddToggle('ViewmodelChams', { Text = 'Chams', Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Callback = function(Value) end })
-ViewmodelGroup:AddDropdown('ThroughWalls', { Text = 'Through walls', Values = { 'Default', 'Enabled' }, Default = 1, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOffsetX', { Text = 'Offset X', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOffsetY', { Text = 'Offset Y', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
-ViewmodelGroup:AddSlider('ViewmodelOffsetZ', { Text = 'Offset Z', Default = 0, Min = -2, Max = 2, Rounding = 1, Callback = function(Value) end })
-
-local HitEffectsGroup = Tabs.visuals:AddRightGroupbox('Hit effects')
-HitEffectsGroup:AddToggle('HitEffectsEnabled', { Text = 'Enabled', Callback = function(Value) end })
-HitEffectsGroup:AddToggle('WeldToPlayer', { Text = 'Weld to player', Callback = function(Value) end })
-HitEffectsGroup:AddDropdown('FortniteDamage', { Text = 'Fortnite damage', Values = { 'Slashes', 'Numbers', 'Default' }, Default = 1, Callback = function(Value) end })
-HitEffectsGroup:AddDropdown('HitEffectSettings', { Text = 'Effect settings', Values = { 'Default', 'Custom' }, Default = 1, Callback = function(Value) end })
-HitEffectsGroup:AddDropdown('PreferredMaterial', { Text = 'Preferred material', Values = { 'ForceField', 'Neon', 'Plastic' }, Default = 1, Callback = function(Value) end })
-HitEffectsGroup:AddToggle('DisableHitMarker', { Text = 'Disable hit marker', Callback = function(Value) end })
-HitEffectsGroup:AddToggle('DisableDamageNumbers', { Text = 'Disable damage numbers', Callback = function(Value) end })
-
-local TargetHudGroup = Tabs.visuals:AddRightGroupbox('Target hud')
-TargetHudGroup:AddToggle('TargetHudEnabled', { Text = 'Enabled', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudOffsetX', { Text = 'Offset X', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudOffsetY', { Text = 'Offset Y', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudItemScale', { Text = 'Item scale', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddSlider('TargetHudUiScale', { Text = 'UI scale', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%', Callback = function(Value) end })
-TargetHudGroup:AddDropdown('TargetHudShowTargets', { Text = 'Show targets', Values = { 'Ragebot', 'Aimbot', 'All' }, Default = 1, Callback = function(Value) end })
-
-local AutoLoadGroup = Tabs.Misc:AddLeftGroupbox('Auto load')
-AutoLoadGroup:AddToggle('AutoLoadEnabled', { Text = 'Enabled', Callback = function(Value) end })
-AutoLoadGroup:AddToggle('SilentMode', { Text = 'Silent mode', Callback = function(Value) end })
-
-local LoadoutGroup = Tabs.Misc:AddLeftGroupbox('Loadout')
-LoadoutGroup:AddToggle('AutoSelect', { Text = 'Auto select', Callback = function(Value) end })
-LoadoutGroup:AddDropdown('PrimaryWeapon', { Text = 'Primary', Values = { 'Shotgun', 'Rifle', 'Sniper' }, Default = 1, Callback = function(Value) end })
-LoadoutGroup:AddDropdown('SecondaryWeapon', { Text = 'Secondary', Values = { 'Shorty', 'Pistol', 'Revolver' }, Default = 1, Callback = function(Value) end })
-LoadoutGroup:AddDropdown('MeleeWeapon', { Text = 'Melee', Values = { 'Knife', 'Katana' }, Default = 1, Callback = function(Value) end })
-LoadoutGroup:AddDropdown('UtilityWeapon', { Text = 'Utility', Values = { 'Medkit', 'Grenade' }, Default = 1, Callback = function(Value) end })
-
-local ChatSpamGroup = Tabs.Misc:AddLeftGroupbox('Chat spam')
-ChatSpamGroup:AddToggle('ChatSpamEnabled', { Text = 'Enabled', Callback = function(Value) end })
-ChatSpamGroup:AddToggle('ChatSpamInOrder', { Text = 'In order', Callback = function(Value) end })
-ChatSpamGroup:AddDropdown('ChatMode', { Text = 'Chat mode', Values = { 'Custom', 'Random' }, Default = 1, Callback = function(Value) end })
-ChatSpamGroup:AddInput('ChatText', { Text = 'Random custom text', Default = '' })
-ChatSpamGroup:AddInput('AdditionalChatText', { Text = 'Add custom text', Default = '' })
-
-local QueueGroup = Tabs.Misc:AddRightGroupbox('Auto queue')
-QueueGroup:AddToggle('AutoQueueEnabled', { Text = 'Enabled', Callback = function(Value) end })
-QueueGroup:AddDropdown('GameMode', { Text = 'Game Mode', Values = { 'ranked 1v1', 'ranked 2v2', 'casual' }, Default = 1, Callback = function(Value) end })
-
-local NameSpooferGroup = Tabs.Misc:AddRightGroupbox('Name spoofer')
-NameSpooferGroup:AddToggle('NameSpooferLocal', { Text = 'Local', Callback = function(Value) end })
-NameSpooferGroup:AddInput('SpoofedName', { Text = 'Name', Default = '' })
-NameSpooferGroup:AddToggle('NameSpooferOther', { Text = 'Other', Callback = function(Value) end })
-NameSpooferGroup:AddInput('OtherName', { Text = 'Name', Default = '' })
-
-local ArcadeGroup = Tabs.Misc:AddRightGroupbox('Arcade servers')
-ArcadeGroup:AddToggle('AutomaticallyGrabDrops', { Text = 'Automatically grab drops', Callback = function(Value) end })
-ArcadeGroup:AddToggle('AutoRespawn', { Text = 'Auto respawn', Callback = function(Value) end })
-
-local NotifyHitGroup = Tabs.Misc:AddRightGroupbox('Notify hit')
-NotifyHitGroup:AddToggle('NotifyHitEnabled', { Text = 'Enabled', Callback = function(Value) end })
-NotifyHitGroup:AddSlider('NotifyDuration', { Text = 'Notify duration', Default = 0, Min = 0, Max = 10, Rounding = 0, Suffix = 's', Callback = function(Value) end })
-NotifyHitGroup:AddInput('RandomNotifyText', { Text = 'Random notify text', Default = 'Hit {NAME} for {DMG} in the {PART}' })
-NotifyHitGroup:AddInput('CustomNotifyText', { Text = 'Add custom text', Default = '' })
-
-local MovementGroup = Tabs.character:AddLeftGroupbox('Movement')
-
-MovementGroup:AddToggle('Velocity', {
-    Text = 'Velocity',
-    Callback = function(Value) end
-}):AddKeyPicker('VelocityKeybind', { Default = 'Q', NoUI = true, Text = 'Velocity keybind' })
-
-MovementGroup:AddSlider('VelocitySpeed', {
-    Text = 'Velocity speed',
-    Default = 0,
-    Min = 0,
-    Max = 200,
-    Rounding = 0,
-    Suffix = 's',
-    Callback = function(Value) end
-})
-
-MovementGroup:AddToggle('SlideBoost', {
-    Text = 'Slide boost',
-    Callback = function(Value) end
-}):AddKeyPicker('SlideBoostKeybind', { Default = 'X', NoUI = true, Text = 'Slide boost keybind' })
-
-MovementGroup:AddSlider('SlideBoostAmount', {
-    Text = 'Slide boost',
-    Default = 0,
-    Min = 0,
-    Max = 10,
-    Rounding = 1,
-    Suffix = 'x',
-    Callback = function(Value) end
-})
-
-MovementGroup:AddToggle('DoubleJump', {
-    Text = 'Double jump',
-    Callback = function(Value) end
-}):AddKeyPicker('DoubleJumpKeybind', { Default = 'Space', NoUI = true, Text = 'Double jump keybind' })
-
-MovementGroup:AddSlider('DoubleJumpHeight', {
-    Text = 'Double jump height',
-    Default = 0,
-    Min = 0,
-    Max = 5,
-    Rounding = 1,
-    Suffix = 'x',
-    Callback = function(Value) end
-})
-
-MovementGroup:AddToggle('MaulSlamMultiplier', {
-    Text = 'Maul slam multiplier',
-    Callback = function(Value) end
-}):AddKeyPicker('MaulSlamKeybind', { Default = 'M', NoUI = true, Text = 'Maul slam keybind' })
-
-MovementGroup:AddSlider('MaulSlamAmount', {
-    Text = 'Maul slam multiplier',
-    Default = 0,
-    Min = 0,
-    Max = 10,
-    Rounding = 1,
-    Suffix = 'x',
-    Callback = function(Value) end
-})
-
-MovementGroup:AddToggle('InfiniteDoubleJump', {
-    Text = 'Infinite double jump',
-    Callback = function(Value) end
-}):AddKeyPicker('InfiniteDoubleJumpKeybind', { Default = 'J', NoUI = true, Text = 'Infinite jump keybind' })
-
-local AnimationGroup = Tabs.character:AddLeftGroupbox('Animation player')
-
-AnimationGroup:AddToggle('AnimationPlayer', {
-    Text = 'Enabled',
-    Callback = function(Value) end
-}):AddKeyPicker('AnimationPlayerKeybind', { Default = 'P', NoUI = true, Text = 'Animation player keybind' })
-
-AnimationGroup:AddDropdown('AnimationType', {
-    Text = 'Animation',
-    Values = { 'Custom' },
-    Default = 1,
-    Callback = function(Value) end
-})
-
-AnimationGroup:AddInput('CustomAnimation', {
-    Text = 'Custom animation',
-    Default = ''
-})
-
-AnimationGroup:AddSlider('AnimationSpeed', {
-    Text = 'Speed',
-    Default = 0,
-    Min = 0,
-    Max = 20,
-    Rounding = 1,
-    Callback = function(Value) end
-})
-
-AnimationGroup:AddSlider('AnimationStart', {
-    Text = 'Start',
-    Default = 0,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Suffix = '%',
-    Callback = function(Value) end
-})
-
-AnimationGroup:AddSlider('AnimationEnd', {
-    Text = 'End',
-    Default = 0,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Suffix = '%',
-    Callback = function(Value) end
-})
-
-local CharacterGroup = Tabs.character:AddRightGroupbox('Character')
-
-CharacterGroup:AddToggle('Noclip', {
-    Text = 'Noclip',
-    Callback = function(Value) end
-}):AddKeyPicker('NoclipKeybind', { Default = 'N', NoUI = true, Text = 'Noclip keybind' })
-
-CharacterGroup:AddToggle('Fly', {
-    Text = 'Fly',
-    Callback = function(Value) end
-}):AddKeyPicker('FlyKeybind', { Default = 'F', NoUI = true, Text = 'Fly keybind' })
-
-CharacterGroup:AddSlider('FlySpeed', {
-    Text = 'Fly speed',
-    Default = 0,
-    Min = 0,
-    Max = 200,
-    Rounding = 0,
-    Callback = function(Value) end
-})
-
-local ThirdPersonGroup = Tabs.character:AddRightGroupbox('Third person')
-
-ThirdPersonGroup:AddToggle('ThirdPerson', {
-    Text = 'Enabled',
-    Callback = function(Value) end
-}):AddKeyPicker('ThirdPersonKeybind', { Default = 'T', NoUI = true, Text = 'Third person keybind' })
-
-local AntiAimGroup = Tabs.character:AddRightGroupbox('Anti aim')
-
-AntiAimGroup:AddToggle('AntiAim', {
-    Text = 'Enabled',
-    Callback = function(Value) end
-}):AddKeyPicker('AntiAimKeybind', { Default = 'Z', NoUI = true, Text = 'Anti aim keybind' })
-
-AntiAimGroup:AddDropdown('AntiAimPitch', {
-    Text = 'Pitch',
-    Values = { 'Random', 'Up', 'Down', 'Extended' },
-    Default = 1,
-    Callback = function(Value) end
-})
-
-AntiAimGroup:AddDropdown('AntiAimYaw', {
-    Text = 'Yaw',
-    Values = { 'Random', 'Spin', 'Backward' },
-    Default = 1,
-    Callback = function(Value) end
-})
-
-AntiAimGroup:AddToggle('Underground', {
-    Text = 'Underground',
-    Callback = function(Value) end
-}):AddKeyPicker('UndergroundKeybind', { Default = 'U', NoUI = true, Text = 'Underground keybind' })
-
-for _, Label in next, WindowFrame:GetDescendants() do
-    if Label:IsA('TextLabel') and Label:FindFirstChildOfClass('UIListLayout') and Label:FindFirstChildWhichIsA('Frame') then
-        Label.Size = UDim2.new(0, 180, 1, 0)
+local function findWindowFrame()
+    if not Library.ScreenGui then
+        return nil
     end
-end
 
-for Idx, Option in next, Options do
-    if Option.Type == 'KeyPicker' and Idx ~= 'MenuKeybind' then
-        Option:SetValue({ 'None', Option.Mode or 'Toggle' })
-    end
-end
-
-for _, Label in next, WindowFrame:GetDescendants() do
-    if Label:IsA('TextLabel') and Label.Text == 'None' then
-        Label.Text = '...'
-    end
-end
-
-for _, Scrolling in next, WindowFrame:GetDescendants() do
-    if Scrolling:IsA('ScrollingFrame') then
-        Scrolling.Active = true
-        Scrolling.ScrollingEnabled = true
-        Scrolling.ScrollBarThickness = 3
-        Scrolling.ScrollBarImageColor3 = Library.AccentColor
-        Scrolling.ClipsDescendants = true
-    end
-end
-
-local KeybindInputService = game:GetService('UserInputService')
-KeybindInputService.InputBegan:Connect(function(Input)
-    if Input.KeyCode == Enum.KeyCode.Escape then
-        for Idx, Option in next, Options do
-            if Option.Type == 'KeyPicker' and Option.Value == 'Escape' then
-                Option:SetValue({ 'None', Option.Mode or 'Toggle' })
-
-                for _, Label in next, WindowFrame:GetDescendants() do
-                    if Label:IsA('TextLabel') and Label.Text == 'None' then
-                        Label.Text = '...'
-                    end
-                end
-            end
+    for _, Object in next, Library.ScreenGui:GetDescendants() do
+        if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
+            return Object.Parent and Object.Parent.Parent or nil
         end
     end
-end)
 
-for _, Frame in next, WindowFrame:GetDescendants() do
-    if Frame:IsA('Frame') then
-        local Layout = Frame:FindFirstChildOfClass('UIListLayout')
+    return nil
+end
 
-        if Layout and Layout.FillDirection == Enum.FillDirection.Horizontal and Frame.AbsoluteSize.Y <= 25 and Layout.AbsoluteContentSize.X > 0 then
-            Frame.ClipsDescendants = true
+local function styleTitle()
+    if not Library.ScreenGui then
+        return
+    end
 
-            local TabButtons = {}
-
-            for _, Button in next, Frame:GetChildren() do
-                if Button:IsA('Frame') then
-                    local ButtonLabel = Button:FindFirstChildWhichIsA('TextLabel')
-
-                    if ButtonLabel then
-                        local Indicator = Instance.new('Frame')
-                        Indicator.BackgroundColor3 = Library.AccentColor
-                        Indicator.BorderSizePixel = 0
-                        Indicator.Position = UDim2.new(0, 0, 1, -2)
-                        Indicator.Size = UDim2.new(1, 0, 0, 2)
-                        Indicator.Visible = false
-                        Indicator.ZIndex = 10
-                        Indicator.Parent = Button
-
-                        table.insert(TabButtons, { Button = Button, Indicator = Indicator })
-
-                        Button.InputBegan:Connect(function(Input)
-                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                                for _, TabButton in next, TabButtons do
-                                    TabButton.Indicator.Visible = TabButton.Button == Button
-                                end
-                            end
-                        end)
-                    end
-                end
-            end
-
-            if TabButtons[1] then
-                TabButtons[1].Indicator.Visible = true
-            end
-
+    for _, Object in next, Library.ScreenGui:GetDescendants() do
+        if Object:IsA('TextLabel') and Object.Text == 'Gumball - .gg/gu9mball' then
+            Object.Position = UDim2.new(0, 0, 0, 0)
+            Object.Size = UDim2.new(1, 0, 0, 25)
+            Object.Font = Enum.Font.GothamBold
+            Object.TextSize = 16
+            Object.TextXAlignment = Enum.TextXAlignment.Center
+            Object.TextColor3 = Color3.fromRGB(245, 250, 255)
             break
         end
     end
 end
 
-for _, Frame in next, WindowFrame:GetDescendants() do
-    if Frame:IsA('Frame') and Frame.Name == 'TabFrame' then
-        Frame.ClipsDescendants = true
+local function addResizeGrip(targetFrame)
+    if not targetFrame or targetFrame:FindFirstChild('GumballResizeGrip') then
+        return
+    end
 
-        if Frame.Parent then
-            Frame.Parent.ClipsDescendants = true
+    local grip = Instance.new('Frame')
+    grip.Name = 'GumballResizeGrip'
+    grip.AnchorPoint = Vector2.new(1, 1)
+    grip.Position = UDim2.new(1, -8, 1, -8)
+    grip.Size = UDim2.new(0, 18, 0, 18)
+    grip.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
+    grip.BorderSizePixel = 0
+    grip.Parent = targetFrame
+
+    local corner = Instance.new('UICorner')
+    corner.CornerRadius = UDim.new(0, 5)
+    corner.Parent = grip
+
+    local button = Instance.new('TextButton')
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.AutoButtonColor = false
+    button.BackgroundTransparency = 1
+    button.Text = ''
+    button.Parent = grip
+
+    local dragging = false
+    local startMouse = Vector2.zero
+    local startSize = targetFrame.Size
+
+    button.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            startMouse = input.Position
+            startSize = targetFrame.Size
+        end
+    end)
+
+    button.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    button.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - startMouse
+            local newWidth = startSize.X.Offset + delta.X
+            local newHeight = startSize.Y.Offset + delta.Y
+            newWidth = math.clamp(newWidth, 540, 900)
+            newHeight = math.clamp(newHeight, 380, 760)
+            targetFrame.Size = UDim2.new(startSize.X.Scale, newWidth, startSize.Y.Scale, newHeight)
+        end
+    end)
+end
+
+local function fixScrollFrames(root)
+    if not root then
+        return
+    end
+
+    for _, Scrolling in next, root:GetDescendants() do
+        if Scrolling:IsA('ScrollingFrame') then
+            Scrolling.Active = true
+            Scrolling.ScrollingEnabled = true
+            Scrolling.ScrollBarThickness = 4
+            Scrolling.ScrollBarImageColor3 = Library.AccentColor
+            Scrolling.ClipsDescendants = true
+
+            local Layout = Scrolling:FindFirstChildOfClass('UIListLayout')
+            if Layout then
+                local function UpdateCanvas()
+                    Scrolling.CanvasSize = UDim2.fromOffset(0, Layout.AbsoluteContentSize.Y + 20)
+                end
+
+                Layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(UpdateCanvas)
+                task.defer(UpdateCanvas)
+            end
         end
     end
 end
 
+task.defer(function()
+    local frame = findWindowFrame()
+    if frame then
+        frame.ClipsDescendants = true
+        styleTitle()
+        addResizeGrip(frame)
+        fixScrollFrames(frame)
+    end
+end)
+
+local SilentAimGroup = Tabs.Main:AddLeftGroupbox('Silent aim')
+SilentAimGroup:AddToggle('SilentAimEnabled', { Text = 'Enabled' })
+SilentAimGroup:AddToggle('SilentAimManipulation', { Text = 'Manipulation' })
+SilentAimGroup:AddToggle('SilentAimClosestPart', { Text = 'Closest part' })
+SilentAimGroup:AddToggle('SilentAimVisualize', { Text = 'Visualize' })
+SilentAimGroup:AddToggle('SilentAimShowFov', { Text = 'Show fov' })
+SilentAimGroup:AddToggle('SilentAimOutline', { Text = 'Outline' })
+SilentAimGroup:AddToggle('SilentAimFill', { Text = 'Fill' })
+SilentAimGroup:AddSlider('SilentAimFov', { Text = 'Fov', Default = 0, Min = 0, Max = 10, Rounding = 1, Suffix = 'x' })
+SilentAimGroup:AddSlider('SilentAimRadius', { Text = 'Radius', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = 'px' })
+SilentAimGroup:AddSlider('SilentAimHitChance', { Text = 'Hit chance', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+
+local TargetingGroup = Tabs.Main:AddLeftGroupbox('Targeting')
+TargetingGroup:AddToggle('TargetVisibleOnly', { Text = 'Visible only' })
+TargetingGroup:AddToggle('TargetIgnoreProtected', { Text = 'Ignore protected' })
+TargetingGroup:AddDropdown('TargetIgnoreIf', { Text = 'Ignore if', Values = { 'Katana deflecting', 'Invulnerable', 'Teammate' }, Default = 1 })
+TargetingGroup:AddToggle('TargetDisableFlash', { Text = 'Disable on flash' })
+TargetingGroup:AddSlider('TargetReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms' })
+TargetingGroup:AddSlider('TargetForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's' })
+TargetingGroup:AddDropdown('TargetPart', { Text = 'Target part', Values = { 'Head', 'HumanoidRootPart', 'UpperTorso' }, Default = 1 })
+
+local AimbotGroup = Tabs.Main:AddRightGroupbox('Aimbot')
+AimbotGroup:AddToggle('AimbotEnabled', { Text = 'Enabled' })
+AimbotGroup:AddToggle('AimbotManipulation', { Text = 'Manipulation' })
+AimbotGroup:AddToggle('AimbotClosestPart', { Text = 'Closest part' })
+AimbotGroup:AddToggle('AimbotVisualize', { Text = 'Visualize' })
+AimbotGroup:AddSlider('AimbotSmoothing', { Text = 'Smoothing', Default = 0, Min = 0, Max = 10, Rounding = 1 })
+AimbotGroup:AddSlider('AimbotFov', { Text = 'Fov', Default = 0, Min = 0, Max = 180, Rounding = 0 })
+
+local TriggerbotGroup = Tabs.Main:AddRightGroupbox('Triggerbot')
+TriggerbotGroup:AddToggle('TriggerbotEnabled', { Text = 'Enabled' })
+TriggerbotGroup:AddSlider('TriggerReactionTime', { Text = 'Reaction time', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms' })
+TriggerbotGroup:AddSlider('TriggerReactionOffset', { Text = 'Reaction time offset', Default = 0, Min = 0, Max = 500, Rounding = 0, Suffix = 'ms' })
+TriggerbotGroup:AddSlider('TriggerForgetTime', { Text = 'Forget time', Default = 0, Min = 0, Max = 60, Rounding = 0, Suffix = 's' })
+TriggerbotGroup:AddSlider('TriggerMaxDistance', { Text = 'Max distance', Default = 0, Min = 0, Max = 1000, Rounding = 0, Suffix = 's' })
+TriggerbotGroup:AddDropdown('TriggerPartBlacklist', { Text = 'Part blacklist', Values = { 'HumanoidRootPart, UpperTorso', 'Head', 'Legs' }, Default = 1 })
+TriggerbotGroup:AddDropdown('TriggerSettings', { Text = 'Settings', Values = { 'No delay between targets', 'Default' }, Default = 1 })
+
+local WeaponsGroup = Tabs.Main:AddRightGroupbox('Weapons')
+WeaponsGroup:AddToggle('NoSpread', { Text = 'No spread' })
+WeaponsGroup:AddToggle('FullAuto', { Text = 'Full auto' })
+WeaponsGroup:AddToggle('AlwaysBackstab', { Text = 'Always backstab' })
+WeaponsGroup:AddDropdown('GrenadeOptions', { Text = 'Grenade options', Values = { 'Explode on throw', 'Default' }, Default = 1 })
+WeaponsGroup:AddSlider('FireRate', { Text = 'Firerate', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+WeaponsGroup:AddDropdown('RagebotPriority', { Text = 'Ragebot priority', Values = { 'Distance', 'Health', 'Crosshair' }, Default = 1 })
+
+local ColorCorrectionGroup = Tabs.World:AddLeftGroupbox('Color correction')
+ColorCorrectionGroup:AddToggle('ColorCorrectionEnabled', { Text = 'Enabled' })
+ColorCorrectionGroup:AddSlider('Saturation', { Text = 'Saturation', Default = 0, Min = -1, Max = 1, Rounding = 1 })
+ColorCorrectionGroup:AddSlider('Contrast', { Text = 'Contrast', Default = 0, Min = -1, Max = 1, Rounding = 1 })
+ColorCorrectionGroup:AddSlider('Brightness', { Text = 'Brightness', Default = 0, Min = -1, Max = 1, Rounding = 1 })
+
+local LightingGroup = Tabs.World:AddLeftGroupbox('Lighting')
+LightingGroup:AddToggle('Ambient', { Text = 'Ambient' })
+LightingGroup:AddToggle('ColorShiftBottom', { Text = 'ColorShift_Bottom' })
+LightingGroup:AddToggle('ColorShiftTop', { Text = 'ColorShift_Top' })
+LightingGroup:AddToggle('FogColor', { Text = 'FogColor' })
+LightingGroup:AddToggle('FogEnd', { Text = 'FogEnd' })
+LightingGroup:AddToggle('FogStart', { Text = 'FogStart' })
+LightingGroup:AddToggle('ExposureCompensation', { Text = 'ExposureCompensation' })
+LightingGroup:AddSlider('ExposureValue', { Text = 'ExposureCompensation', Default = 0, Min = -5, Max = 5, Rounding = 0 })
+LightingGroup:AddToggle('GlobalShadows', { Text = 'GlobalShadows' })
+
+local SkyboxGroup = Tabs.World:AddRightGroupbox('Skybox')
+SkyboxGroup:AddToggle('SkyboxEnabled', { Text = 'Enabled' })
+SkyboxGroup:AddDropdown('SkyboxSelected', { Text = 'Selected', Values = { 'Galaxy', 'Default' }, Default = 1 })
+SkyboxGroup:AddDropdown('SkyboxDisable', { Text = 'Disable', Values = { 'Sun, moon', 'None' }, Default = 1 })
+
+local BloomGroup = Tabs.World:AddRightGroupbox('Bloom')
+BloomGroup:AddToggle('BloomEnabled', { Text = 'Enable' })
+BloomGroup:AddSlider('BloomIntensity', { Text = 'Intensity', Default = 0, Min = 0, Max = 10, Rounding = 0 })
+BloomGroup:AddSlider('BloomSize', { Text = 'Size', Default = 0, Min = 0, Max = 100, Rounding = 0 })
+BloomGroup:AddSlider('BloomThreshold', { Text = 'Threshold', Default = 0, Min = 0, Max = 1, Rounding = 1 })
+
+local CameraGroup = Tabs.World:AddRightGroupbox('Camera')
+CameraGroup:AddToggle('AntiFlashbang', { Text = 'Anti flashbang' })
+CameraGroup:AddToggle('FovChanger', { Text = 'Fov changer' })
+CameraGroup:AddSlider('CameraFov', { Text = 'Fov', Default = 30, Min = 30, Max = 120, Rounding = 0 })
+CameraGroup:AddToggle('AspectRatio', { Text = 'Aspect ratio' })
+CameraGroup:AddSlider('RatioX', { Text = 'Ratio X', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2 })
+CameraGroup:AddSlider('RatioY', { Text = 'Ratio Y', Default = 0.1, Min = 0.1, Max = 2, Rounding = 2 })
+CameraGroup:AddSlider('CameraBlur', { Text = 'Blur', Default = 0, Min = 0, Max = 20, Rounding = 0 })
+
+local EspOptionsGroup = Tabs.ESP:AddLeftGroupbox('Options')
+EspOptionsGroup:AddToggle('EspBox', { Text = 'Box' })
+EspOptionsGroup:AddToggle('EspMovingRotation', { Text = 'Moving rotation' })
+EspOptionsGroup:AddSlider('EspRotation', { Text = 'Rotation', Default = 0, Min = 0, Max = 360, Rounding = 0, Suffix = ' deg' })
+EspOptionsGroup:AddSlider('EspRotationSpeed', { Text = 'Speed', Default = 0, Min = 0, Max = 5, Rounding = 1, Suffix = 'rps' })
+EspOptionsGroup:AddToggle('EspFill', { Text = 'Fill' })
+EspOptionsGroup:AddDropdown('EspFillImage', { Text = 'Fill image', Values = { 'Default', 'Gradient' }, Default = 1 })
+EspOptionsGroup:AddToggle('EspSkeleton', { Text = 'Skeleton' })
+EspOptionsGroup:AddToggle('EspOutline', { Text = 'Outline' })
+EspOptionsGroup:AddSlider('EspThickness', { Text = 'Thickness', Default = 0, Min = 0, Max = 5, Rounding = 0, Suffix = 'px' })
+EspOptionsGroup:AddToggle('EspName', { Text = 'Name' })
+EspOptionsGroup:AddToggle('EspWeapon', { Text = 'Weapon' })
+EspOptionsGroup:AddToggle('EspDistance', { Text = 'Distance' })
+EspOptionsGroup:AddToggle('EspHealthbar', { Text = 'Healthbar' })
+
+local EspAppearanceGroup = Tabs.ESP:AddRightGroupbox('Override appearance')
+EspAppearanceGroup:AddToggle('EspAppearanceEnabled', { Text = 'Enabled' })
+EspAppearanceGroup:AddToggle('EspColor', { Text = 'Color' })
+EspAppearanceGroup:AddDropdown('EspMaterial', { Text = 'Material', Values = { 'ForceField', 'Neon', 'Plastic' }, Default = 1 })
+EspAppearanceGroup:AddDropdown('EspDisable', { Text = 'Disable', Values = { 'None', 'Team check' }, Default = 1 })
+EspAppearanceGroup:AddSlider('EspTransparency', { Text = 'Transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+
+local HighlightGroup = Tabs.ESP:AddRightGroupbox('Highlight')
+HighlightGroup:AddToggle('HighlightEnabled', { Text = 'Enabled' })
+HighlightGroup:AddSlider('HighlightFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0 })
+HighlightGroup:AddSlider('HighlightOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0 })
+
+local EspCustomizationGroup = Tabs.ESP:AddRightGroupbox('Customization')
+EspCustomizationGroup:AddToggle('IncludeTeammates', { Text = 'Include teammates' })
+EspCustomizationGroup:AddDropdown('BoundingMode', { Text = 'Bounding mode', Values = { 'Dynamic', 'Static' }, Default = 1 })
+EspCustomizationGroup:AddSlider('FixedWidthScale', { Text = 'Fixed width scale', Default = 0, Min = 0, Max = 200, Rounding = 0, Suffix = '%' })
+EspCustomizationGroup:AddDropdown('EspFont', { Text = 'Font', Values = { 'Monocraft', 'Gotham', 'Code' }, Default = 1 })
+EspCustomizationGroup:AddInput('NameType', { Text = 'Name type', Default = 'Name' })
+
+local ViewmodelGroup = Tabs.visuals:AddLeftGroupbox('Viewmodel')
+ViewmodelGroup:AddToggle('ShowCosmeticsChanger', { Text = 'Show cosmetics changer' })
+ViewmodelGroup:AddDropdown('MuzzleFlash', { Text = 'Muzzle flash', Values = { 'Default', 'Disabled' }, Default = 1 })
+ViewmodelGroup:AddToggle('OverrideFps', { Text = 'Override fps' })
+ViewmodelGroup:AddSlider('RecoilPercent', { Text = 'Recoil percent', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+ViewmodelGroup:AddToggle('ViewmodelChams', { Text = 'Chams' })
+ViewmodelGroup:AddSlider('ViewmodelFillTransparency', { Text = 'Fill transparency', Default = 0, Min = 0, Max = 100, Rounding = 0 })
+ViewmodelGroup:AddSlider('ViewmodelOutlineTransparency', { Text = 'Outline transparency', Default = 0, Min = 0, Max = 100, Rounding = 0 })
+ViewmodelGroup:AddDropdown('ThroughWalls', { Text = 'Through walls', Values = { 'Default', 'Enabled' }, Default = 1 })
+ViewmodelGroup:AddSlider('ViewmodelOffsetX', { Text = 'Offset X', Default = 0, Min = -2, Max = 2, Rounding = 1 })
+ViewmodelGroup:AddSlider('ViewmodelOffsetY', { Text = 'Offset Y', Default = 0, Min = -2, Max = 2, Rounding = 1 })
+ViewmodelGroup:AddSlider('ViewmodelOffsetZ', { Text = 'Offset Z', Default = 0, Min = -2, Max = 2, Rounding = 1 })
+
+local HitEffectsGroup = Tabs.visuals:AddRightGroupbox('Hit effects')
+HitEffectsGroup:AddToggle('HitEffectsEnabled', { Text = 'Enabled' })
+HitEffectsGroup:AddToggle('WeldToPlayer', { Text = 'Weld to player' })
+HitEffectsGroup:AddDropdown('FortniteDamage', { Text = 'Fortnite damage', Values = { 'Slashes', 'Numbers', 'Default' }, Default = 1 })
+HitEffectsGroup:AddDropdown('HitEffectSettings', { Text = 'Effect settings', Values = { 'Default', 'Custom' }, Default = 1 })
+HitEffectsGroup:AddDropdown('PreferredMaterial', { Text = 'Preferred material', Values = { 'ForceField', 'Neon', 'Plastic' }, Default = 1 })
+HitEffectsGroup:AddToggle('DisableHitMarker', { Text = 'Disable hit marker' })
+HitEffectsGroup:AddToggle('DisableDamageNumbers', { Text = 'Disable damage numbers' })
+
+local TargetHudGroup = Tabs.visuals:AddRightGroupbox('Target hud')
+TargetHudGroup:AddToggle('TargetHudEnabled', { Text = 'Enabled' })
+TargetHudGroup:AddSlider('TargetHudOffsetX', { Text = 'Offset X', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+TargetHudGroup:AddSlider('TargetHudOffsetY', { Text = 'Offset Y', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+TargetHudGroup:AddSlider('TargetHudItemScale', { Text = 'Item scale', Default = 0, Min = 0, Max = 300, Rounding = 0, Suffix = '%' })
+TargetHudGroup:AddSlider('TargetHudUiScale', { Text = 'UI scale', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+TargetHudGroup:AddDropdown('TargetHudShowTargets', { Text = 'Show targets', Values = { 'Ragebot', 'Aimbot', 'All' }, Default = 1 })
+
+local AutoLoadGroup = Tabs.Misc:AddLeftGroupbox('Auto load')
+AutoLoadGroup:AddToggle('AutoLoadEnabled', { Text = 'Enabled' })
+AutoLoadGroup:AddToggle('SilentMode', { Text = 'Silent mode' })
+
+local LoadoutGroup = Tabs.Misc:AddLeftGroupbox('Loadout')
+LoadoutGroup:AddToggle('AutoSelect', { Text = 'Auto select' })
+LoadoutGroup:AddDropdown('PrimaryWeapon', { Text = 'Primary', Values = { 'Shotgun', 'Rifle', 'Sniper' }, Default = 1 })
+LoadoutGroup:AddDropdown('SecondaryWeapon', { Text = 'Secondary', Values = { 'Shorty', 'Pistol', 'Revolver' }, Default = 1 })
+LoadoutGroup:AddDropdown('MeleeWeapon', { Text = 'Melee', Values = { 'Knife', 'Katana' }, Default = 1 })
+LoadoutGroup:AddDropdown('UtilityWeapon', { Text = 'Utility', Values = { 'Medkit', 'Grenade' }, Default = 1 })
+
+local ChatSpamGroup = Tabs.Misc:AddLeftGroupbox('Chat spam')
+ChatSpamGroup:AddToggle('ChatSpamEnabled', { Text = 'Enabled' })
+ChatSpamGroup:AddToggle('ChatSpamInOrder', { Text = 'In order' })
+ChatSpamGroup:AddDropdown('ChatMode', { Text = 'Chat mode', Values = { 'Custom', 'Random' }, Default = 1 })
+ChatSpamGroup:AddInput('ChatText', { Text = 'Random custom text', Default = '' })
+ChatSpamGroup:AddInput('AdditionalChatText', { Text = 'Add custom text', Default = '' })
+
+local QueueGroup = Tabs.Misc:AddRightGroupbox('Auto queue')
+QueueGroup:AddToggle('AutoQueueEnabled', { Text = 'Enabled' })
+QueueGroup:AddDropdown('GameMode', { Text = 'Game Mode', Values = { 'ranked 1v1', 'ranked 2v2', 'casual' }, Default = 1 })
+
+local NameSpooferGroup = Tabs.Misc:AddRightGroupbox('Name spoofer')
+NameSpooferGroup:AddToggle('NameSpooferLocal', { Text = 'Local' })
+NameSpooferGroup:AddInput('SpoofedName', { Text = 'Name', Default = '' })
+NameSpooferGroup:AddToggle('NameSpooferOther', { Text = 'Other' })
+NameSpooferGroup:AddInput('OtherName', { Text = 'Name', Default = '' })
+
+local ArcadeGroup = Tabs.Misc:AddRightGroupbox('Arcade servers')
+ArcadeGroup:AddToggle('AutomaticallyGrabDrops', { Text = 'Automatically grab drops' })
+ArcadeGroup:AddToggle('AutoRespawn', { Text = 'Auto respawn' })
+
+local NotifyHitGroup = Tabs.Misc:AddRightGroupbox('Notify hit')
+NotifyHitGroup:AddToggle('NotifyHitEnabled', { Text = 'Enabled' })
+NotifyHitGroup:AddSlider('NotifyDuration', { Text = 'Notify duration', Default = 0, Min = 0, Max = 10, Rounding = 0, Suffix = 's' })
+NotifyHitGroup:AddInput('RandomNotifyText', { Text = 'Random notify text', Default = 'Hit {NAME} for {DMG} in the {PART}' })
+NotifyHitGroup:AddInput('CustomNotifyText', { Text = 'Add custom text', Default = '' })
+
+local MovementGroup = Tabs.character:AddLeftGroupbox('Movement')
+MovementGroup:AddToggle('Velocity', { Text = 'Velocity' }):AddKeyPicker('VelocityKeybind', { Default = 'Q', NoUI = true, Text = 'Velocity keybind' })
+MovementGroup:AddSlider('VelocitySpeed', { Text = 'Velocity speed', Default = 0, Min = 0, Max = 200, Rounding = 0, Suffix = 's' })
+MovementGroup:AddToggle('SlideBoost', { Text = 'Slide boost' }):AddKeyPicker('SlideBoostKeybind', { Default = 'X', NoUI = true, Text = 'Slide boost keybind' })
+MovementGroup:AddSlider('SlideBoostAmount', { Text = 'Slide boost', Default = 0, Min = 0, Max = 10, Rounding = 1, Suffix = 'x' })
+MovementGroup:AddToggle('DoubleJump', { Text = 'Double jump' }):AddKeyPicker('DoubleJumpKeybind', { Default = 'Space', NoUI = true, Text = 'Double jump keybind' })
+MovementGroup:AddSlider('DoubleJumpHeight', { Text = 'Double jump height', Default = 0, Min = 0, Max = 5, Rounding = 1, Suffix = 'x' })
+MovementGroup:AddToggle('MaulSlamMultiplier', { Text = 'Maul slam multiplier' }):AddKeyPicker('MaulSlamKeybind', { Default = 'M', NoUI = true, Text = 'Maul slam keybind' })
+MovementGroup:AddSlider('MaulSlamAmount', { Text = 'Maul slam multiplier', Default = 0, Min = 0, Max = 10, Rounding = 1, Suffix = 'x' })
+MovementGroup:AddToggle('InfiniteDoubleJump', { Text = 'Infinite double jump' }):AddKeyPicker('InfiniteDoubleJumpKeybind', { Default = 'J', NoUI = true, Text = 'Infinite jump keybind' })
+
+local AnimationGroup = Tabs.character:AddLeftGroupbox('Animation player')
+AnimationGroup:AddToggle('AnimationPlayer', { Text = 'Enabled' }):AddKeyPicker('AnimationPlayerKeybind', { Default = 'P', NoUI = true, Text = 'Animation player keybind' })
+AnimationGroup:AddDropdown('AnimationType', { Text = 'Animation', Values = { 'Custom' }, Default = 1 })
+AnimationGroup:AddInput('CustomAnimation', { Text = 'Custom animation', Default = '' })
+AnimationGroup:AddSlider('AnimationSpeed', { Text = 'Speed', Default = 0, Min = 0, Max = 20, Rounding = 1 })
+AnimationGroup:AddSlider('AnimationStart', { Text = 'Start', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+AnimationGroup:AddSlider('AnimationEnd', { Text = 'End', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+
+local CharacterGroup = Tabs.character:AddRightGroupbox('Character')
+CharacterGroup:AddToggle('Noclip', { Text = 'Noclip' }):AddKeyPicker('NoclipKeybind', { Default = 'N', NoUI = true, Text = 'Noclip keybind' })
+CharacterGroup:AddToggle('Fly', { Text = 'Fly' }):AddKeyPicker('FlyKeybind', { Default = 'F', NoUI = true, Text = 'Fly keybind' })
+CharacterGroup:AddSlider('FlySpeed', { Text = 'Fly speed', Default = 0, Min = 0, Max = 200, Rounding = 0 })
+
+local ThirdPersonGroup = Tabs.character:AddRightGroupbox('Third person')
+ThirdPersonGroup:AddToggle('ThirdPerson', { Text = 'Enabled' }):AddKeyPicker('ThirdPersonKeybind', { Default = 'T', NoUI = true, Text = 'Third person keybind' })
+
+local AntiAimGroup = Tabs.character:AddRightGroupbox('Anti aim')
+AntiAimGroup:AddToggle('AntiAim', { Text = 'Enabled' }):AddKeyPicker('AntiAimKeybind', { Default = 'Z', NoUI = true, Text = 'Anti aim keybind' })
+AntiAimGroup:AddDropdown('AntiAimPitch', { Text = 'Pitch', Values = { 'Random', 'Up', 'Down', 'Extended' }, Default = 1 })
+AntiAimGroup:AddDropdown('AntiAimYaw', { Text = 'Yaw', Values = { 'Random', 'Spin', 'Backward' }, Default = 1 })
+AntiAimGroup:AddToggle('Underground', { Text = 'Underground' }):AddKeyPicker('UndergroundKeybind', { Default = 'U', NoUI = true, Text = 'Underground keybind' })
+
 -- UI Settings
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
-
-MenuGroup:AddButton({
-    Text = 'Unload',
-    Func = function()
-        Library:Unload()
-    end
-})
-
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
-    Default = 'RightShift',
-    NoUI = true,
-    Text = 'Menu keybind'
-})
-
-MenuGroup:AddSlider('MenuTransparency', {
-    Text = 'Menu transparency',
-    Default = 0,
-    Min = 0,
-    Max = 100,
-    Rounding = 0,
-    Suffix = '%',
-    Callback = function(Value)
-        WindowFrame.BackgroundTransparency = Value / 100
-    end
-})
-
-MenuGroup:AddDropdown('MenuKeybindMode', {
-    Text = 'Keybind menu mode',
-    Values = { 'Toggle', 'Hold' },
-    Default = 1,
-    Callback = function(Value)
-        Options.MenuKeybind.Mode = Value
-    end
-})
+MenuGroup:AddButton({ Text = 'Unload', Func = function() Library:Unload() end })
+MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightShift', NoUI = true, Text = 'Menu keybind' })
+MenuGroup:AddSlider('MenuTransparency', { Text = 'Menu transparency', Default = 0, Min = 0, Max = 100, Rounding = 0, Suffix = '%' })
+MenuGroup:AddDropdown('MenuKeybindMode', { Text = 'Keybind menu mode', Values = { 'Toggle', 'Hold' }, Default = 1 })
 
 local NotificationsGroup = Tabs['UI Settings']:AddRightGroupbox('Notifications')
-
-NotificationsGroup:AddInput('NotificationText', {
-    Text = 'Notification text',
-    Default = 'Gumball UI loaded.'
-})
-
+NotificationsGroup:AddInput('NotificationText', { Text = 'Notification text', Default = 'Gumball UI loaded.' })
 NotificationsGroup:AddButton({
     Text = 'Test notification',
     Func = function()
@@ -558,23 +389,32 @@ NotificationsGroup:AddButton({
     end
 })
 
-local CommunityGroup = Tabs['UI Settings']:AddLeftGroupbox('Community configs')
-CommunityGroup:AddLabel('No community configs configured.', true)
+local ThemeGroup = Tabs['UI Settings']:AddRightGroupbox('Theme')
+ThemeGroup:AddDropdown('ThemePreset', { Text = 'Theme', Default = 1, Values = { 'Gumball', 'Midnight', 'Crimson', 'Emerald', 'Violet' } })
+ThemeGroup:AddInput('CustomThemeName', { Text = 'Theme name', Default = 'MyTheme', Placeholder = 'custom theme name' })
+ThemeGroup:AddButton({ Text = 'Create theme', Func = function() print('Create theme') end })
+ThemeGroup:AddButton({ Text = 'Load theme', Func = function() print('Load theme') end })
+ThemeGroup:AddButton({ Text = 'Delete theme', Func = function() print('Delete theme') end })
+
+local ConfigGroup = Tabs['UI Settings']:AddRightGroupbox('Config')
+ConfigGroup:AddButton({ Text = 'Save config', Func = function() print('Save config') end })
+ConfigGroup:AddButton({ Text = 'Load config', Func = function() print('Load config') end })
+ConfigGroup:AddButton({ Text = 'Delete config', Func = function() print('Delete config') end })
 
 Library.ToggleKeybind = Options.MenuKeybind
+Library.KeybindFrame.Visible = true
+Library:SetWatermarkVisibility(true)
 
--- Theme & Config managers
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
-
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
-
 ThemeManager:SetFolder('Gumball')
 SaveManager:SetFolder('Gumball')
-
 SaveManager:BuildConfigSection(Tabs['UI Settings'])
+ThemeManager:ApplyToTab(Tabs['UI Settings'])
 
+ThemeManager.BuiltInThemes = ThemeManager.BuiltInThemes or {}
 ThemeManager.BuiltInThemes['Gumball'] = { 9, {
     FontColor = 'EBF0F5',
     MainColor = '191C22',
@@ -582,7 +422,6 @@ ThemeManager.BuiltInThemes['Gumball'] = { 9, {
     BackgroundColor = '0F1115',
     OutlineColor = '323A44'
 } }
-
 ThemeManager.BuiltInThemes['Midnight'] = { 10, {
     FontColor = 'E8F1FF',
     MainColor = '182235',
@@ -590,7 +429,6 @@ ThemeManager.BuiltInThemes['Midnight'] = { 10, {
     BackgroundColor = '0D1422',
     OutlineColor = '2C405F'
 } }
-
 ThemeManager.BuiltInThemes['Crimson'] = { 11, {
     FontColor = 'FFF0F0',
     MainColor = '2A171B',
@@ -598,7 +436,6 @@ ThemeManager.BuiltInThemes['Crimson'] = { 11, {
     BackgroundColor = '160D10',
     OutlineColor = '573039'
 } }
-
 ThemeManager.BuiltInThemes['Emerald'] = { 12, {
     FontColor = 'EEFFF7',
     MainColor = '142820',
@@ -606,7 +443,6 @@ ThemeManager.BuiltInThemes['Emerald'] = { 12, {
     BackgroundColor = '0B1511',
     OutlineColor = '2D5A49'
 } }
-
 ThemeManager.BuiltInThemes['Violet'] = { 13, {
     FontColor = 'F7F1FF',
     MainColor = '241B35',
@@ -614,53 +450,10 @@ ThemeManager.BuiltInThemes['Violet'] = { 13, {
     BackgroundColor = '120E1C',
     OutlineColor = '4D3A6B'
 } }
-
 ThemeManager.DefaultTheme = 'Gumball'
-ThemeManager:ApplyToTab(Tabs['UI Settings'])
-ThemeManager:ApplyTheme(Options.ThemeManager_ThemeList.Value)
 
-local CustomThemeActions = Tabs['UI Settings']:AddLeftGroupbox('Custom theme actions')
-
-CustomThemeActions:AddButton({
-    Text = 'Delete custom theme',
-    Func = function()
-        local ThemeName = Options.ThemeManager_CustomThemeList.Value
-
-        if not ThemeName or ThemeName == '' then
-            return Library:Notify('Select a custom theme first.', 3)
-        end
-
-        local ThemePath = ThemeManager.Folder .. '/themes/' .. ThemeName .. '.json'
-
-        if isfile(ThemePath) then
-            delfile(ThemePath)
-            Options.ThemeManager_CustomThemeList:SetValues(ThemeManager:ReloadCustomThemes())
-            Options.ThemeManager_CustomThemeList:SetValue(nil)
-            Library:Notify('Deleted custom theme ' .. ThemeName, 3)
-        end
-    end
-})
-
-for _, Scrolling in next, WindowFrame:GetDescendants() do
-    if Scrolling:IsA('ScrollingFrame') then
-        local Layout = Scrolling:FindFirstChildOfClass('UIListLayout')
-
-        if Layout then
-            Scrolling.Active = true
-            Scrolling.ScrollingEnabled = true
-            Scrolling.AutomaticCanvasSize = Enum.AutomaticSize.None
-            Scrolling.ScrollBarThickness = 4
-            Scrolling.ScrollBarImageColor3 = Library.AccentColor
-            Scrolling.ClipsDescendants = true
-
-            local function UpdateCanvasSize()
-                Scrolling.CanvasSize = UDim2.fromOffset(0, Layout.AbsoluteContentSize.Y + 20)
-            end
-
-            Layout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(UpdateCanvasSize)
-            UpdateCanvasSize()
-        end
-    end
-end
+Library:OnUnload(function()
+    print('Gumball UI unloaded')
+end)
 
 print('Gumball UI loaded.')
