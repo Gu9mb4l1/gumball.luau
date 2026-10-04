@@ -293,10 +293,10 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 	end
 
 	local mousePosition = UserInputService:GetMouseLocation()
-	local handlePosition = KeybindHudHeader.AbsolutePosition
-	local handleSize = KeybindHudHeader.AbsoluteSize
-	if mousePosition.X < handlePosition.X or mousePosition.X > handlePosition.X + handleSize.X
-		or mousePosition.Y < handlePosition.Y or mousePosition.Y > handlePosition.Y + handleSize.Y then
+	local framePosition = KeybindHudFrame.AbsolutePosition
+	local frameSize = KeybindHudFrame.AbsoluteSize
+	if mousePosition.X < framePosition.X or mousePosition.X > framePosition.X + frameSize.X
+		or mousePosition.Y < framePosition.Y or mousePosition.Y > framePosition.Y + frameSize.Y then
 		return
 	end
 
