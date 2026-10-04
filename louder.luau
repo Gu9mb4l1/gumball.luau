@@ -192,7 +192,66 @@ KeybindTransparency:OnChanged(function(value)
 	end
 end)
 
-Library.ToggleKeybind = Options.MenuKeybind
+local menuVisible = true
+local lastMenuMode = Options.MenuKeybind.Mode
+local RunService = game:GetService('RunService')
+
+local function MatchesMenuKey(input)
+	local key = Options.MenuKeybind.Value
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		return input.KeyCode.Name == key
+	elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
+		return key == 'MB1'
+	elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+		return key == 'MB2'
+	end
+
+	return false
+end
+
+local function SetMenuVisibility(visible)
+	if menuVisible ~= visible then
+		menuVisible = visible
+		Library:Toggle()
+	end
+end
+
+Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
+Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or not MatchesMenuKey(input) then
+		return
+	end
+
+	local mode = Options.MenuKeybind.Mode
+	if mode == 'Toggle' then
+		SetMenuVisibility(not menuVisible)
+	elseif mode == 'Hold' then
+		SetMenuVisibility(true)
+	end
+end))
+
+Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
+	if Options.MenuKeybind.Mode == 'Hold' and MatchesMenuKey(input) then
+		SetMenuVisibility(false)
+	end
+end))
+
+Library:GiveSignal(RunService.RenderStepped:Connect(function()
+	local mode = Options.MenuKeybind.Mode
+	if mode == 'Always' then
+		SetMenuVisibility(true)
+	elseif mode == 'Hold' then
+		local key = Options.MenuKeybind.Value
+		local held = key == 'MB1' and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+			or key == 'MB2' and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+			or key ~= 'MB1' and key ~= 'MB2' and key ~= 'None' and UserInputService:IsKeyDown(Enum.KeyCode[key])
+		SetMenuVisibility(held)
+	elseif lastMenuMode ~= 'Toggle' then
+		SetMenuVisibility(false)
+	end
+
+	lastMenuMode = mode
+end))
 
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
