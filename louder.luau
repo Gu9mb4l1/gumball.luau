@@ -138,10 +138,6 @@ ConfigGroup:AddButton('Set as autoload', function()
 	Library:Notify(string.format('Set %q to auto load', name), 2)
 end)
 
-ConfigGroup:AddButton('Clear selected config', function()
-	Options.SaveManager_ConfigList:SetValue(nil)
-end)
-
 ConfigGroup:AddButton({
 	Text = 'Clear autoload config',
 	DoubleClick = true,
