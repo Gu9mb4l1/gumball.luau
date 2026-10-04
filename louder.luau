@@ -234,10 +234,13 @@ KeybindHudFrame.Visible = false
 KeybindHudFrame.ZIndex = 1
 KeybindHudFrame.Active = true
 KeybindHudFrame.Parent = KeybindHudGui
+local KeybindHudCorner = Instance.new('UICorner')
+KeybindHudCorner.CornerRadius = UDim.new(0, 4)
+KeybindHudCorner.Parent = KeybindHudFrame
 
 local KeybindHudStroke = Instance.new('UIStroke')
 KeybindHudStroke.Color = Library.OutlineColor
-KeybindHudStroke.Thickness = 1
+KeybindHudStroke.Thickness = 1.2
 KeybindHudStroke.Parent = KeybindHudFrame
 Library:OnUnload(function()
 	if KeybindHudGui.Parent then
@@ -259,6 +262,14 @@ KeybindHudHeader.ZIndex = 2
 KeybindHudHeader.Parent = KeybindHudFrame
 KeybindHudHeader.Active = true
 
+local KeybindHudAccent = Instance.new('Frame')
+KeybindHudAccent.Name = 'Accent'
+KeybindHudAccent.BackgroundColor3 = Library.AccentColor
+KeybindHudAccent.BorderSizePixel = 0
+KeybindHudAccent.Size = UDim2.new(1, 0, 0, 2)
+KeybindHudAccent.ZIndex = 2
+KeybindHudAccent.Parent = KeybindHudFrame
+
 local KeybindHudDragHint = Instance.new('TextLabel')
 KeybindHudDragHint.Name = 'DragHint'
 KeybindHudDragHint.BackgroundTransparency = 1
@@ -275,8 +286,7 @@ KeybindHudDragHint.ZIndex = 2
 KeybindHudDragHint.Parent = KeybindHudFrame
 
 local draggingKeybindHud = false
-local keybindHudDragStart
-local keybindHudStartPosition
+local keybindHudGrabOffset
 Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 	if not Window.Holder.Visible or not KeybindHudFrame.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
 		return
@@ -291,8 +301,7 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 	end
 
 	draggingKeybindHud = true
-	keybindHudDragStart = mousePosition
-	keybindHudStartPosition = KeybindHudFrame.AbsolutePosition
+	keybindHudGrabOffset = mousePosition - KeybindHudFrame.AbsolutePosition
 end))
 
 local function UpdateKeybindHudDrag()
@@ -304,11 +313,11 @@ local function UpdateKeybindHudDrag()
 		return
 	end
 
-	local delta = UserInputService:GetMouseLocation() - keybindHudDragStart
+	local mousePosition = UserInputService:GetMouseLocation()
 	local viewportSize = workspace.CurrentCamera.ViewportSize
 	local size = KeybindHudFrame.AbsoluteSize
-	local x = math.clamp(keybindHudStartPosition.X + delta.X, 0, math.max(0, viewportSize.X - size.X))
-	local y = math.clamp(keybindHudStartPosition.Y + delta.Y, 0, math.max(0, viewportSize.Y - size.Y))
+	local x = math.clamp(mousePosition.X - keybindHudGrabOffset.X, 0, math.max(0, viewportSize.X - size.X))
+	local y = math.clamp(mousePosition.Y - keybindHudGrabOffset.Y, 0, math.max(0, viewportSize.Y - size.Y))
 	KeybindHudFrame.Position = UDim2.fromOffset(
 		x + size.X * KeybindHudFrame.AnchorPoint.X,
 		y + size.Y * KeybindHudFrame.AnchorPoint.Y
@@ -351,18 +360,43 @@ local function IsKeybindVisibleInFilter(key, mode)
 	return mode == 'Hold' and IsKeyHeld(key)
 end
 
+local function IsKeybindActive(key, mode)
+	for _, option in pairs(Options) do
+		if type(option) == 'table' and option.Type == 'KeyPicker'
+			and option.Value == key and option.Mode == mode then
+			local success, active = pcall(option.GetState, option)
+			if success and active then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 local function UpdateKeybindHudRows()
 	local rows = {}
 	local menuMode = Options.MenuBindMode.Value
 	if IsKeybindVisibleInFilter(MenuKey, menuMode) then
-		table.insert(rows, { Id = 'Menu', Text = string.format('[%s] Menu (%s)', MenuKey, menuMode) })
+		local menuActive = menuMode == 'Always'
+			or menuMode == 'Hold' and IsKeyHeld(MenuKey)
+			or menuMode == 'Toggle' and Window.Holder.Visible
+		table.insert(rows, {
+			Id = 'Menu',
+			Text = string.format('[%s] Menu (%s)', MenuKey, menuMode),
+			Active = menuActive
+		})
 	end
 
 	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
 		if label:IsA('TextLabel') then
 			local key, name, mode = label.Text:match('^%[([^%]]+)%]%s+(.-)%s+%(([^()]*)%)$')
 			if key and IsKeybindVisibleInFilter(key, mode) then
-				table.insert(rows, { Id = label, Text = label.Text })
+				table.insert(rows, {
+					Id = label,
+					Text = label.Text,
+					Active = IsKeybindActive(key, mode)
+				})
 			end
 		end
 	end
@@ -379,7 +413,7 @@ local function UpdateKeybindHudRows()
 
 			if toggle.Value and not hasAssignedKey then
 				local text = toggle.TextLabel and toggle.TextLabel.Text or tostring(name)
-				table.insert(rows, { Id = toggle, Text = text .. ' (On)' })
+				table.insert(rows, { Id = toggle, Text = text .. ' (On)', Active = true })
 			end
 		end
 	end
@@ -400,10 +434,13 @@ local function UpdateKeybindHudRows()
 			label.TextYAlignment = Enum.TextYAlignment.Center
 			label.ZIndex = 3
 			label.Parent = KeybindHudRowsContainer
+			label.BackgroundColor3 = Library.AccentColor
 			KeybindHudLabels[row.Id] = label
 		end
 		label.LayoutOrder = order
-		label.Text = row.Text
+		label.Text = row.Active and ('> ' .. row.Text) or row.Text
+		label.TextColor3 = row.Active and Library.AccentColor or Library.FontColor
+		label.BackgroundTransparency = row.Active and 0.88 or 1
 	end
 
 	for id, label in pairs(KeybindHudLabels) do
