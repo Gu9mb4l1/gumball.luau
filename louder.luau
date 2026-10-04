@@ -13,6 +13,11 @@ local Window = Library:CreateWindow({
 	MenuFadeTime = 0.2
 })
 
+local TitleLabel = Window.Holder:FindFirstChildWhichIsA('TextLabel', true)
+if TitleLabel then
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+end
+
 local Tabs = {
 	Main = Window:AddTab('Main'),
 	['UI Settings'] = Window:AddTab('UI Settings')
