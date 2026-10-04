@@ -456,10 +456,11 @@ Library:OnUnload(function()
 	WorldAtmosphere:Destroy()
 end)
 
-ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
+local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
 	Text = 'enabled',
 	Default = false
-}):OnChanged(function(value)
+})
+WorldColorCorrectionToggle:OnChanged(function(value)
 	WorldColorCorrection.Enabled = value
 end)
 
@@ -479,6 +480,9 @@ ColorCorrectionTab:AddSlider('WorldColorCorrectionSaturation', {
 	Rounding = 2
 }):OnChanged(function(value)
 	WorldColorCorrection.Saturation = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
 end)
 
 ColorCorrectionTab:AddSlider('WorldColorCorrectionContrast', {
@@ -489,6 +493,9 @@ ColorCorrectionTab:AddSlider('WorldColorCorrectionContrast', {
 	Rounding = 2
 }):OnChanged(function(value)
 	WorldColorCorrection.Contrast = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
 end)
 
 ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
@@ -499,6 +506,9 @@ ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
 	Rounding = 2
 }):OnChanged(function(value)
 	WorldColorCorrection.Brightness = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
 end)
 
 AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
