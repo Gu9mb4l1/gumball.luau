@@ -262,17 +262,23 @@ KeybindHudHeader.Active = true
 local draggingKeybindHud = false
 local keybindHudDragStart
 local keybindHudStartPosition
-local function BeginKeybindHudDrag(input)
-	if not Window.Holder.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
+	if not Window.Holder.Visible or not KeybindHudFrame.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+		return
+	end
+
+	local mousePosition = UserInputService:GetMouseLocation()
+	local framePosition = KeybindHudFrame.AbsolutePosition
+	local frameSize = KeybindHudFrame.AbsoluteSize
+	if mousePosition.X < framePosition.X or mousePosition.X > framePosition.X + frameSize.X
+		or mousePosition.Y < framePosition.Y or mousePosition.Y > framePosition.Y + frameSize.Y then
 		return
 	end
 
 	draggingKeybindHud = true
-	keybindHudDragStart = input.Position
-	keybindHudStartPosition = KeybindHudFrame.AbsolutePosition
-end
-KeybindHudFrame.InputBegan:Connect(BeginKeybindHudDrag)
-KeybindHudHeader.InputBegan:Connect(BeginKeybindHudDrag)
+	keybindHudDragStart = mousePosition
+	keybindHudStartPosition = framePosition
+end))
 
 local function UpdateKeybindHudDrag()
 	if not draggingKeybindHud then
