@@ -259,6 +259,21 @@ KeybindHudHeader.ZIndex = 2
 KeybindHudHeader.Parent = KeybindHudFrame
 KeybindHudHeader.Active = true
 
+local KeybindHudDragHint = Instance.new('TextLabel')
+KeybindHudDragHint.Name = 'DragHint'
+KeybindHudDragHint.BackgroundTransparency = 1
+KeybindHudDragHint.AnchorPoint = Vector2.new(1, 0)
+KeybindHudDragHint.Position = UDim2.new(1, -8, 0, 5)
+KeybindHudDragHint.Size = UDim2.fromOffset(42, 18)
+KeybindHudDragHint.Font = Library.Font
+KeybindHudDragHint.Text = 'MOVE'
+KeybindHudDragHint.TextColor3 = Library.FontColor
+KeybindHudDragHint.TextTransparency = 0.35
+KeybindHudDragHint.TextSize = 10
+KeybindHudDragHint.TextXAlignment = Enum.TextXAlignment.Right
+KeybindHudDragHint.ZIndex = 2
+KeybindHudDragHint.Parent = KeybindHudFrame
+
 local draggingKeybindHud = false
 local keybindHudDragStart
 local keybindHudStartPosition
@@ -268,16 +283,16 @@ Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 	end
 
 	local mousePosition = UserInputService:GetMouseLocation()
-	local framePosition = KeybindHudFrame.AbsolutePosition
-	local frameSize = KeybindHudFrame.AbsoluteSize
-	if mousePosition.X < framePosition.X or mousePosition.X > framePosition.X + frameSize.X
-		or mousePosition.Y < framePosition.Y or mousePosition.Y > framePosition.Y + frameSize.Y then
+	local handlePosition = KeybindHudHeader.AbsolutePosition
+	local handleSize = KeybindHudHeader.AbsoluteSize
+	if mousePosition.X < handlePosition.X or mousePosition.X > handlePosition.X + handleSize.X
+		or mousePosition.Y < handlePosition.Y or mousePosition.Y > handlePosition.Y + handleSize.Y then
 		return
 	end
 
 	draggingKeybindHud = true
 	keybindHudDragStart = mousePosition
-	keybindHudStartPosition = framePosition
+	keybindHudStartPosition = KeybindHudFrame.AbsolutePosition
 end))
 
 local function UpdateKeybindHudDrag()
