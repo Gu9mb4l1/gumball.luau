@@ -87,6 +87,34 @@ for index, spec in ipairs(loadingFacetSpecs) do
 	}):Play()
 end
 
+for index, ringSize in ipairs({ UDim2.fromOffset(560, 410), UDim2.fromOffset(760, 560) }) do
+	local ring = Instance.new('Frame')
+	ring.Name = 'OrbitRing' .. index
+	ring.AnchorPoint = Vector2.new(0.5, 0.5)
+	ring.Position = UDim2.fromScale(0.5, 0.5)
+	ring.Size = ringSize
+	ring.BackgroundTransparency = 1
+	ring.BorderSizePixel = 0
+	ring.Rotation = index == 1 and -12 or 14
+	ring.ZIndex = 2
+	ring.Parent = loadingOverlay
+	local ringCorner = Instance.new('UICorner')
+	ringCorner.CornerRadius = UDim.new(1, 0)
+	ringCorner.Parent = ring
+	local ringStroke = Instance.new('UIStroke')
+	ringStroke.Color = index == 1 and Color3.fromRGB(92, 205, 202) or Color3.fromRGB(120, 151, 205)
+	ringStroke.Transparency = 0.93
+	ringStroke.Thickness = 1
+	ringStroke.Parent = ring
+	TweenService:Create(ring, TweenInfo.new(42 + index * 9, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {
+		Rotation = ring.Rotation + (index == 1 and 360 or -360)
+	}):Play()
+end
+
+TweenService:Create(loadingBackgroundGradient, TweenInfo.new(18, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+	Rotation = 42
+}):Play()
+
 local loadingContent = Instance.new('Frame')
 loadingContent.Name = 'Content'
 loadingContent.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -291,6 +319,26 @@ TweenService:Create(loadingFillGradient, TweenInfo.new(1.2, Enum.EasingStyle.Lin
 local loadingScreenFinishing = false
 local loadingScreenDismissed = false
 local loadingFinishCallbacks = {}
+local loadingStatuses = { 'INITIALIZING GUMBALL', 'SYNCING UI SETTINGS', 'PREPARING MENU' }
+task.spawn(function()
+	local statusIndex = 1
+	while loadingGui.Parent and not loadingScreenFinishing do
+		task.wait(0.9)
+		if loadingScreenFinishing or not loadingGui.Parent then
+			break
+		end
+
+		statusIndex = statusIndex % #loadingStatuses + 1
+		TweenService:Create(loadingStatus, TweenInfo.new(0.14), { TextTransparency = 1 }):Play()
+		task.wait(0.14)
+		if loadingScreenFinishing or not loadingGui.Parent then
+			break
+		end
+		loadingStatus.Text = loadingStatuses[statusIndex]
+		TweenService:Create(loadingStatus, TweenInfo.new(0.22), { TextTransparency = 0 }):Play()
+	end
+end)
+
 local function FinishLoadingScreen(onFinished)
 	if onFinished then
 		if loadingScreenDismissed then
