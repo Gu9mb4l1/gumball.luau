@@ -26,7 +26,7 @@ MenuGroup:AddButton('Unload', function()
 	Library:Unload()
 end)
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', {
-	Default = 'End',
+	Default = 'RightShift',
 	NoUI = true,
 	Text = 'Menu keybind'
 })
@@ -39,13 +39,73 @@ SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
 ThemeManager:SetFolder('Gumball')
 SaveManager:SetFolder('Gumball')
-SaveManager:BuildConfigSection(Tabs['UI Settings'])
-ThemeManager:ApplyToTab(Tabs['UI Settings'])
-SaveManager:LoadAutoloadConfig()
+local ConfigGroup = Tabs['UI Settings']:AddRightGroupbox('Configuration')
+ConfigGroup:AddInput('SaveManager_ConfigName', { Text = 'Config name' })
+ConfigGroup:AddDropdown('SaveManager_ConfigList', {
+	Text = 'Config list',
+	Values = SaveManager:RefreshConfigList(),
+	AllowNull = true
+})
 
-local CleanupGroup = Tabs['UI Settings']:AddRightGroupbox('Delete saved data')
+ConfigGroup:AddDivider()
+ConfigGroup:AddButton('Create config', function()
+	local name = Options.SaveManager_ConfigName.Value
+	if name:gsub(' ', '') == '' then
+		return Library:Notify('Invalid config name (empty)', 2)
+	end
 
-CleanupGroup:AddButton({
+	local success, err = SaveManager:Save(name)
+	if not success then
+		return Library:Notify('Failed to save config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Created config %q', name), 2)
+	Options.SaveManager_ConfigList:SetValues(SaveManager:RefreshConfigList())
+	Options.SaveManager_ConfigList:SetValue(nil)
+end):AddButton('Load config', function()
+	local name = Options.SaveManager_ConfigList.Value
+	local success, err = SaveManager:Load(name)
+	if not success then
+		return Library:Notify('Failed to load config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Loaded config %q', name), 2)
+end)
+
+ConfigGroup:AddButton('Overwrite config', function()
+	local name = Options.SaveManager_ConfigList.Value
+	local success, err = SaveManager:Save(name)
+	if not success then
+		return Library:Notify('Failed to overwrite config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Overwrote config %q', name), 2)
+end)
+
+ConfigGroup:AddButton('Refresh list', function()
+	Options.SaveManager_ConfigList:SetValues(SaveManager:RefreshConfigList())
+	Options.SaveManager_ConfigList:SetValue(nil)
+end)
+
+ConfigGroup:AddButton('Set as autoload', function()
+	local name = Options.SaveManager_ConfigList.Value
+	if not name then
+		return Library:Notify('Select a config first', 2)
+	end
+
+	writefile(SaveManager.Folder .. '/settings/autoload.txt', name)
+	SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. name)
+	Library:Notify(string.format('Set %q to auto load', name), 2)
+end)
+
+SaveManager.AutoloadLabel = ConfigGroup:AddLabel('Current autoload config: none', true)
+local autoloadPath = SaveManager.Folder .. '/settings/autoload.txt'
+if isfile(autoloadPath) then
+	SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. readfile(autoloadPath))
+end
+
+ConfigGroup:AddDivider()
+ConfigGroup:AddButton({
 	Text = 'Delete selected config',
 	DoubleClick = true,
 	Tooltip = 'Permanently delete the selected config',
@@ -61,8 +121,6 @@ CleanupGroup:AddButton({
 		end
 
 		delfile(configPath)
-
-		local autoloadPath = SaveManager.Folder .. '/settings/autoload.txt'
 		if isfile(autoloadPath) and readfile(autoloadPath) == name then
 			delfile(autoloadPath)
 			SaveManager.AutoloadLabel:SetText('Current autoload config: none')
@@ -72,9 +130,26 @@ CleanupGroup:AddButton({
 		Options.SaveManager_ConfigList:SetValue(nil)
 		Library:Notify(string.format('Deleted config %q', name), 2)
 	end
+}):AddButton({
+	Text = 'Clear autoload config',
+	DoubleClick = true,
+	Tooltip = 'Stop loading a config automatically when the script starts',
+	Func = function()
+		if isfile(autoloadPath) then
+			delfile(autoloadPath)
+		end
+
+		SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+		Library:Notify('Cleared autoload config', 2)
+	end
 })
 
-CleanupGroup:AddButton({
+SaveManager:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName' })
+
+local ThemeGroup = ThemeManager:CreateGroupBox(Tabs['UI Settings'])
+ThemeManager:CreateThemeManager(ThemeGroup)
+ThemeGroup:AddDivider()
+ThemeGroup:AddButton({
 	Text = 'Delete selected theme',
 	DoubleClick = true,
 	Tooltip = 'Permanently delete the selected custom theme',
@@ -90,7 +165,6 @@ CleanupGroup:AddButton({
 		end
 
 		delfile(themePath)
-
 		local defaultPath = ThemeManager.Folder .. '/themes/default.txt'
 		if isfile(defaultPath) and readfile(defaultPath) == name then
 			delfile(defaultPath)
@@ -103,17 +177,4 @@ CleanupGroup:AddButton({
 	end
 })
 
-CleanupGroup:AddButton({
-	Text = 'Clear autoload config',
-	DoubleClick = true,
-	Tooltip = 'Stop loading a config automatically when the script starts',
-	Func = function()
-		local autoloadPath = SaveManager.Folder .. '/settings/autoload.txt'
-		if isfile(autoloadPath) then
-			delfile(autoloadPath)
-		end
-
-		SaveManager.AutoloadLabel:SetText('Current autoload config: none')
-		Library:Notify('Cleared autoload config', 2)
-	end
-})
+SaveManager:LoadAutoloadConfig()
