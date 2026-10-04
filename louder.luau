@@ -297,6 +297,20 @@ if dragDetectorCreated then
 	nativeKeybindHudDrag.Parent = KeybindHudFrame
 end
 
+local function SyncKeybindHudDragEnabled()
+	local canDragKeybindHud = Window.Holder.Visible and KeybindHudFrame.Visible
+	KeybindHudFrame.Active = canDragKeybindHud
+	if nativeKeybindHudDrag then
+		nativeKeybindHudDrag.Enabled = canDragKeybindHud
+	end
+	if not canDragKeybindHud then
+		draggingKeybindHud = false
+	end
+end
+
+Window.Holder:GetPropertyChangedSignal('Visible'):Connect(SyncKeybindHudDragEnabled)
+KeybindHudFrame:GetPropertyChangedSignal('Visible'):Connect(SyncKeybindHudDragEnabled)
+
 Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
 	if nativeKeybindHudDrag then
 		return
@@ -319,9 +333,7 @@ end))
 
 local function UpdateKeybindHudDrag()
 	if nativeKeybindHudDrag then
-		local canDragKeybindHud = menuReady and Window.Holder.Visible and KeybindHudFrame.Visible
-		KeybindHudFrame.Active = canDragKeybindHud
-		nativeKeybindHudDrag.Enabled = canDragKeybindHud
+		SyncKeybindHudDragEnabled()
 		return
 	end
 	if not draggingKeybindHud then
