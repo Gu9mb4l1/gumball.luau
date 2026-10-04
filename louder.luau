@@ -42,60 +42,147 @@ loadingOverlay.BackgroundTransparency = 0.16
 loadingOverlay.BorderSizePixel = 0
 loadingOverlay.Parent = loadingGui
 
+local loadingBackgroundGradient = Instance.new('UIGradient')
+loadingBackgroundGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 22, 31)),
+	ColorSequenceKeypoint.new(0.55, Color3.fromRGB(8, 12, 20)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 15, 34))
+})
+loadingBackgroundGradient.Rotation = 28
+loadingBackgroundGradient.Parent = loadingOverlay
+
+local loadingContent = Instance.new('Frame')
+loadingContent.Name = 'Content'
+loadingContent.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingContent.Position = UDim2.fromScale(0.5, 0.5)
+loadingContent.Size = UDim2.fromOffset(480, 220)
+loadingContent.BackgroundTransparency = 1
+loadingContent.Parent = loadingOverlay
+
+local loadingScale = Instance.new('UIScale')
+loadingScale.Parent = loadingContent
+local loadingCamera = workspace.CurrentCamera
+if loadingCamera then
+	local viewport = loadingCamera.ViewportSize
+	loadingScale.Scale = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.8, 2)
+else
+	loadingScale.Scale = 1
+end
+
 local loadingTitle = Instance.new('TextLabel')
 loadingTitle.Name = 'Title'
 loadingTitle.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingTitle.Position = UDim2.new(0.5, 0, 0.5, -38)
-loadingTitle.Size = UDim2.new(1, -32, 0, 48)
+loadingTitle.Position = UDim2.new(0.5, 0, 0.5, -64)
+loadingTitle.Size = UDim2.new(1, -24, 0, 56)
 loadingTitle.BackgroundTransparency = 1
 loadingTitle.Font = Enum.Font.FredokaOne
 loadingTitle.Text = 'Gumball Louding'
 loadingTitle.TextColor3 = Color3.fromRGB(245, 250, 255)
 loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
 loadingTitle.TextYAlignment = Enum.TextYAlignment.Center
-loadingTitle.TextSize = 36
+loadingTitle.TextScaled = true
 loadingTitle.TextTransparency = 1
-loadingTitle.Parent = loadingOverlay
+loadingTitle.Parent = loadingContent
+local loadingTitleConstraint = Instance.new('UITextSizeConstraint')
+loadingTitleConstraint.MinTextSize = 28
+loadingTitleConstraint.MaxTextSize = 52
+loadingTitleConstraint.Parent = loadingTitle
+
+local loadingRivals = Instance.new('TextLabel')
+loadingRivals.Name = 'GameTitle'
+loadingRivals.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingRivals.Position = UDim2.new(0.5, 0, 0.5, -8)
+loadingRivals.Size = UDim2.new(1, -32, 0, 32)
+loadingRivals.BackgroundTransparency = 1
+loadingRivals.Font = Enum.Font.FredokaOne
+loadingRivals.Text = 'RIVALS'
+loadingRivals.TextColor3 = Color3.fromRGB(112, 238, 209)
+loadingRivals.TextXAlignment = Enum.TextXAlignment.Center
+loadingRivals.TextYAlignment = Enum.TextYAlignment.Center
+loadingRivals.TextScaled = true
+loadingRivals.TextTransparency = 1
+loadingRivals.Parent = loadingContent
+local loadingRivalsConstraint = Instance.new('UITextSizeConstraint')
+loadingRivalsConstraint.MinTextSize = 16
+loadingRivalsConstraint.MaxTextSize = 25
+loadingRivalsConstraint.Parent = loadingRivals
+
+local loadingTrack = Instance.new('Frame')
+loadingTrack.Name = 'ProgressTrack'
+loadingTrack.AnchorPoint = Vector2.new(0.5, 0.5)
+loadingTrack.Position = UDim2.new(0.5, 0, 0.5, 25)
+loadingTrack.Size = UDim2.new(0, 340, 0, 12)
+loadingTrack.BackgroundColor3 = Color3.fromRGB(28, 39, 51)
+loadingTrack.BorderSizePixel = 0
+loadingTrack.ClipsDescendants = true
+loadingTrack.Parent = loadingContent
+local loadingTrackCorner = Instance.new('UICorner')
+loadingTrackCorner.CornerRadius = UDim.new(1, 0)
+loadingTrackCorner.Parent = loadingTrack
+local loadingTrackStroke = Instance.new('UIStroke')
+loadingTrackStroke.Color = Color3.fromRGB(96, 131, 150)
+loadingTrackStroke.Transparency = 0.55
+loadingTrackStroke.Thickness = 1
+loadingTrackStroke.Parent = loadingTrack
 
 local loadingAccent = Instance.new('Frame')
-loadingAccent.Name = 'Accent'
-loadingAccent.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingAccent.Position = UDim2.new(0.5, 0, 0.5, 4)
-loadingAccent.Size = UDim2.fromOffset(0, 3)
-loadingAccent.BackgroundColor3 = Color3.fromRGB(80, 220, 190)
+loadingAccent.Name = 'ProgressFill'
+loadingAccent.Size = UDim2.new(0.03, 0, 1, 0)
+loadingAccent.BackgroundColor3 = Color3.fromRGB(69, 224, 192)
 loadingAccent.BorderSizePixel = 0
-loadingAccent.Parent = loadingOverlay
+loadingAccent.Parent = loadingTrack
+local loadingAccentCorner = Instance.new('UICorner')
+loadingAccentCorner.CornerRadius = UDim.new(1, 0)
+loadingAccentCorner.Parent = loadingAccent
+local loadingFillGradient = Instance.new('UIGradient')
+loadingFillGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(64, 208, 191)),
+	ColorSequenceKeypoint.new(0.55, Color3.fromRGB(99, 240, 207)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(116, 183, 255))
+})
+loadingFillGradient.Offset = Vector2.new(-1, 0)
+loadingFillGradient.Parent = loadingAccent
 
 local loadingFooter = Instance.new('TextLabel')
 loadingFooter.Name = 'Footer'
 loadingFooter.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingFooter.Position = UDim2.new(0.5, 0, 0.5, 32)
-loadingFooter.Size = UDim2.new(1, -32, 0, 30)
+loadingFooter.Position = UDim2.new(0.5, 0, 0.5, 69)
+loadingFooter.Size = UDim2.new(1, -32, 0, 28)
 loadingFooter.BackgroundTransparency = 1
 loadingFooter.Font = Enum.Font.FredokaOne
 loadingFooter.Text = 'join .gg/gu9mball'
 loadingFooter.TextColor3 = Color3.fromRGB(160, 190, 205)
 loadingFooter.TextXAlignment = Enum.TextXAlignment.Center
 loadingFooter.TextYAlignment = Enum.TextYAlignment.Center
-loadingFooter.TextSize = 18
+loadingFooter.TextScaled = true
 loadingFooter.TextTransparency = 1
-loadingFooter.Parent = loadingOverlay
+loadingFooter.Parent = loadingContent
+local loadingFooterConstraint = Instance.new('UITextSizeConstraint')
+loadingFooterConstraint.MinTextSize = 14
+loadingFooterConstraint.MaxTextSize = 20
+loadingFooterConstraint.Parent = loadingFooter
 
-local loadingScale = Instance.new('UIScale')
-loadingScale.Scale = 0.92
-loadingScale.Parent = loadingTitle
+local loadingTitlePop = Instance.new('UIScale')
+loadingTitlePop.Scale = 0.9
+loadingTitlePop.Parent = loadingTitle
 
-TweenService:Create(loadingTitle, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+TweenService:Create(loadingTitle, TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 	TextTransparency = 0
 }):Play()
-TweenService:Create(loadingScale, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+TweenService:Create(loadingTitlePop, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 	Scale = 1
 }):Play()
-TweenService:Create(loadingFooter, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.12), {
+TweenService:Create(loadingRivals, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.12), {
 	TextTransparency = 0
 }):Play()
-TweenService:Create(loadingAccent, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, 0.12), {
-	Size = UDim2.fromOffset(176, 3)
+TweenService:Create(loadingFooter, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.2), {
+	TextTransparency = 0
+}):Play()
+TweenService:Create(loadingAccent, TweenInfo.new(2.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	Size = UDim2.new(0.88, 0, 1, 0)
+}):Play()
+TweenService:Create(loadingFillGradient, TweenInfo.new(1.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true), {
+	Offset = Vector2.new(1, 0)
 }):Play()
 
 local loadingScreenFinishing = false
@@ -121,8 +208,14 @@ local function FinishLoadingScreen(onFinished)
 			BackgroundTransparency = 1
 		}):Play()
 		TweenService:Create(loadingTitle, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingRivals, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
 		TweenService:Create(loadingFooter, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingTrack, TweenInfo.new(loadingFadeDuration), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingTrackStroke, TweenInfo.new(loadingFadeDuration), { Transparency = 1 }):Play()
 		TweenService:Create(loadingAccent, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingAccent, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(1, 0, 1, 0)
+		}):Play()
 		TweenService:Create(loadingBlur, TweenInfo.new(loadingFadeDuration), { Size = 0 }):Play()
 		task.delay(loadingFadeDuration, function()
 			if loadingGui.Parent then
