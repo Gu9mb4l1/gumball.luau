@@ -216,7 +216,7 @@ end
 
 Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
 Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed or not MatchesMenuKey(input) then
+	if (gameProcessed and Options.MenuKeybind.Value ~= 'RightShift') or not MatchesMenuKey(input) then
 		return
 	end
 
