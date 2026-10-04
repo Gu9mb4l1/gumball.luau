@@ -215,16 +215,84 @@ local KeybindFilterDropdown = MenuGroup:AddDropdown('KeybindFilter', {
 	Default = 'All'
 })
 
+local ActiveToggleHudLabels = {}
+local ActiveToggleHudLabelSet = {}
+
+local function IsKeyHeld(key)
+	if key == 'MB1' then
+		return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+	elseif key == 'MB2' then
+		return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+	end
+
+	local keyCode = Enum.KeyCode[key]
+	return keyCode ~= nil and UserInputService:IsKeyDown(keyCode)
+end
+
+local function UpdateActiveToggleHudLabels()
+	local activeUnboundToggles = {}
+	if type(Toggles) == 'table' then
+		for name, toggle in pairs(Toggles) do
+			local hasAssignedKey = false
+			for _, addon in ipairs(toggle.Addons or {}) do
+				if addon.Type == 'KeyPicker' and addon.Value and addon.Value ~= 'None' then
+					hasAssignedKey = true
+					break
+				end
+			end
+
+			if toggle.Value and not hasAssignedKey then
+				activeUnboundToggles[name] = true
+				local label = ActiveToggleHudLabels[name]
+				if not label or not label.Parent then
+					label = Library:CreateLabel({
+						Size = UDim2.new(1, 0, 0, 18),
+						TextSize = 13,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						Visible = false,
+						Parent = Library.KeybindContainer
+					}, true)
+					ActiveToggleHudLabels[name] = label
+					ActiveToggleHudLabelSet[label] = true
+				end
+
+				local text = toggle.TextLabel and toggle.TextLabel.Text or tostring(name)
+				local labelText = text .. ' (On)'
+				if label.Text ~= labelText then
+					label.Text = labelText
+				end
+			end
+		end
+	end
+
+	for name, label in pairs(ActiveToggleHudLabels) do
+		if not activeUnboundToggles[name] then
+			ActiveToggleHudLabels[name] = nil
+			ActiveToggleHudLabelSet[label] = nil
+			label:Destroy()
+		end
+	end
+end
+
 local function ApplyKeybindFilter()
+	UpdateActiveToggleHudLabels()
 	local visibleCount = 0
 	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
 		if label:IsA('TextLabel') then
-			local mode = label.Text:match('%(([^()]*)%)$')
-			local shouldShow = false
-			if mode then
-				shouldShow = KeybindFilter == 'All' or mode == KeybindFilter
+			local shouldShow
+			if ActiveToggleHudLabelSet[label] then
+				shouldShow = KeybindFilter == 'All'
+			else
+				local key, mode = label.Text:match('^%[([^%]]+)%]%s+.-%(([^()]*)%)$')
+				if KeybindFilter == 'All' then
+					shouldShow = key ~= nil
+				elseif KeybindFilter == 'Toggle' then
+					shouldShow = key ~= nil and mode == 'Toggle'
+				else
+					shouldShow = key ~= nil and mode == 'Hold' and IsKeyHeld(key)
+				end
 			end
-			label.Visible = shouldShow
+			label.Visible = shouldShow == true
 			if label.Visible then
 				visibleCount += 1
 			end
@@ -366,6 +434,10 @@ Library:GiveSignal(RunService.RenderStepped:Connect(function()
 
 	if menuReady then
 		Window.Holder.Visible = desiredMenuVisible
+	end
+
+	if KeybindDisplayToggle.Value then
+		ApplyKeybindFilter()
 	end
 end))
 
