@@ -1,10 +1,17 @@
+-- =====================================================================
+-- GUMBALL - FULL SCRIPT (3s Loading Screen + Fixed World Tab + Menu)
+-- =====================================================================
 
+-- =====================================================================
+-- 1. IMPROVED 3-SECOND LOADING SCREEN
+-- =====================================================================
 local loadingStartedAt = os.clock()
-local loadingMinimumDuration = 3
-local loadingFadeDuration = 0.35
+local loadingMinimumDuration = 3.0 -- Exactly 3 seconds before fade starts
+local loadingFadeDuration = 0.4
 local TweenService = game:GetService('TweenService')
 local Lighting = game:GetService('Lighting')
 local loadingParent = game:GetService('CoreGui')
+
 if type(gethui) == 'function' then
 	local success, hiddenGui = pcall(gethui)
 	if success and hiddenGui then
@@ -12,26 +19,26 @@ if type(gethui) == 'function' then
 	end
 end
 
+-- Cleanup old instances
 local oldLoadingGui = loadingParent:FindFirstChild('GumballLoadingScreen')
-if oldLoadingGui then
-	oldLoadingGui:Destroy()
-end
+if oldLoadingGui then oldLoadingGui:Destroy() end
 
 local oldLoadingBlur = Lighting:FindFirstChild('GumballLoadingBlur')
-if oldLoadingBlur then
-	oldLoadingBlur:Destroy()
-end
+if oldLoadingBlur then oldLoadingBlur:Destroy() end
 
+-- Blur Effect
 local loadingBlur = Instance.new('BlurEffect')
 loadingBlur.Name = 'GumballLoadingBlur'
-loadingBlur.Size = 18
+loadingBlur.Size = 24
 loadingBlur.Parent = Lighting
 
+-- Main GUI
 local loadingGui = Instance.new('ScreenGui')
 loadingGui.Name = 'GumballLoadingScreen'
 loadingGui.IgnoreGuiInset = true
 loadingGui.ResetOnSpawn = false
 loadingGui.DisplayOrder = 10000
+loadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 loadingGui.Parent = loadingParent
 
 local loadingOverlay = Instance.new('Frame')
@@ -52,6 +59,7 @@ loadingBackgroundGradient.Color = ColorSequence.new({
 loadingBackgroundGradient.Rotation = 18
 loadingBackgroundGradient.Parent = loadingOverlay
 
+-- Background Facets
 local loadingFacetLayer = Instance.new('Frame')
 loadingFacetLayer.Name = 'BackgroundFacets'
 loadingFacetLayer.Size = UDim2.fromScale(1, 1)
@@ -70,6 +78,9 @@ local loadingFacetSpecs = {
 	{ 0.18, 0.46, 0.24, 0.06, -20 },
 	{ 0.86, 0.53, 0.30, 0.07, 19 }
 }
+
+local backgroundTweens = {}
+
 for index, spec in ipairs(loadingFacetSpecs) do
 	local facet = Instance.new('Frame')
 	facet.Name = 'Facet' .. index
@@ -82,11 +93,15 @@ for index, spec in ipairs(loadingFacetSpecs) do
 	facet.BorderSizePixel = 0
 	facet.ZIndex = 1
 	facet.Parent = loadingFacetLayer
-	TweenService:Create(facet, TweenInfo.new(8 + index, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+	
+	local tween = TweenService:Create(facet, TweenInfo.new(8 + index, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
 		Rotation = spec[5] + (index % 2 == 0 and 4 or -4)
-	}):Play()
+	})
+	tween:Play()
+	table.insert(backgroundTweens, tween)
 end
 
+-- Orbit Rings
 for index, ringSize in ipairs({ UDim2.fromOffset(560, 410), UDim2.fromOffset(760, 560) }) do
 	local ring = Instance.new('Frame')
 	ring.Name = 'OrbitRing' .. index
@@ -98,23 +113,32 @@ for index, ringSize in ipairs({ UDim2.fromOffset(560, 410), UDim2.fromOffset(760
 	ring.Rotation = index == 1 and -12 or 14
 	ring.ZIndex = 2
 	ring.Parent = loadingOverlay
+	
 	local ringCorner = Instance.new('UICorner')
 	ringCorner.CornerRadius = UDim.new(1, 0)
 	ringCorner.Parent = ring
+	
 	local ringStroke = Instance.new('UIStroke')
 	ringStroke.Color = index == 1 and Color3.fromRGB(92, 205, 202) or Color3.fromRGB(120, 151, 205)
 	ringStroke.Transparency = 0.93
-	ringStroke.Thickness = 1
+	ringStroke.Thickness = 1.5
 	ringStroke.Parent = ring
-	TweenService:Create(ring, TweenInfo.new(42 + index * 9, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {
+	
+	local tween = TweenService:Create(ring, TweenInfo.new(42 + index * 9, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {
 		Rotation = ring.Rotation + (index == 1 and 360 or -360)
-	}):Play()
+	})
+	tween:Play()
+	table.insert(backgroundTweens, tween)
 end
 
-TweenService:Create(loadingBackgroundGradient, TweenInfo.new(18, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+-- Animate Background Gradient
+local gradientTween = TweenService:Create(loadingBackgroundGradient, TweenInfo.new(18, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
 	Rotation = 42
-}):Play()
+})
+gradientTween:Play()
+table.insert(backgroundTweens, gradientTween)
 
+-- Content Container
 local loadingContent = Instance.new('Frame')
 loadingContent.Name = 'Content'
 loadingContent.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -126,15 +150,20 @@ loadingContent.Parent = loadingOverlay
 
 local loadingScale = Instance.new('UIScale')
 loadingScale.Parent = loadingContent
+
 local loadingCamera = workspace.CurrentCamera
 if loadingCamera then
+	loadingCamera:GetPropertyChangedSignal('ViewportSize'):Connect(function()
+		local viewport = loadingCamera.ViewportSize
+		loadingScale.Scale = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.75, 2)
+	end)
 	local viewport = loadingCamera.ViewportSize
-	loadingScale.Scale = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.8, 2)
+	loadingScale.Scale = math.clamp(math.min(viewport.X / 1280, viewport.Y / 720), 0.75, 2)
 else
 	loadingScale.Scale = 1
 end
-loadingContent.Size = UDim2.new(0.84 / loadingScale.Scale, 0, 0, 280)
 
+-- Brand Badge
 local loadingBrandBadge = Instance.new('Frame')
 loadingBrandBadge.Name = 'BrandBadge'
 loadingBrandBadge.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -144,10 +173,12 @@ loadingBrandBadge.BackgroundColor3 = Color3.fromRGB(70, 218, 192)
 loadingBrandBadge.BorderSizePixel = 0
 loadingBrandBadge.ZIndex = 6
 loadingBrandBadge.Parent = loadingContent
+
 local loadingBrandCorner = Instance.new('UICorner')
-loadingBrandCorner.CornerRadius = UDim.new(0, 3)
+loadingBrandCorner.CornerRadius = UDim.new(0, 4)
 loadingBrandCorner.Parent = loadingBrandBadge
 
+-- Title
 local loadingTitle = Instance.new('TextLabel')
 loadingTitle.Name = 'Title'
 loadingTitle.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -162,13 +193,14 @@ loadingTitle.TextYAlignment = Enum.TextYAlignment.Center
 loadingTitle.TextScaled = true
 loadingTitle.TextTransparency = 1
 loadingTitle.ZIndex = 7
-loadingTitle.ZIndex = 6
 loadingTitle.Parent = loadingBrandBadge
+
 local loadingTitleConstraint = Instance.new('UITextSizeConstraint')
 loadingTitleConstraint.MinTextSize = 18
 loadingTitleConstraint.MaxTextSize = 28
 loadingTitleConstraint.Parent = loadingTitle
 
+-- Game Title
 local loadingRivals = Instance.new('TextLabel')
 loadingRivals.Name = 'GameTitle'
 loadingRivals.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -184,11 +216,13 @@ loadingRivals.TextScaled = true
 loadingRivals.TextTransparency = 1
 loadingRivals.ZIndex = 7
 loadingRivals.Parent = loadingContent
+
 local loadingRivalsConstraint = Instance.new('UITextSizeConstraint')
 loadingRivalsConstraint.MinTextSize = 40
 loadingRivalsConstraint.MaxTextSize = 76
 loadingRivalsConstraint.Parent = loadingRivals
 
+-- Status Text
 local loadingStatus = Instance.new('TextLabel')
 loadingStatus.Name = 'Status'
 loadingStatus.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -200,10 +234,12 @@ loadingStatus.Text = 'CONNECTING TO RIVALS'
 loadingStatus.TextColor3 = Color3.fromRGB(185, 203, 222)
 loadingStatus.TextSize = 14
 loadingStatus.TextTransparency = 1
-loadingStatus.TextXAlignment = Enum.TextXAlignment.Left
+loadingStatus.TextXAlignment = Enum.TextXAlignment.Center
+loadingStatus.TextYAlignment = Enum.TextYAlignment.Center
 loadingStatus.ZIndex = 7
 loadingStatus.Parent = loadingContent
 
+-- Progress Track
 local loadingTrack = Instance.new('Frame')
 loadingTrack.Name = 'ProgressTrack'
 loadingTrack.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -214,29 +250,34 @@ loadingTrack.BorderSizePixel = 0
 loadingTrack.ClipsDescendants = true
 loadingTrack.ZIndex = 6
 loadingTrack.Parent = loadingContent
+
 local loadingTrackCorner = Instance.new('UICorner')
 loadingTrackCorner.CornerRadius = UDim.new(1, 0)
 loadingTrackCorner.Parent = loadingTrack
+
 local loadingTrackStroke = Instance.new('UIStroke')
 loadingTrackStroke.Color = Color3.fromRGB(96, 131, 150)
 loadingTrackStroke.Transparency = 0.55
 loadingTrackStroke.Thickness = 1
 loadingTrackStroke.Parent = loadingTrack
 
+-- Progress Logic
 local loadingProgress = Instance.new('NumberValue')
 loadingProgress.Name = 'Progress'
-loadingProgress.Value = 3
+loadingProgress.Value = 0
 
 local loadingAccent = Instance.new('Frame')
 loadingAccent.Name = 'ProgressFill'
-loadingAccent.Size = UDim2.new(0.03, 0, 1, 0)
+loadingAccent.Size = UDim2.new(0, 0, 1, 0)
 loadingAccent.BackgroundColor3 = Color3.fromRGB(69, 224, 192)
 loadingAccent.BorderSizePixel = 0
 loadingAccent.ZIndex = 7
 loadingAccent.Parent = loadingTrack
+
 local loadingAccentCorner = Instance.new('UICorner')
 loadingAccentCorner.CornerRadius = UDim.new(1, 0)
 loadingAccentCorner.Parent = loadingAccent
+
 local loadingFillGradient = Instance.new('UIGradient')
 loadingFillGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(64, 208, 191)),
@@ -253,7 +294,7 @@ loadingPercent.Position = UDim2.new(1, -10, 0.5, 0)
 loadingPercent.Size = UDim2.fromOffset(46, 14)
 loadingPercent.BackgroundTransparency = 1
 loadingPercent.Font = Enum.Font.GothamBold
-loadingPercent.Text = '3%'
+loadingPercent.Text = '0%'
 loadingPercent.TextColor3 = Color3.fromRGB(248, 250, 255)
 loadingPercent.TextSize = 12
 loadingPercent.TextXAlignment = Enum.TextXAlignment.Right
@@ -266,6 +307,7 @@ loadingProgress:GetPropertyChangedSignal('Value'):Connect(function()
 	loadingPercent.Text = string.format('%d%%', math.floor(progress + 0.5))
 end)
 
+-- Footer
 local loadingFooter = Instance.new('TextLabel')
 loadingFooter.Name = 'Footer'
 loadingFooter.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -281,64 +323,73 @@ loadingFooter.TextScaled = true
 loadingFooter.TextTransparency = 1
 loadingFooter.ZIndex = 7
 loadingFooter.Parent = loadingContent
+
 local loadingFooterConstraint = Instance.new('UITextSizeConstraint')
 loadingFooterConstraint.MinTextSize = 14
 loadingFooterConstraint.MaxTextSize = 20
 loadingFooterConstraint.Parent = loadingFooter
 
+-- Intro Animations
 local loadingTitlePop = Instance.new('UIScale')
 loadingTitlePop.Scale = 0.9
 loadingTitlePop.Parent = loadingTitle
 
-TweenService:Create(loadingTitle, TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-	TextTransparency = 0
-}):Play()
-TweenService:Create(loadingTitlePop, TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-	Scale = 1
-}):Play()
-TweenService:Create(loadingBrandBadge, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-	Position = UDim2.new(0.5, 0, 0.5, -100)
-}):Play()
-TweenService:Create(loadingRivals, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.12), {
-	TextTransparency = 0
-}):Play()
-TweenService:Create(loadingStatus, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.18), {
-	TextTransparency = 0
-}):Play()
-TweenService:Create(loadingFooter, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.2), {
-	TextTransparency = 0
-}):Play()
-local loadingProgressTween = TweenService:Create(loadingProgress, TweenInfo.new(2.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-	Value = 86
-})
-loadingProgressTween:Play()
-TweenService:Create(loadingFillGradient, TweenInfo.new(1.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true), {
+TweenService:Create(loadingTitle, TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { TextTransparency = 0 }):Play()
+TweenService:Create(loadingTitlePop, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0.1), { Scale = 1 }):Play()
+TweenService:Create(loadingBrandBadge, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0.05), { Position = UDim2.new(0.5, 0, 0.5, -100) }):Play()
+TweenService:Create(loadingRivals, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, 0, false, 0.15), { TextTransparency = 0 }):Play()
+TweenService:Create(loadingStatus, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, 0, false, 0.25), { TextTransparency = 0 }):Play()
+TweenService:Create(loadingFooter, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, 0, false, 0.3), { TextTransparency = 0 }):Play()
+
+-- Smooth Gradient Animation on Progress Bar
+TweenService:Create(loadingFillGradient, TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true), {
 	Offset = Vector2.new(1, 0)
 }):Play()
 
-local loadingScreenFinishing = false
-local loadingScreenDismissed = false
-local loadingFinishCallbacks = {}
-local loadingStatuses = { 'INITIALIZING GUMBALL', 'SYNCING UI SETTINGS', 'PREPARING MENU' }
+-- Realistic Progress Simulation
 task.spawn(function()
-	local statusIndex = 1
-	while loadingGui.Parent and not loadingScreenFinishing do
-		task.wait(0.9)
-		if loadingScreenFinishing or not loadingGui.Parent then
-			break
-		end
-
-		statusIndex = statusIndex % #loadingStatuses + 1
-		TweenService:Create(loadingStatus, TweenInfo.new(0.14), { TextTransparency = 1 }):Play()
-		task.wait(0.14)
-		if loadingScreenFinishing or not loadingGui.Parent then
-			break
-		end
-		loadingStatus.Text = loadingStatuses[statusIndex]
-		TweenService:Create(loadingStatus, TweenInfo.new(0.22), { TextTransparency = 0 }):Play()
+	local currentProgress = 0
+	local targetProgress = 75
+	
+	while currentProgress < targetProgress do
+		currentProgress = currentProgress + math.random(1, 3)
+		loadingProgress.Value = math.min(currentProgress, targetProgress)
+		task.wait(math.random(2, 6) / 100)
+	end
+	
+	task.wait(1.0)
+	while currentProgress < 92 do
+		currentProgress = currentProgress + math.random(0, 1)
+		loadingProgress.Value = math.min(currentProgress, 92)
+		task.wait(math.random(15, 30) / 100)
 	end
 end)
 
+-- Status Cycling
+local loadingScreenFinishing = false
+local loadingScreenDismissed = false
+local loadingFinishCallbacks = {}
+local loadingStatuses = { 'INITIALIZING GUMBALL', 'SYNCING UI SETTINGS', 'PREPARING MENU', 'FINALIZING' }
+
+task.spawn(function()
+	local statusIndex = 1
+	while loadingGui.Parent and not loadingScreenFinishing do
+		task.wait(1.2)
+		if loadingScreenFinishing or not loadingGui.Parent then break end
+
+		statusIndex = statusIndex % #loadingStatuses + 1
+		
+		TweenService:Create(loadingStatus, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { TextTransparency = 1 }):Play()
+		task.wait(0.2)
+		
+		if loadingScreenFinishing or not loadingGui.Parent then break end
+		
+		loadingStatus.Text = loadingStatuses[statusIndex]
+		TweenService:Create(loadingStatus, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { TextTransparency = 0 }):Play()
+	end
+end)
+
+-- Finish Function
 local function FinishLoadingScreen(onFinished)
 	if onFinished then
 		if loadingScreenDismissed then
@@ -348,35 +399,35 @@ local function FinishLoadingScreen(onFinished)
 		end
 	end
 
-	if loadingScreenFinishing then
-		return
-	end
+	if loadingScreenFinishing then return end
 	loadingScreenFinishing = true
 
-	local waitTime = math.max(0, loadingMinimumDuration - loadingFadeDuration - (os.clock() - loadingStartedAt))
+	TweenService:Create(loadingProgress, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), { Value = 100 }):Play()
+	
+	local elapsedTime = os.clock() - loadingStartedAt
+	local waitTime = math.max(0, loadingMinimumDuration - elapsedTime)
+	
 	task.delay(waitTime, function()
-		TweenService:Create(loadingOverlay, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			BackgroundTransparency = 1
-		}):Play()
-		TweenService:Create(loadingTitle, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingRivals, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-			TweenService:Create(loadingStatus, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingFooter, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingTrack, TweenInfo.new(loadingFadeDuration), { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(loadingTrackStroke, TweenInfo.new(loadingFadeDuration), { Transparency = 1 }):Play()
-			TweenService:Create(loadingPercent, TweenInfo.new(0.2), { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingAccent, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
-			TweenService:Create(loadingProgress, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Value = 100
-		}):Play()
-		TweenService:Create(loadingBlur, TweenInfo.new(loadingFadeDuration), { Size = 0 }):Play()
+		if not loadingGui.Parent then return end
+		
+		for _, tween in ipairs(backgroundTweens) do
+			tween:Cancel()
+		end
+
+		TweenService:Create(loadingOverlay, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingRivals, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingStatus, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingFooter, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingTrack, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingTrackStroke, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+		TweenService:Create(loadingPercent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingAccent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingBlur, TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quint, Enum.EasingDirection.In), { Size = 0 }):Play()
+
 		task.delay(loadingFadeDuration, function()
-			if loadingGui.Parent then
-				loadingGui:Destroy()
-			end
-			if loadingBlur.Parent then
-				loadingBlur:Destroy()
-			end
+			if loadingGui.Parent then loadingGui:Destroy() end
+			if loadingBlur.Parent then loadingBlur:Destroy() end
 
 			loadingScreenDismissed = true
 			for _, callback in ipairs(loadingFinishCallbacks) do
@@ -390,7 +441,14 @@ end
 task.delay(45, function()
 	FinishLoadingScreen()
 end)
+-- =====================================================================
+-- END OF LOADING SCREEN
+-- =====================================================================
 
+
+-- =====================================================================
+-- 2. LINORIA LIBRARY & MENU SETUP
+-- =====================================================================
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
@@ -424,234 +482,126 @@ Tabs.settings = Window:AddTab('settings')
 local MainGroup = Tabs.Main:AddLeftGroupbox('Main')
 MainGroup:AddLabel('Gumball')
 
+-- =====================================================================
+-- 3. FIXED WORLD TAB (COLOR CORRECTION & ATMOSPHERE)
+-- =====================================================================
 local WorldTabbox = Tabs.World:AddLeftTabbox()
 local ColorCorrectionTab = WorldTabbox:AddTab('color correction')
 local AtmosphereTab = WorldTabbox:AddTab('atmosphere')
 local LightingService = game:GetService('Lighting')
 
+-- ================= COLOR CORRECTION =================
 local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
 WorldColorCorrection.Name = 'GumballColorCorrection'
 WorldColorCorrection.Enabled = false
-WorldColorCorrection.Saturation = 0
-WorldColorCorrection.Contrast = 0
-WorldColorCorrection.Brightness = 0
-WorldColorCorrection.TintColor = Color3.new(1, 1, 1)
 WorldColorCorrection.Parent = LightingService
 
+local CC_Enabled = ColorCorrectionTab:AddToggle('CC_Enabled', { Text = 'Enabled', Default = false })
+CC_Enabled:OnChanged(function()
+	WorldColorCorrection.Enabled = CC_Enabled.Value
+end)
+
+local CC_Tint = ColorCorrectionTab:AddColorPicker('CC_Tint', { Text = 'Tint', Default = Color3.new(1, 1, 1) })
+CC_Tint:OnChanged(function()
+	WorldColorCorrection.TintColor = CC_Tint.Value
+end)
+
+local CC_Saturation = ColorCorrectionTab:AddSlider('CC_Saturation', { Text = 'Saturation', Default = 0, Min = -1, Max = 1, Rounding = 2 })
+CC_Saturation:OnChanged(function()
+	WorldColorCorrection.Saturation = CC_Saturation.Value
+end)
+
+local CC_Contrast = ColorCorrectionTab:AddSlider('CC_Contrast', { Text = 'Contrast', Default = 0, Min = -1, Max = 1, Rounding = 2 })
+CC_Contrast:OnChanged(function()
+	WorldColorCorrection.Contrast = CC_Contrast.Value
+end)
+
+local CC_Brightness = ColorCorrectionTab:AddSlider('CC_Brightness', { Text = 'Brightness', Default = 0, Min = -1, Max = 1, Rounding = 2 })
+CC_Brightness:OnChanged(function()
+	WorldColorCorrection.Brightness = CC_Brightness.Value
+end)
+
+ColorCorrectionTab:AddButton('Reset Color Correction', function()
+	CC_Enabled:SetValue(false)
+	CC_Tint:SetValue(Color3.new(1, 1, 1))
+	CC_Saturation:SetValue(0)
+	CC_Contrast:SetValue(0)
+	CC_Brightness:SetValue(0)
+end)
+
+-- ================= ATMOSPHERE =================
 local WorldAtmosphere = Instance.new('Atmosphere')
 WorldAtmosphere.Name = 'GumballAtmosphere'
-WorldAtmosphere.Density = 0
-WorldAtmosphere.Offset = 0
-WorldAtmosphere.Haze = 0
-WorldAtmosphere.Glare = 0
-WorldAtmosphere.Color = Color3.new(1, 1, 1)
-WorldAtmosphere.Decay = Color3.new(1, 1, 1)
 local worldEffectsUnloaded = false
 
+local ATM_Enabled = AtmosphereTab:AddToggle('ATM_Enabled', { Text = 'Enabled', Default = false })
+ATM_Enabled:OnChanged(function()
+	if worldEffectsUnloaded then return end
+	WorldAtmosphere.Parent = ATM_Enabled.Value and LightingService or nil
+end)
+
+local ATM_Density = AtmosphereTab:AddSlider('ATM_Density', { Text = 'Density', Default = 0, Min = 0, Max = 1, Rounding = 2 })
+ATM_Density:OnChanged(function()
+	WorldAtmosphere.Density = ATM_Density.Value
+	if ATM_Density.Value > 0 and not ATM_Enabled.Value then ATM_Enabled:SetValue(true) end
+end)
+
+local ATM_Offset = AtmosphereTab:AddSlider('ATM_Offset', { Text = 'Offset', Default = 0, Min = -1, Max = 1, Rounding = 2 })
+ATM_Offset:OnChanged(function()
+	WorldAtmosphere.Offset = ATM_Offset.Value
+	if ATM_Offset.Value ~= 0 and not ATM_Enabled.Value then ATM_Enabled:SetValue(true) end
+end)
+
+local ATM_Haze = AtmosphereTab:AddSlider('ATM_Haze', { Text = 'Haze', Default = 0, Min = 0, Max = 10, Rounding = 1 })
+ATM_Haze:OnChanged(function()
+	WorldAtmosphere.Haze = ATM_Haze.Value
+	if ATM_Haze.Value > 0 and not ATM_Enabled.Value then ATM_Enabled:SetValue(true) end
+end)
+
+local ATM_Glare = AtmosphereTab:AddSlider('ATM_Glare', { Text = 'Glare', Default = 0, Min = 0, Max = 10, Rounding = 1 })
+ATM_Glare:OnChanged(function()
+	WorldAtmosphere.Glare = ATM_Glare.Value
+	if ATM_Glare.Value > 0 and not ATM_Enabled.Value then ATM_Enabled:SetValue(true) end
+end)
+
+local ATM_Color = AtmosphereTab:AddColorPicker('ATM_Color', { Text = 'Color', Default = Color3.new(1, 1, 1) })
+ATM_Color:OnChanged(function()
+	WorldAtmosphere.Color = ATM_Color.Value
+end)
+
+local ATM_Decay = AtmosphereTab:AddColorPicker('ATM_Decay', { Text = 'Decay', Default = Color3.new(1, 1, 1) })
+ATM_Decay:OnChanged(function()
+	WorldAtmosphere.Decay = ATM_Decay.Value
+end)
+
+AtmosphereTab:AddButton('Reset Atmosphere', function()
+	ATM_Enabled:SetValue(false)
+	ATM_Density:SetValue(0)
+	ATM_Offset:SetValue(0)
+	ATM_Haze:SetValue(0)
+	ATM_Glare:SetValue(0)
+	ATM_Color:SetValue(Color3.new(1, 1, 1))
+	ATM_Decay:SetValue(Color3.new(1, 1, 1))
+end)
+
+-- ================= UNLOAD HANDLER =================
 local previousUnloadCallback = Library.OnUnload
 Library:OnUnload(function()
 	worldEffectsUnloaded = true
 	if previousUnloadCallback then
 		previousUnloadCallback()
 	end
-	WorldColorCorrection:Destroy()
-	WorldAtmosphere.Parent = nil
+	if WorldColorCorrection then WorldColorCorrection:Destroy() end
+	if WorldAtmosphere then WorldAtmosphere.Parent = nil end
 end)
+-- =====================================================================
+-- END OF WORLD TAB
+-- =====================================================================
 
-local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
-	Text = 'enabled',
-	Default = false
-})
-WorldColorCorrectionToggle:OnChanged(function(value)
-	WorldColorCorrection.Enabled = value
-end)
 
-ColorCorrectionTab:AddLabel('Tint'):AddColorPicker('WorldColorCorrectionTint', {
-	Default = Color3.new(1, 1, 1),
-	Title = 'Color correction tint'
-})
-Options.WorldColorCorrectionTint:OnChanged(function(value)
-	WorldColorCorrection.TintColor = value
-	if value ~= Color3.new(1, 1, 1) and not WorldColorCorrectionToggle.Value then
-		WorldColorCorrectionToggle:SetValue(true)
-	end
-end)
-
-ColorCorrectionTab:AddSlider('WorldColorCorrectionSaturation', {
-	Text = 'saturation',
-	Default = 0,
-	Min = -1,
-	Max = 1,
-	Rounding = 2
-}):OnChanged(function(value)
-	WorldColorCorrection.Saturation = value
-	if value ~= 0 and not WorldColorCorrectionToggle.Value then
-		WorldColorCorrectionToggle:SetValue(true)
-	end
-end)
-
-ColorCorrectionTab:AddSlider('WorldColorCorrectionContrast', {
-	Text = 'contrast',
-	Default = 0,
-	Min = -1,
-	Max = 1,
-	Rounding = 2
-}):OnChanged(function(value)
-	WorldColorCorrection.Contrast = value
-	if value ~= 0 and not WorldColorCorrectionToggle.Value then
-		WorldColorCorrectionToggle:SetValue(true)
-	end
-end)
-
-ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
-	Text = 'brightness',
-	Default = 0,
-	Min = -1,
-	Max = 1,
-	Rounding = 2
-}):OnChanged(function(value)
-	WorldColorCorrection.Brightness = value
-	if value ~= 0 and not WorldColorCorrectionToggle.Value then
-		WorldColorCorrectionToggle:SetValue(true)
-	end
-end)
-
-local WorldAtmosphereToggle = AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
-	Text = 'enabled',
-	Default = false
-})
-WorldAtmosphereToggle:OnChanged(function(value)
-	if worldEffectsUnloaded then
-		return
-	end
-	WorldAtmosphere.Parent = value and LightingService or nil
-end)
-
-local function EnableWorldAtmosphereForEdit()
-	if not worldEffectsUnloaded and not WorldAtmosphereToggle.Value then
-		WorldAtmosphereToggle:SetValue(true)
-	end
-end
-
-AtmosphereTab:AddSlider('WorldAtmosphereDensity', {
-	Text = 'density',
-	Default = 0,
-	Min = 0,
-	Max = 1,
-	Rounding = 2
-}):OnChanged(function(value)
-	WorldAtmosphere.Density = value
-	if value ~= 0 then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-AtmosphereTab:AddSlider('WorldAtmosphereOffset', {
-	Text = 'offset',
-	Default = 0,
-	Min = -1,
-	Max = 1,
-	Rounding = 2
-}):OnChanged(function(value)
-	WorldAtmosphere.Offset = value
-	if value ~= 0 then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-AtmosphereTab:AddSlider('WorldAtmosphereHaze', {
-	Text = 'haze',
-	Default = 0,
-	Min = 0,
-	Max = 10,
-	Rounding = 1
-}):OnChanged(function(value)
-	WorldAtmosphere.Haze = value
-	if value ~= 0 then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-AtmosphereTab:AddSlider('WorldAtmosphereGlare', {
-	Text = 'glare',
-	Default = 0,
-	Min = 0,
-	Max = 10,
-	Rounding = 1
-}):OnChanged(function(value)
-	WorldAtmosphere.Glare = value
-	if value ~= 0 then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-AtmosphereTab:AddLabel('Color'):AddColorPicker('WorldAtmosphereColor', {
-	Default = Color3.new(1, 1, 1),
-	Title = 'Atmosphere color'
-})
-Options.WorldAtmosphereColor:OnChanged(function(value)
-	WorldAtmosphere.Color = value
-	if value ~= Color3.new(1, 1, 1) then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-AtmosphereTab:AddLabel('Decay'):AddColorPicker('WorldAtmosphereDecay', {
-	Default = Color3.new(1, 1, 1),
-	Title = 'Atmosphere decay'
-})
-Options.WorldAtmosphereDecay:OnChanged(function(value)
-	WorldAtmosphere.Decay = value
-	if value ~= Color3.new(1, 1, 1) then
-		EnableWorldAtmosphereForEdit()
-	end
-end)
-
-local function SyncWorldEffects()
-	if worldEffectsUnloaded then
-		return
-	end
-
-	local colorCorrectionValues = {
-		Enabled = WorldColorCorrectionToggle.Value,
-		Saturation = Options.WorldColorCorrectionSaturation.Value,
-		Contrast = Options.WorldColorCorrectionContrast.Value,
-		Brightness = Options.WorldColorCorrectionBrightness.Value,
-		TintColor = Options.WorldColorCorrectionTint.Value
-	}
-	for property, value in pairs(colorCorrectionValues) do
-		if WorldColorCorrection[property] ~= value then
-			WorldColorCorrection[property] = value
-		end
-	end
-
-	local atmosphereParent = WorldAtmosphereToggle.Value and LightingService or nil
-	if WorldAtmosphere.Parent ~= atmosphereParent then
-		local success = pcall(function()
-			WorldAtmosphere.Parent = atmosphereParent
-		end)
-		if not success then
-			WorldAtmosphere = Instance.new('Atmosphere')
-			WorldAtmosphere.Name = 'GumballAtmosphere'
-			WorldAtmosphere.Parent = atmosphereParent
-		end
-	end
-
-	local atmosphereValues = {
-		Density = Options.WorldAtmosphereDensity.Value,
-		Offset = Options.WorldAtmosphereOffset.Value,
-		Haze = Options.WorldAtmosphereHaze.Value,
-		Glare = Options.WorldAtmosphereGlare.Value,
-		Color = Options.WorldAtmosphereColor.Value,
-		Decay = Options.WorldAtmosphereDecay.Value
-	}
-	for property, value in pairs(atmosphereValues) do
-		if WorldAtmosphere[property] ~= value then
-			WorldAtmosphere[property] = value
-		end
-	end
-end
-
+-- =====================================================================
+-- 4. SETTINGS, MENU, AND KEYBIND HUD
+-- =====================================================================
 local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
 	Library:Unload()
@@ -1098,7 +1048,7 @@ Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
 end))
 
 Library:GiveSignal(RunService.RenderStepped:Connect(function()
-	SyncWorldEffects()
+	-- SyncWorldEffects() was here, but has been removed for performance!
 	UpdateKeybindHudDrag()
 	local mode = Options.MenuBindMode.Value
 	if mode == 'Always' then
@@ -1289,7 +1239,11 @@ ThemeGroup:AddButton({
 	end
 })
 
+-- =====================================================================
+-- 5. FINAL EXECUTION
+-- =====================================================================
 SaveManager:LoadAutoloadConfig()
+
 FinishLoadingScreen(function()
 	menuReady = true
 	desiredMenuVisible = true
