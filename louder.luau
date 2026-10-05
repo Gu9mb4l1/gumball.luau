@@ -1,4 +1,3 @@
-
 local loadingStartedAt = os.clock()
 local loadingMinimumDuration = 3
 local loadingFadeDuration = 0.35
@@ -429,6 +428,10 @@ local ColorCorrectionTab = WorldTabbox:AddTab('color correction')
 local AtmosphereTab = WorldTabbox:AddTab('atmosphere')
 local LightingService = game:GetService('Lighting')
 
+-- Holds the game's own Lighting effects while ours are active.
+local WorldEffectStash = Instance.new('Folder')
+WorldEffectStash.Name = 'GumballWorldEffectStash'
+
 local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
 WorldColorCorrection.Name = 'GumballColorCorrection'
 WorldColorCorrection.Enabled = false
@@ -448,14 +451,60 @@ WorldAtmosphere.Color = Color3.new(1, 1, 1)
 WorldAtmosphere.Decay = Color3.new(1, 1, 1)
 local worldEffectsUnloaded = false
 
+local stashedAtmospheres = {}
+local stashedColorCorrections = {}
+
+local function StashForeignAtmospheres()
+	for _, inst in ipairs(LightingService:GetChildren()) do
+		if inst:IsA('Atmosphere') and inst ~= WorldAtmosphere then
+			if stashedAtmospheres[inst] == nil then
+				stashedAtmospheres[inst] = inst.Parent or LightingService
+			end
+			inst.Parent = WorldEffectStash
+		end
+	end
+end
+
+local function RestoreForeignAtmospheres()
+	for inst, originalParent in pairs(stashedAtmospheres) do
+		pcall(function()
+			inst.Parent = originalParent
+		end)
+	end
+	table.clear(stashedAtmospheres)
+end
+
+local function StashForeignColorCorrections()
+	for _, inst in ipairs(LightingService:GetChildren()) do
+		if inst:IsA('ColorCorrectionEffect') and inst ~= WorldColorCorrection then
+			if stashedColorCorrections[inst] == nil then
+				stashedColorCorrections[inst] = inst.Parent or LightingService
+			end
+			inst.Parent = WorldEffectStash
+		end
+	end
+end
+
+local function RestoreForeignColorCorrections()
+	for inst, originalParent in pairs(stashedColorCorrections) do
+		pcall(function()
+			inst.Parent = originalParent
+		end)
+	end
+	table.clear(stashedColorCorrections)
+end
+
 local previousUnloadCallback = Library.OnUnload
 Library:OnUnload(function()
 	worldEffectsUnloaded = true
 	if previousUnloadCallback then
 		previousUnloadCallback()
 	end
-	WorldColorCorrection:Destroy()
-	WorldAtmosphere.Parent = nil
+	RestoreForeignAtmospheres()
+	RestoreForeignColorCorrections()
+	pcall(function() WorldEffectStash:Destroy() end)
+	pcall(function() WorldColorCorrection:Destroy() end)
+	pcall(function() WorldAtmosphere:Destroy() end)
 end)
 
 local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
@@ -612,6 +661,7 @@ local function SyncWorldEffects()
 		return
 	end
 
+	-- ===== Color Correction =====
 	local colorCorrectionValues = {
 		Enabled = WorldColorCorrectionToggle.Value,
 		Saturation = Options.WorldColorCorrectionSaturation.Value,
@@ -625,6 +675,19 @@ local function SyncWorldEffects()
 		end
 	end
 
+	-- Keep our CC in Lighting in case the game cleaned it up
+	if WorldColorCorrection.Parent ~= LightingService then
+		WorldColorCorrection.Parent = LightingService
+	end
+
+	-- While ours is on, hide the game's CC so ours is clearly visible
+	if WorldColorCorrectionToggle.Value then
+		StashForeignColorCorrections()
+	else
+		RestoreForeignColorCorrections()
+	end
+
+	-- ===== Atmosphere =====
 	local atmosphereParent = WorldAtmosphereToggle.Value and LightingService or nil
 	if WorldAtmosphere.Parent ~= atmosphereParent then
 		local success = pcall(function()
@@ -649,6 +712,13 @@ local function SyncWorldEffects()
 		if WorldAtmosphere[property] ~= value then
 			WorldAtmosphere[property] = value
 		end
+	end
+
+	-- Roblox only renders ONE Atmosphere — hide the game's while ours is on
+	if WorldAtmosphereToggle.Value then
+		StashForeignAtmospheres()
+	else
+		RestoreForeignAtmospheres()
 	end
 end
 
