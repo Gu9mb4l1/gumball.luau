@@ -3,7 +3,6 @@ local loadingMinimumDuration = 3
 local loadingFadeDuration = 0.45
 local TweenService = game:GetService('TweenService')
 local Lighting = game:GetService('Lighting')
-local RunService = game:GetService('RunService')
 local loadingParent = game:GetService('CoreGui')
 if type(gethui) == 'function' then
 	local success, hiddenGui = pcall(gethui)
@@ -17,13 +16,11 @@ if oldLoadingGui then oldLoadingGui:Destroy() end
 local oldLoadingBlur = Lighting:FindFirstChild('GumballLoadingBlur')
 if oldLoadingBlur then oldLoadingBlur:Destroy() end
 
--- Blur
 local loadingBlur = Instance.new('BlurEffect')
 loadingBlur.Name = 'GumballLoadingBlur'
 loadingBlur.Size = 24
 loadingBlur.Parent = Lighting
 
--- Root GUI
 local loadingGui = Instance.new('ScreenGui')
 loadingGui.Name = 'GumballLoadingScreen'
 loadingGui.IgnoreGuiInset = true
@@ -31,7 +28,6 @@ loadingGui.ResetOnSpawn = false
 loadingGui.DisplayOrder = 10000
 loadingGui.Parent = loadingParent
 
--- Background overlay
 local loadingOverlay = Instance.new('Frame')
 loadingOverlay.Name = 'Overlay'
 loadingOverlay.Size = UDim2.fromScale(1, 1)
@@ -41,7 +37,6 @@ loadingOverlay.BorderSizePixel = 0
 loadingOverlay.ZIndex = 1
 loadingOverlay.Parent = loadingGui
 
--- Deep background gradient
 local loadingBackgroundGradient = Instance.new('UIGradient')
 loadingBackgroundGradient.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0,    Color3.fromRGB(18, 38, 72)),
@@ -54,7 +49,6 @@ TweenService:Create(loadingBackgroundGradient, TweenInfo.new(20, Enum.EasingStyl
 	Rotation = 58
 }):Play()
 
--- Decorative facets
 local loadingFacetLayer = Instance.new('Frame')
 loadingFacetLayer.Name = 'BackgroundFacets'
 loadingFacetLayer.Size = UDim2.fromScale(1, 1)
@@ -92,11 +86,10 @@ for index, spec in ipairs(loadingFacetSpecs) do
 	}):Play()
 end
 
--- Orbit rings (3 now, original had 2)
 local ringDefs = {
-	{ UDim2.fromOffset(480, 350), -14, Color3.fromRGB(72, 220, 210), 0.90, 46 },
+	{ UDim2.fromOffset(480, 350), -14, Color3.fromRGB(72, 220, 210),  0.90, 46 },
 	{ UDim2.fromOffset(680, 500),  16, Color3.fromRGB(100, 160, 255), 0.91, 62 },
-	{ UDim2.fromOffset(880, 650), -8,  Color3.fromRGB(60, 180, 240), 0.93, 78 },
+	{ UDim2.fromOffset(880, 650),  -8, Color3.fromRGB(60, 180, 240),  0.93, 78 },
 }
 for index, def in ipairs(ringDefs) do
 	local ring = Instance.new('Frame')
@@ -122,7 +115,6 @@ for index, def in ipairs(ringDefs) do
 	}):Play()
 end
 
--- Scanline sweep (subtle horizontal shimmer line)
 local scanLine = Instance.new('Frame')
 scanLine.Name = 'ScanLine'
 scanLine.Size = UDim2.new(1, 0, 0, 2)
@@ -134,10 +126,10 @@ scanLine.ZIndex = 3
 scanLine.Parent = loadingOverlay
 local scanGrad = Instance.new('UIGradient')
 scanGrad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0,    Color3.new(0,0,0)),
-	ColorSequenceKeypoint.new(0.35, Color3.new(1,1,1)),
-	ColorSequenceKeypoint.new(0.65, Color3.new(1,1,1)),
-	ColorSequenceKeypoint.new(1,    Color3.new(0,0,0)),
+	ColorSequenceKeypoint.new(0,    Color3.new(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.35, Color3.new(1, 1, 1)),
+	ColorSequenceKeypoint.new(0.65, Color3.new(1, 1, 1)),
+	ColorSequenceKeypoint.new(1,    Color3.new(0, 0, 0)),
 })
 scanGrad.Parent = scanLine
 local function loopScanLine()
@@ -149,7 +141,6 @@ local function loopScanLine()
 end
 task.spawn(loopScanLine)
 
--- Content frame
 local loadingContent = Instance.new('Frame')
 loadingContent.Name = 'Content'
 loadingContent.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -170,11 +161,10 @@ else
 end
 loadingContent.Size = UDim2.new(0.84 / loadingScale.Scale, 0, 0, 300)
 
--- Brand badge — starts offset, pops in
 local loadingBrandBadge = Instance.new('Frame')
 loadingBrandBadge.Name = 'BrandBadge'
 loadingBrandBadge.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingBrandBadge.Position = UDim2.new(0.5, 0, 0.5, -120)  -- animated to -106
+loadingBrandBadge.Position = UDim2.new(0.5, 0, 0.5, -120)
 loadingBrandBadge.Size = UDim2.fromOffset(158, 34)
 loadingBrandBadge.BackgroundColor3 = Color3.fromRGB(50, 210, 185)
 loadingBrandBadge.BorderSizePixel = 0
@@ -188,12 +178,11 @@ badgeGlow.Color = Color3.fromRGB(80, 240, 210)
 badgeGlow.Transparency = 0.6
 badgeGlow.Thickness = 1.5
 badgeGlow.Parent = loadingBrandBadge
--- Badge gradient shimmer
 local badgeGrad = Instance.new('UIGradient')
 badgeGrad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0,    Color3.fromRGB(40, 195, 175)),
-	ColorSequenceKeypoint.new(0.5,  Color3.fromRGB(85, 245, 215)),
-	ColorSequenceKeypoint.new(1,    Color3.fromRGB(40, 195, 175)),
+	ColorSequenceKeypoint.new(0,   Color3.fromRGB(40, 195, 175)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(85, 245, 215)),
+	ColorSequenceKeypoint.new(1,   Color3.fromRGB(40, 195, 175)),
 })
 badgeGrad.Rotation = 90
 badgeGrad.Parent = loadingBrandBadge
@@ -201,7 +190,6 @@ TweenService:Create(badgeGrad, TweenInfo.new(2.2, Enum.EasingStyle.Sine, Enum.Ea
 	Offset = Vector2.new(0.6, 0)
 }):Play()
 
--- GUMBALL label inside badge
 local loadingTitle = Instance.new('TextLabel')
 loadingTitle.Name = 'Title'
 loadingTitle.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -215,7 +203,7 @@ loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
 loadingTitle.TextYAlignment = Enum.TextYAlignment.Center
 loadingTitle.TextScaled = true
 loadingTitle.TextTransparency = 1
-loadingTitle.ZIndex = 7
+loadingTitle.ZIndex = 6
 loadingTitle.Parent = loadingBrandBadge
 local loadingTitleConstraint = Instance.new('UITextSizeConstraint')
 loadingTitleConstraint.MinTextSize = 18
@@ -225,11 +213,10 @@ local loadingTitlePop = Instance.new('UIScale')
 loadingTitlePop.Scale = 0.82
 loadingTitlePop.Parent = loadingTitle
 
--- RIVALS — big hero text, slides up from below + fades
 local loadingRivals = Instance.new('TextLabel')
 loadingRivals.Name = 'GameTitle'
 loadingRivals.AnchorPoint = Vector2.new(0.5, 0.5)
-loadingRivals.Position = UDim2.new(0.5, 0, 0.5, -28)  -- animated up from -10
+loadingRivals.Position = UDim2.new(0.5, 0, 0.5, -28)
 loadingRivals.Size = UDim2.new(1, -20, 0, 88)
 loadingRivals.BackgroundTransparency = 1
 loadingRivals.Font = Enum.Font.FredokaOne
@@ -245,7 +232,6 @@ local loadingRivalsConstraint = Instance.new('UITextSizeConstraint')
 loadingRivalsConstraint.MinTextSize = 44
 loadingRivalsConstraint.MaxTextSize = 88
 loadingRivalsConstraint.Parent = loadingRivals
--- Gradient on RIVALS text
 local rivalsGrad = Instance.new('UIGradient')
 rivalsGrad.Color = ColorSequence.new({
 	ColorSequenceKeypoint.new(0,    Color3.fromRGB(200, 235, 255)),
@@ -254,12 +240,10 @@ rivalsGrad.Color = ColorSequence.new({
 })
 rivalsGrad.Rotation = 90
 rivalsGrad.Parent = loadingRivals
--- Subtle scale pop on RIVALS
 local rivalsPop = Instance.new('UIScale')
 rivalsPop.Scale = 0.88
 rivalsPop.Parent = loadingRivals
 
--- Status text
 local loadingStatus = Instance.new('TextLabel')
 loadingStatus.Name = 'Status'
 loadingStatus.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -275,7 +259,6 @@ loadingStatus.TextXAlignment = Enum.TextXAlignment.Left
 loadingStatus.ZIndex = 7
 loadingStatus.Parent = loadingContent
 
--- Blinking cursor after status text
 local loadingCursor = Instance.new('TextLabel')
 loadingCursor.Name = 'Cursor'
 loadingCursor.AnchorPoint = Vector2.new(0, 0.5)
@@ -289,7 +272,6 @@ loadingCursor.TextSize = 14
 loadingCursor.TextTransparency = 1
 loadingCursor.ZIndex = 7
 loadingCursor.Parent = loadingContent
--- Cursor blink loop
 task.spawn(function()
 	while loadingGui.Parent do
 		TweenService:Create(loadingCursor, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
@@ -303,7 +285,6 @@ task.spawn(function()
 	end
 end)
 
--- Progress bar track
 local loadingTrack = Instance.new('Frame')
 loadingTrack.Name = 'ProgressTrack'
 loadingTrack.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -323,12 +304,10 @@ loadingTrackStroke.Transparency = 0.5
 loadingTrackStroke.Thickness = 1
 loadingTrackStroke.Parent = loadingTrack
 
--- Progress value
 local loadingProgress = Instance.new('NumberValue')
 loadingProgress.Name = 'Progress'
 loadingProgress.Value = 3
 
--- Progress fill
 local loadingAccent = Instance.new('Frame')
 loadingAccent.Name = 'ProgressFill'
 loadingAccent.Size = UDim2.new(0.03, 0, 1, 0)
@@ -341,14 +320,13 @@ loadingAccentCorner.CornerRadius = UDim.new(1, 0)
 loadingAccentCorner.Parent = loadingAccent
 local loadingFillGradient = Instance.new('UIGradient')
 loadingFillGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0,    Color3.fromRGB(50, 200, 180)),
-	ColorSequenceKeypoint.new(0.5,  Color3.fromRGB(90, 245, 210)),
-	ColorSequenceKeypoint.new(1,    Color3.fromRGB(100, 175, 255)),
+	ColorSequenceKeypoint.new(0,   Color3.fromRGB(50, 200, 180)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(90, 245, 210)),
+	ColorSequenceKeypoint.new(1,   Color3.fromRGB(100, 175, 255)),
 })
 loadingFillGradient.Offset = Vector2.new(-1, 0)
 loadingFillGradient.Parent = loadingAccent
 
--- Glint on progress fill
 local fillGlint = Instance.new('Frame')
 fillGlint.Name = 'Glint'
 fillGlint.Size = UDim2.new(0, 28, 1.6, 0)
@@ -358,21 +336,19 @@ fillGlint.BackgroundColor3 = Color3.new(1, 1, 1)
 fillGlint.BackgroundTransparency = 0.6
 fillGlint.BorderSizePixel = 0
 fillGlint.ZIndex = 8
-fillGlint.ClipsDescendants = false
 fillGlint.Parent = loadingAccent
 local glintCorner = Instance.new('UICorner')
 glintCorner.CornerRadius = UDim.new(1, 0)
 glintCorner.Parent = fillGlint
 local glintGrad = Instance.new('UIGradient')
 glintGrad.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.new(0,0,0)),
-	ColorSequenceKeypoint.new(0.5, Color3.new(1,1,1)),
-	ColorSequenceKeypoint.new(1, Color3.new(0,0,0)),
+	ColorSequenceKeypoint.new(0,   Color3.new(0, 0, 0)),
+	ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1)),
+	ColorSequenceKeypoint.new(1,   Color3.new(0, 0, 0)),
 })
 glintGrad.Rotation = 90
 glintGrad.Parent = fillGlint
 
--- Percent label
 local loadingPercent = Instance.new('TextLabel')
 loadingPercent.Name = 'Percent'
 loadingPercent.AnchorPoint = Vector2.new(1, 0.5)
@@ -391,11 +367,8 @@ loadingProgress:GetPropertyChangedSignal('Value'):Connect(function()
 	local progress = math.clamp(loadingProgress.Value, 0, 100)
 	loadingAccent.Size = UDim2.new(progress / 100, 0, 1, 0)
 	loadingPercent.Text = string.format('%d%%', math.floor(progress + 0.5))
-	-- glint follows leading edge
-	fillGlint.Position = UDim2.new(1, -4, 0.5, 0)
 end)
 
--- Footer
 local loadingFooter = Instance.new('TextLabel')
 loadingFooter.Name = 'Footer'
 loadingFooter.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -416,15 +389,11 @@ loadingFooterConstraint.MinTextSize = 13
 loadingFooterConstraint.MaxTextSize = 19
 loadingFooterConstraint.Parent = loadingFooter
 
--- ─── ENTRY ANIMATIONS ────────────────────────────────────────────────────────
-
--- Badge: drop in + pop scale
+-- Entry animations
 TweenService:Create(loadingBrandBadge,
 	TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 	Position = UDim2.new(0.5, 0, 0.5, -106)
 }):Play()
-
--- GUMBALL label inside badge fades + scales up
 TweenService:Create(loadingTitle,
 	TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.1), {
 	TextTransparency = 0
@@ -433,8 +402,6 @@ TweenService:Create(loadingTitlePop,
 	TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0.1), {
 	Scale = 1
 }):Play()
-
--- RIVALS: slides up from Y=-10 → -28 + scale pop + fade
 TweenService:Create(loadingRivals,
 	TweenInfo.new(0.55, Enum.EasingStyle.Quint, Enum.EasingDirection.Out, 0, false, 0.15), {
 	TextTransparency = 0,
@@ -444,45 +411,34 @@ TweenService:Create(rivalsPop,
 	TweenInfo.new(0.65, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 0, false, 0.15), {
 	Scale = 1
 }):Play()
-
--- Continuous subtle RIVALS float
 task.delay(0.8, function()
 	TweenService:Create(loadingRivals, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
 		Position = UDim2.new(0.5, 0, 0.5, -42)
 	}):Play()
 end)
-
--- Status fades in
 TweenService:Create(loadingStatus,
 	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.22), {
 	TextTransparency = 0
 }):Play()
-
--- Footer fades in
 TweenService:Create(loadingFooter,
 	TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0.28), {
 	TextTransparency = 0
 }):Play()
-
--- Progress bar fill gradient sweep
 TweenService:Create(loadingFillGradient,
 	TweenInfo.new(1.4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, -1, true), {
 	Offset = Vector2.new(1, 0)
 }):Play()
-
--- Progress value tween (86% idle cap, same as original)
 local loadingProgressTween = TweenService:Create(loadingProgress,
 	TweenInfo.new(2.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 	Value = 86
 })
 loadingProgressTween:Play()
 
--- ─── STATUS CYCLE ─────────────────────────────────────────────────────────────
-
 local loadingScreenFinishing = false
 local loadingScreenDismissed = false
 local loadingFinishCallbacks = {}
 local loadingStatuses = {
+	'CONNECTING TO RIVALS',
 	'INITIALIZING GUMBALL',
 	'SYNCING UI SETTINGS',
 	'LOADING MODULES',
@@ -496,27 +452,20 @@ task.spawn(function()
 		task.wait(0.85)
 		if loadingScreenFinishing or not loadingGui.Parent then break end
 		statusIndex = statusIndex % #loadingStatuses + 1
-
-		-- Slide out left + fade
 		TweenService:Create(loadingStatus, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 			TextTransparency = 1,
 			Position = UDim2.new(0.5, -18, 0.5, 24)
 		}):Play()
 		task.wait(0.2)
 		if loadingScreenFinishing or not loadingGui.Parent then break end
-
 		loadingStatus.Text = loadingStatuses[statusIndex]
 		loadingStatus.Position = UDim2.new(0.5, 18, 0.5, 24)
-
-		-- Slide in right + fade in
 		TweenService:Create(loadingStatus, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			TextTransparency = 0,
 			Position = UDim2.new(0.5, 0, 0.5, 24)
 		}):Play()
 	end
 end)
-
--- ─── FINISH ───────────────────────────────────────────────────────────────────
 
 local function FinishLoadingScreen(onFinished)
 	if onFinished then
@@ -532,28 +481,23 @@ local function FinishLoadingScreen(onFinished)
 
 	local waitTime = math.max(0, loadingMinimumDuration - loadingFadeDuration - (os.clock() - loadingStartedAt))
 	task.delay(waitTime, function()
-		-- Progress snaps to 100
 		TweenService:Create(loadingProgress,
 			TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Value = 100
 		}):Play()
-
 		task.wait(0.18)
-
-		-- Everything fades out together
 		local fadeInfo = TweenInfo.new(loadingFadeDuration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-		TweenService:Create(loadingOverlay,    fadeInfo, { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(loadingTitle,      fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingRivals,     fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingStatus,     fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingFooter,     fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingCursor,     fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingTrack,      fadeInfo, { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(loadingTrackStroke,fadeInfo, { Transparency = 1 }):Play()
-		TweenService:Create(loadingPercent,    fadeInfo, { TextTransparency = 1 }):Play()
-		TweenService:Create(loadingAccent,     fadeInfo, { BackgroundTransparency = 1 }):Play()
-		TweenService:Create(loadingBlur,       fadeInfo, { Size = 0 }):Play()
-
+		TweenService:Create(loadingOverlay,     fadeInfo, { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingTitle,       fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingRivals,      fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingStatus,      fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingFooter,      fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingCursor,      fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingTrack,       fadeInfo, { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingTrackStroke, fadeInfo, { Transparency = 1 }):Play()
+		TweenService:Create(loadingPercent,     fadeInfo, { TextTransparency = 1 }):Play()
+		TweenService:Create(loadingAccent,      fadeInfo, { BackgroundTransparency = 1 }):Play()
+		TweenService:Create(loadingBlur,        fadeInfo, { Size = 0 }):Play()
 		task.delay(loadingFadeDuration, function()
 			if loadingGui.Parent  then loadingGui:Destroy()  end
 			if loadingBlur.Parent then loadingBlur:Destroy() end
@@ -566,4 +510,910 @@ end
 
 task.delay(45, function()
 	FinishLoadingScreen()
+end)
+
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+
+local Window = Library:CreateWindow({
+	Title = ' Gumball - .gg/gu9mball',
+	Center = true,
+	AutoShow = false,
+	TabPadding = 8,
+	MenuFadeTime = 0.2
+})
+
+local TitleLabel = Window.Holder:FindFirstChildWhichIsA('TextLabel', true)
+if TitleLabel then
+	TitleLabel.Size = UDim2.new(1, -14, 0, 25)
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+end
+Window.Holder.Visible = false
+
+local Tabs = {}
+Tabs.Main = Window:AddTab('main')
+Tabs.World = Window:AddTab('world')
+Tabs.ESP = Window:AddTab('esp')
+Tabs.Visuals = Window:AddTab('visuals')
+Tabs.Character = Window:AddTab('character')
+Tabs.Misc = Window:AddTab('misc')
+Tabs.settings = Window:AddTab('settings')
+
+local MainGroup = Tabs.Main:AddLeftGroupbox('Main')
+MainGroup:AddLabel('Gumball')
+
+local WorldTabbox = Tabs.World:AddLeftTabbox()
+local ColorCorrectionTab = WorldTabbox:AddTab('color correction')
+local AtmosphereTab = WorldTabbox:AddTab('atmosphere')
+local LightingService = game:GetService('Lighting')
+
+local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
+WorldColorCorrection.Name = 'GumballColorCorrection'
+WorldColorCorrection.Enabled = false
+WorldColorCorrection.Saturation = 0
+WorldColorCorrection.Contrast = 0
+WorldColorCorrection.Brightness = 0
+WorldColorCorrection.TintColor = Color3.new(1, 1, 1)
+WorldColorCorrection.Parent = LightingService
+
+local WorldAtmosphere = Instance.new('Atmosphere')
+WorldAtmosphere.Name = 'GumballAtmosphere'
+WorldAtmosphere.Density = 0
+WorldAtmosphere.Offset = 0
+WorldAtmosphere.Haze = 0
+WorldAtmosphere.Glare = 0
+WorldAtmosphere.Color = Color3.new(1, 1, 1)
+WorldAtmosphere.Decay = Color3.new(1, 1, 1)
+local worldEffectsUnloaded = false
+
+local previousUnloadCallback = Library.OnUnload
+Library:OnUnload(function()
+	worldEffectsUnloaded = true
+	if previousUnloadCallback then
+		previousUnloadCallback()
+	end
+	WorldColorCorrection:Destroy()
+	WorldAtmosphere.Parent = nil
+end)
+
+local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
+	Text = 'enabled',
+	Default = false
+})
+WorldColorCorrectionToggle:OnChanged(function(value)
+	WorldColorCorrection.Enabled = value
+end)
+
+ColorCorrectionTab:AddLabel('Tint'):AddColorPicker('WorldColorCorrectionTint', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Color correction tint'
+})
+Options.WorldColorCorrectionTint:OnChanged(function(value)
+	WorldColorCorrection.TintColor = value
+	if value ~= Color3.new(1, 1, 1) and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionSaturation', {
+	Text = 'saturation',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Saturation = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionContrast', {
+	Text = 'contrast',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Contrast = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
+end)
+
+ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
+	Text = 'brightness',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldColorCorrection.Brightness = value
+	if value ~= 0 and not WorldColorCorrectionToggle.Value then
+		WorldColorCorrectionToggle:SetValue(true)
+	end
+end)
+
+local WorldAtmosphereToggle = AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
+	Text = 'enabled',
+	Default = false
+})
+WorldAtmosphereToggle:OnChanged(function(value)
+	if worldEffectsUnloaded then
+		return
+	end
+	WorldAtmosphere.Parent = value and LightingService or nil
+end)
+
+local function EnableWorldAtmosphereForEdit()
+	if not worldEffectsUnloaded and not WorldAtmosphereToggle.Value then
+		WorldAtmosphereToggle:SetValue(true)
+	end
+end
+
+AtmosphereTab:AddSlider('WorldAtmosphereDensity', {
+	Text = 'density',
+	Default = 0,
+	Min = 0,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldAtmosphere.Density = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereOffset', {
+	Text = 'offset',
+	Default = 0,
+	Min = -1,
+	Max = 1,
+	Rounding = 2
+}):OnChanged(function(value)
+	WorldAtmosphere.Offset = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereHaze', {
+	Text = 'haze',
+	Default = 0,
+	Min = 0,
+	Max = 10,
+	Rounding = 1
+}):OnChanged(function(value)
+	WorldAtmosphere.Haze = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+AtmosphereTab:AddSlider('WorldAtmosphereGlare', {
+	Text = 'glare',
+	Default = 0,
+	Min = 0,
+	Max = 10,
+	Rounding = 1
+}):OnChanged(function(value)
+	WorldAtmosphere.Glare = value
+	if value ~= 0 then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+AtmosphereTab:AddLabel('Color'):AddColorPicker('WorldAtmosphereColor', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Atmosphere color'
+})
+Options.WorldAtmosphereColor:OnChanged(function(value)
+	WorldAtmosphere.Color = value
+	if value ~= Color3.new(1, 1, 1) then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+AtmosphereTab:AddLabel('Decay'):AddColorPicker('WorldAtmosphereDecay', {
+	Default = Color3.new(1, 1, 1),
+	Title = 'Atmosphere decay'
+})
+Options.WorldAtmosphereDecay:OnChanged(function(value)
+	WorldAtmosphere.Decay = value
+	if value ~= Color3.new(1, 1, 1) then
+		EnableWorldAtmosphereForEdit()
+	end
+end)
+
+local function SyncWorldEffects()
+	if worldEffectsUnloaded then
+		return
+	end
+
+	local colorCorrectionValues = {
+		Enabled = WorldColorCorrectionToggle.Value,
+		Saturation = Options.WorldColorCorrectionSaturation.Value,
+		Contrast = Options.WorldColorCorrectionContrast.Value,
+		Brightness = Options.WorldColorCorrectionBrightness.Value,
+		TintColor = Options.WorldColorCorrectionTint.Value
+	}
+	for property, value in pairs(colorCorrectionValues) do
+		if WorldColorCorrection[property] ~= value then
+			WorldColorCorrection[property] = value
+		end
+	end
+
+	local atmosphereParent = WorldAtmosphereToggle.Value and LightingService or nil
+	if WorldAtmosphere.Parent ~= atmosphereParent then
+		local success = pcall(function()
+			WorldAtmosphere.Parent = atmosphereParent
+		end)
+		if not success then
+			WorldAtmosphere = Instance.new('Atmosphere')
+			WorldAtmosphere.Name = 'GumballAtmosphere'
+			WorldAtmosphere.Parent = atmosphereParent
+		end
+	end
+
+	local atmosphereValues = {
+		Density = Options.WorldAtmosphereDensity.Value,
+		Offset = Options.WorldAtmosphereOffset.Value,
+		Haze = Options.WorldAtmosphereHaze.Value,
+		Glare = Options.WorldAtmosphereGlare.Value,
+		Color = Options.WorldAtmosphereColor.Value,
+		Decay = Options.WorldAtmosphereDecay.Value
+	}
+	for property, value in pairs(atmosphereValues) do
+		if WorldAtmosphere[property] ~= value then
+			WorldAtmosphere[property] = value
+		end
+	end
+end
+
+local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
+MenuGroup:AddButton('Unload', function()
+	Library:Unload()
+end)
+local UserInputService = game:GetService('UserInputService')
+local MenuKey = 'RightShift'
+local waitingForMenuKey = false
+local MenuBindLabel = MenuGroup:AddLabel('Menu bind: ' .. MenuKey, true)
+MenuGroup:AddButton('Change menu key', function()
+	waitingForMenuKey = true
+	Library:Notify('Press a keyboard key. Escape cancels.', 3)
+end)
+MenuGroup:AddDropdown('MenuBindMode', {
+	Text = 'Menu key mode',
+	Values = { 'Toggle', 'Hold', 'Always' },
+	Default = 'Toggle'
+})
+
+local KeybindDisplayToggle = MenuGroup:AddToggle('ShowKeybinds', {
+	Text = 'Keybinds',
+	Default = false,
+	Tooltip = 'Show active keybinds on the left side of the screen'
+})
+
+local KeybindTransparency = MenuGroup:AddSlider('KeybindTransparency', {
+	Text = 'Keybind transparency',
+	Default = 0,
+	Min = 0,
+	Max = 100,
+	Rounding = 0,
+	Suffix = '%',
+	Tooltip = '0 is opaque; 100 is fully transparent'
+})
+
+local KeybindFilter = 'All'
+local KeybindFilterDropdown = MenuGroup:AddDropdown('KeybindFilter', {
+	Text = 'Keybind filter',
+	Values = { 'All', 'Toggle', 'Hold' },
+	Default = 'All'
+})
+
+local KeybindHudGui = Instance.new('ScreenGui')
+KeybindHudGui.Name = 'GumballKeybindHud'
+KeybindHudGui.IgnoreGuiInset = true
+KeybindHudGui.ResetOnSpawn = false
+KeybindHudGui.DisplayOrder = Library.ScreenGui.DisplayOrder + 1
+KeybindHudGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+KeybindHudGui.Parent = Library.ScreenGui.Parent
+
+local KeybindHudFrame = Instance.new('Frame')
+KeybindHudFrame.Name = 'Panel'
+KeybindHudFrame.AnchorPoint = Vector2.new(0, 0.5)
+KeybindHudFrame.Position = UDim2.new(0, 10, 0.5, 0)
+KeybindHudFrame.Size = UDim2.fromOffset(230, 32)
+KeybindHudFrame.BackgroundColor3 = Library.MainColor
+KeybindHudFrame.BorderSizePixel = 0
+KeybindHudFrame.Visible = false
+KeybindHudFrame.ZIndex = 1
+KeybindHudFrame.Active = true
+KeybindHudFrame.Parent = KeybindHudGui
+local KeybindHudCorner = Instance.new('UICorner')
+KeybindHudCorner.CornerRadius = UDim.new(0, 4)
+KeybindHudCorner.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudFrame, { BackgroundColor3 = 'MainColor' })
+
+local KeybindHudStroke = Instance.new('UIStroke')
+KeybindHudStroke.Color = Library.OutlineColor
+KeybindHudStroke.Thickness = 1.2
+KeybindHudStroke.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudStroke, { Color = 'OutlineColor' })
+Library:OnUnload(function()
+	if KeybindHudGui.Parent then
+		KeybindHudGui:Destroy()
+	end
+end)
+
+local KeybindHudHeader = Instance.new('TextLabel')
+KeybindHudHeader.Name = 'Header'
+KeybindHudHeader.BackgroundTransparency = 1
+KeybindHudHeader.Position = UDim2.fromOffset(8, 5)
+KeybindHudHeader.Size = UDim2.new(1, -42, 0, 16)
+KeybindHudHeader.Font = Library.Font
+KeybindHudHeader.Text = 'BINDS'
+KeybindHudHeader.TextColor3 = Library.FontColor
+KeybindHudHeader.TextSize = 11
+KeybindHudHeader.TextXAlignment = Enum.TextXAlignment.Left
+KeybindHudHeader.ZIndex = 2
+KeybindHudHeader.Parent = KeybindHudFrame
+KeybindHudHeader.Active = true
+Library:AddToRegistry(KeybindHudHeader, { TextColor3 = 'FontColor' })
+
+local KeybindHudCount = Instance.new('TextLabel')
+KeybindHudCount.Name = 'Count'
+KeybindHudCount.AnchorPoint = Vector2.new(1, 0)
+KeybindHudCount.Position = UDim2.new(1, -8, 0, 5)
+KeybindHudCount.Size = UDim2.fromOffset(22, 16)
+KeybindHudCount.BackgroundColor3 = Library.AccentColor
+KeybindHudCount.BackgroundTransparency = 0.78
+KeybindHudCount.BorderSizePixel = 0
+KeybindHudCount.Font = Library.Font
+KeybindHudCount.Text = '0'
+KeybindHudCount.TextColor3 = Library.FontColor
+KeybindHudCount.TextSize = 10
+KeybindHudCount.ZIndex = 2
+KeybindHudCount.Parent = KeybindHudFrame
+local KeybindHudCountCorner = Instance.new('UICorner')
+KeybindHudCountCorner.CornerRadius = UDim.new(0, 3)
+KeybindHudCountCorner.Parent = KeybindHudCount
+Library:AddToRegistry(KeybindHudCount, {
+	BackgroundColor3 = 'AccentColor',
+	TextColor3 = 'FontColor'
+})
+
+local KeybindHudAccent = Instance.new('Frame')
+KeybindHudAccent.Name = 'Accent'
+KeybindHudAccent.BackgroundColor3 = Library.AccentColor
+KeybindHudAccent.BorderSizePixel = 0
+KeybindHudAccent.Size = UDim2.new(1, 0, 0, 2)
+KeybindHudAccent.ZIndex = 2
+KeybindHudAccent.Parent = KeybindHudFrame
+Library:AddToRegistry(KeybindHudAccent, { BackgroundColor3 = 'AccentColor' })
+
+local draggingKeybindHud = false
+local keybindHudGrabOffset
+local nativeKeybindHudDrag
+local dragDetectorCreated, dragDetector = pcall(function()
+	return Instance.new('UIDragDetector')
+end)
+if dragDetectorCreated then
+	nativeKeybindHudDrag = dragDetector
+	nativeKeybindHudDrag.Enabled = false
+	nativeKeybindHudDrag.Parent = KeybindHudFrame
+end
+
+local function SyncKeybindHudDragEnabled()
+	local canDragKeybindHud = Window.Holder.Visible and KeybindHudFrame.Visible
+	KeybindHudFrame.Active = canDragKeybindHud
+	if nativeKeybindHudDrag then
+		nativeKeybindHudDrag.Enabled = canDragKeybindHud
+	end
+	if not canDragKeybindHud then
+		draggingKeybindHud = false
+	end
+end
+
+Window.Holder:GetPropertyChangedSignal('Visible'):Connect(SyncKeybindHudDragEnabled)
+KeybindHudFrame:GetPropertyChangedSignal('Visible'):Connect(SyncKeybindHudDragEnabled)
+
+Library:GiveSignal(UserInputService.InputBegan:Connect(function(input)
+	if nativeKeybindHudDrag then
+		return
+	end
+	if not Window.Holder.Visible or not KeybindHudFrame.Visible or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+		return
+	end
+
+	local mousePosition = UserInputService:GetMouseLocation()
+	local framePosition = KeybindHudFrame.AbsolutePosition
+	local frameSize = KeybindHudFrame.AbsoluteSize
+	if mousePosition.X < framePosition.X or mousePosition.X > framePosition.X + frameSize.X
+		or mousePosition.Y < framePosition.Y or mousePosition.Y > framePosition.Y + frameSize.Y then
+		return
+	end
+
+	draggingKeybindHud = true
+	keybindHudGrabOffset = mousePosition - KeybindHudFrame.AbsolutePosition
+end))
+
+local function UpdateKeybindHudDrag()
+	if nativeKeybindHudDrag then
+		SyncKeybindHudDragEnabled()
+		return
+	end
+	if not draggingKeybindHud then
+		return
+	end
+	if not Window.Holder.Visible or not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+		draggingKeybindHud = false
+		return
+	end
+
+	local mousePosition = UserInputService:GetMouseLocation()
+	local viewportSize = workspace.CurrentCamera.ViewportSize
+	local size = KeybindHudFrame.AbsoluteSize
+	local x = math.clamp(mousePosition.X - keybindHudGrabOffset.X, 0, math.max(0, viewportSize.X - size.X))
+	local y = math.clamp(mousePosition.Y - keybindHudGrabOffset.Y, 0, math.max(0, viewportSize.Y - size.Y))
+	KeybindHudFrame.Position = UDim2.fromOffset(
+		x + size.X * KeybindHudFrame.AnchorPoint.X,
+		y + size.Y * KeybindHudFrame.AnchorPoint.Y
+	)
+end
+
+local KeybindHudRowsContainer = Instance.new('Frame')
+KeybindHudRowsContainer.Name = 'Rows'
+KeybindHudRowsContainer.BackgroundTransparency = 1
+KeybindHudRowsContainer.Position = UDim2.fromOffset(8, 25)
+KeybindHudRowsContainer.Size = UDim2.new(1, -16, 1, -29)
+KeybindHudRowsContainer.ZIndex = 2
+KeybindHudRowsContainer.Parent = KeybindHudFrame
+
+local KeybindHudRowsLayout = Instance.new('UIListLayout')
+KeybindHudRowsLayout.Padding = UDim.new(0, 2)
+KeybindHudRowsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+KeybindHudRowsLayout.Parent = KeybindHudRowsContainer
+
+local KeybindHudLabels = {}
+
+local function IsKeyHeld(key)
+	if key == 'MB1' then
+		return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
+	elseif key == 'MB2' then
+		return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
+	end
+
+	local keyCode = Enum.KeyCode[key]
+	return keyCode ~= nil and UserInputService:IsKeyDown(keyCode)
+end
+
+local function IsKeybindVisibleInFilter(key, mode)
+	if KeybindFilter == 'All' then
+		return true
+	elseif KeybindFilter == 'Toggle' then
+		return mode == 'Toggle'
+	end
+
+	return mode == 'Hold' and IsKeyHeld(key)
+end
+
+local function IsKeybindActive(key, mode)
+	for _, option in pairs(Options) do
+		if type(option) == 'table' and option.Type == 'KeyPicker'
+			and option.Value == key and option.Mode == mode then
+			local success, active = pcall(option.GetState, option)
+			if success and active then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function UpdateKeybindHudRows()
+	local rows = {}
+	local menuMode = Options.MenuBindMode.Value
+	if IsKeybindVisibleInFilter(MenuKey, menuMode) then
+		local menuActive = menuMode == 'Always'
+			or menuMode == 'Hold' and IsKeyHeld(MenuKey)
+			or menuMode == 'Toggle' and Window.Holder.Visible
+		table.insert(rows, {
+			Id = 'Menu',
+			Text = string.format('[%s] Menu (%s)', MenuKey, menuMode),
+			Active = menuActive
+		})
+	end
+
+	for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
+		if label:IsA('TextLabel') then
+			local key, name, mode = label.Text:match('^%[([^%]]+)%]%s+(.-)%s+%(([^()]*)%)$')
+			if key and IsKeybindVisibleInFilter(key, mode) then
+				table.insert(rows, {
+					Id = label,
+					Text = label.Text,
+					Active = IsKeybindActive(key, mode)
+				})
+			end
+		end
+	end
+
+	if KeybindFilter == 'All' and type(Toggles) == 'table' then
+		for name, toggle in pairs(Toggles) do
+			local hasAssignedKey = false
+			for _, addon in ipairs(toggle.Addons or {}) do
+				if addon.Type == 'KeyPicker' and addon.Value and addon.Value ~= 'None' then
+					hasAssignedKey = true
+					break
+				end
+			end
+
+			if toggle.Value and not hasAssignedKey then
+				local text = toggle.TextLabel and toggle.TextLabel.Text or tostring(name)
+				table.insert(rows, { Id = toggle, Text = text .. ' (On)', Active = true })
+			end
+		end
+	end
+
+	local visibleRows = {}
+	for order, row in ipairs(rows) do
+		visibleRows[row.Id] = true
+		local label = KeybindHudLabels[row.Id]
+		if not label or not label.Parent then
+			label = Instance.new('TextLabel')
+			label.Name = 'KeybindRow'
+			label.BackgroundColor3 = Library.AccentColor
+			label.BackgroundTransparency = 1
+			label.Size = UDim2.new(1, 0, 0, 17)
+			label.Font = Library.Font
+			label.TextColor3 = Library.FontColor
+			label.TextSize = 11
+			label.TextXAlignment = Enum.TextXAlignment.Left
+			label.TextYAlignment = Enum.TextYAlignment.Center
+			label.ZIndex = 3
+			label.Parent = KeybindHudRowsContainer
+			local rowCorner = Instance.new('UICorner')
+			rowCorner.CornerRadius = UDim.new(0, 3)
+			rowCorner.Parent = label
+			local rowPadding = Instance.new('UIPadding')
+			rowPadding.PaddingLeft = UDim.new(0, 5)
+			rowPadding.Parent = label
+			Library:AddToRegistry(label, {
+				BackgroundColor3 = 'AccentColor',
+				TextColor3 = function()
+					return label:GetAttribute('GumballActive') and Library.AccentColor or Library.FontColor
+				end
+			})
+			KeybindHudLabels[row.Id] = label
+		end
+		label.LayoutOrder = order
+		label.Text = row.Text
+		label:SetAttribute('GumballActive', row.Active)
+		label.TextColor3 = row.Active and Library.AccentColor or Library.FontColor
+		label.BackgroundTransparency = 1
+	end
+
+	for id, label in pairs(KeybindHudLabels) do
+		if not visibleRows[id] then
+			KeybindHudLabels[id] = nil
+			label:Destroy()
+		end
+	end
+
+	KeybindHudFrame.Size = UDim2.fromOffset(230, 32 + #rows * 19)
+	KeybindHudCount.Text = tostring(#rows)
+	KeybindHudFrame.Visible = KeybindDisplayToggle.Value
+	Library.KeybindFrame.Visible = false
+end
+
+local function ApplyKeybindFilter()
+	UpdateKeybindHudRows()
+end
+
+local function UpdateMenuKeybindHud()
+	ApplyKeybindFilter()
+end
+
+KeybindFilterDropdown:OnChanged(function(value)
+	KeybindFilter = value or 'All'
+	ApplyKeybindFilter()
+end)
+Options.MenuBindMode:OnChanged(UpdateMenuKeybindHud)
+
+local KeybindCheckmark = KeybindDisplayToggle.TextLabel.Parent
+KeybindCheckmark.Active = true
+KeybindCheckmark.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		KeybindFilterDropdown:OpenDropdown()
+	end
+end)
+
+local function WatchKeybindLabel(label)
+	if not label:IsA('TextLabel') then
+		return
+	end
+
+	label:GetPropertyChangedSignal('Text'):Connect(function()
+		task.defer(ApplyKeybindFilter)
+	end)
+	label:GetPropertyChangedSignal('Visible'):Connect(function()
+		task.defer(ApplyKeybindFilter)
+	end)
+end
+
+for _, label in ipairs(Library.KeybindContainer:GetChildren()) do
+	WatchKeybindLabel(label)
+end
+Library.KeybindContainer.ChildAdded:Connect(WatchKeybindLabel)
+Library.KeybindContainer.ChildRemoved:Connect(ApplyKeybindFilter)
+
+KeybindDisplayToggle:OnChanged(function()
+	ApplyKeybindFilter()
+end)
+KeybindTransparency:OnChanged(function(value)
+	local transparency = value / 100
+	KeybindHudFrame.BackgroundTransparency = transparency
+	KeybindHudStroke.Transparency = transparency
+end)
+
+local desiredMenuVisible = true
+local menuReady = false
+local RunService = game:GetService('RunService')
+
+local function MatchesMenuKey(input)
+	if input.UserInputType == Enum.UserInputType.Keyboard then
+		return input.KeyCode.Name == MenuKey
+	end
+
+	return false
+end
+
+local function SetMenuVisibility(visible)
+	desiredMenuVisible = visible
+	if menuReady then
+		Window.Holder.Visible = visible
+	end
+end
+
+Library.ToggleKeybind = { Type = 'KeyPicker', Value = 'None' }
+
+Library:GiveSignal(UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if waitingForMenuKey then
+		if input.UserInputType ~= Enum.UserInputType.Keyboard then
+			return
+		end
+
+		local keyName = input.KeyCode.Name
+		if keyName == 'Escape' then
+			waitingForMenuKey = false
+			Library:Notify('Menu key unchanged', 2)
+		elseif keyName ~= 'Unknown' then
+			MenuKey = keyName
+			waitingForMenuKey = false
+			MenuBindLabel:SetText('Menu bind: ' .. MenuKey)
+			UpdateMenuKeybindHud()
+			Library:Notify('Menu key set to ' .. MenuKey, 2)
+		end
+		return
+	end
+
+	if not MatchesMenuKey(input) then
+		return
+	end
+
+	local mode = Options.MenuBindMode.Value
+	if mode == 'Toggle' then
+		SetMenuVisibility(not desiredMenuVisible)
+	elseif mode == 'Hold' then
+		SetMenuVisibility(true)
+	end
+end))
+
+Library:GiveSignal(UserInputService.InputEnded:Connect(function(input)
+	if Options.MenuBindMode.Value == 'Hold' and MatchesMenuKey(input) then
+		SetMenuVisibility(false)
+	end
+end))
+
+Library:GiveSignal(RunService.RenderStepped:Connect(function()
+	SyncWorldEffects()
+	UpdateKeybindHudDrag()
+	local mode = Options.MenuBindMode.Value
+	if mode == 'Always' then
+		SetMenuVisibility(true)
+	elseif mode == 'Hold' then
+		local held = UserInputService:IsKeyDown(Enum.KeyCode[MenuKey])
+		SetMenuVisibility(held)
+	end
+
+	if menuReady then
+		Window.Holder.Visible = desiredMenuVisible
+	end
+
+	if KeybindDisplayToggle.Value then
+		ApplyKeybindFilter()
+	end
+end))
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({ 'MenuBindMode', 'KeybindFilter', 'ShowKeybinds', 'KeybindTransparency' })
+
+for _, parser in next, SaveManager.Parser do
+	local loadOption = parser.Load
+	parser.Load = function(index, data)
+		if SaveManager.Ignore[index] then
+			return
+		end
+
+		return loadOption(index, data)
+	end
+end
+
+ThemeManager:SetFolder('Gumball')
+SaveManager:SetFolder('Gumball')
+local ConfigGroup = Tabs.settings:AddRightGroupbox('Configuration')
+local autoloadPath = SaveManager.Folder .. '/settings/autoload.txt'
+ConfigGroup:AddInput('SaveManager_ConfigName', { Text = 'Config name' })
+ConfigGroup:AddDropdown('SaveManager_ConfigList', {
+	Text = 'Config list',
+	Values = SaveManager:RefreshConfigList(),
+	AllowNull = true
+})
+
+ConfigGroup:AddDivider()
+ConfigGroup:AddButton('Create config', function()
+	local name = Options.SaveManager_ConfigName.Value
+	if name:gsub(' ', '') == '' then
+		return Library:Notify('Invalid config name (empty)', 2)
+	end
+
+	local success, err = SaveManager:Save(name)
+	if not success then
+		return Library:Notify('Failed to save config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Created config %q', name), 2)
+	Options.SaveManager_ConfigList:SetValues(SaveManager:RefreshConfigList())
+	Options.SaveManager_ConfigList:SetValue(nil)
+end):AddButton('Load config', function()
+	local name = Options.SaveManager_ConfigList.Value
+	local success, err = SaveManager:Load(name)
+	if not success then
+		return Library:Notify('Failed to load config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Loaded config %q', name), 2)
+end)
+
+ConfigGroup:AddButton('Overwrite config', function()
+	local name = Options.SaveManager_ConfigList.Value
+	local success, err = SaveManager:Save(name)
+	if not success then
+		return Library:Notify('Failed to overwrite config: ' .. err, 2)
+	end
+
+	Library:Notify(string.format('Overwrote config %q', name), 2)
+end)
+
+ConfigGroup:AddButton({
+	Text = 'Delete selected config',
+	DoubleClick = true,
+	Tooltip = 'Permanently delete the selected config',
+	Func = function()
+		local name = Options.SaveManager_ConfigList.Value
+		if not name then
+			return Library:Notify('Select a config first', 2)
+		end
+
+		local configPath = SaveManager.Folder .. '/settings/' .. name .. '.json'
+		if not isfile(configPath) then
+			return Library:Notify('Selected config was not found', 2)
+		end
+
+		delfile(configPath)
+		if isfile(autoloadPath) and readfile(autoloadPath) == name then
+			delfile(autoloadPath)
+			SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+		end
+
+		Options.SaveManager_ConfigList:SetValues(SaveManager:RefreshConfigList())
+		Options.SaveManager_ConfigList:SetValue(nil)
+		Library:Notify(string.format('Deleted config %q', name), 2)
+	end
+})
+
+ConfigGroup:AddButton('Refresh list', function()
+	Options.SaveManager_ConfigList:SetValues(SaveManager:RefreshConfigList())
+	Options.SaveManager_ConfigList:SetValue(nil)
+end)
+
+ConfigGroup:AddButton('Set as autoload', function()
+	local name = Options.SaveManager_ConfigList.Value
+	if not name then
+		return Library:Notify('Select a config first', 2)
+	end
+
+	writefile(SaveManager.Folder .. '/settings/autoload.txt', name)
+	SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. name)
+	Library:Notify(string.format('Set %q to auto load', name), 2)
+end)
+
+ConfigGroup:AddButton({
+	Text = 'Clear autoload config',
+	DoubleClick = true,
+	Tooltip = 'Stop loading a config automatically when the script starts',
+	Func = function()
+		if isfile(autoloadPath) then
+			delfile(autoloadPath)
+		end
+
+		SaveManager.AutoloadLabel:SetText('Current autoload config: none')
+		Library:Notify('Cleared autoload config', 2)
+	end
+})
+
+SaveManager.AutoloadLabel = ConfigGroup:AddLabel('Current autoload config: none', true)
+if isfile(autoloadPath) then
+	SaveManager.AutoloadLabel:SetText('Current autoload config: ' .. readfile(autoloadPath))
+end
+
+SaveManager:SetIgnoreIndexes({ 'SaveManager_ConfigList', 'SaveManager_ConfigName' })
+
+local ThemeGroup = ThemeManager:CreateGroupBox(Tabs.settings)
+ThemeManager:CreateThemeManager(ThemeGroup)
+ThemeGroup:AddDivider()
+ThemeGroup:AddButton({
+	Text = 'Overwrite selected theme',
+	DoubleClick = true,
+	Tooltip = 'Save the current colors over the selected custom theme',
+	Func = function()
+		local name = Options.ThemeManager_CustomThemeList.Value
+		if not name then
+			return Library:Notify('Select a custom theme first', 2)
+		end
+
+		ThemeManager:SaveCustomTheme(name:gsub('%.json$', ''))
+		Library:Notify(string.format('Overwrote custom theme %q', name), 2)
+	end
+})
+
+ThemeGroup:AddButton({
+	Text = 'Delete selected theme',
+	DoubleClick = true,
+	Tooltip = 'Permanently delete the selected custom theme',
+	Func = function()
+		local name = Options.ThemeManager_CustomThemeList.Value
+		if not name then
+			return Library:Notify('Select a custom theme first', 2)
+		end
+
+		local themePath = ThemeManager.Folder .. '/themes/' .. name
+		if not isfile(themePath) then
+			return Library:Notify('Selected theme was not found', 2)
+		end
+
+		delfile(themePath)
+		local defaultPath = ThemeManager.Folder .. '/themes/default.txt'
+		if isfile(defaultPath) and readfile(defaultPath) == name then
+			delfile(defaultPath)
+			Options.ThemeManager_ThemeList:SetValue('Default')
+		end
+
+		Options.ThemeManager_CustomThemeList:SetValues(ThemeManager:ReloadCustomThemes())
+		Options.ThemeManager_CustomThemeList:SetValue(nil)
+		Library:Notify(string.format('Deleted custom theme %q', name), 2)
+	end
+})
+
+SaveManager:LoadAutoloadConfig()
+FinishLoadingScreen(function()
+	menuReady = true
+	desiredMenuVisible = true
+	Window.Holder.Visible = true
 end)
