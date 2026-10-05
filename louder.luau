@@ -433,7 +433,6 @@ local LightingService = game:GetService('Lighting')
 
 local worldEffectsUnloaded = false
 
--- Our own persistent instances
 local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
 WorldColorCorrection.Name = 'GumballColorCorrection'
 WorldColorCorrection.Enabled = false
@@ -453,53 +452,88 @@ WorldAtmosphere.Color = Color3.new(1, 1, 1)
 WorldAtmosphere.Decay = Color3.new(1, 1, 1)
 WorldAtmosphere.Parent = nil
 
--- Track the game's own effects so we can restore them on unload
-local foreignCCState = setmetatable({}, { __mode = 'k' })    -- [inst] = originalEnabled
-local foreignAtmoState = setmetatable({}, { __mode = 'k' })  -- [inst] = originalParent
+-- Foreign-effect guards: attach a Changed listener to every game-owned
+-- effect so when it tries to re-enable/reparent itself, we reverse it
+-- synchronously in the same call stack.
+local foreignCC = setmetatable({}, { __mode = 'k' })
+local foreignAtmo = setmetatable({}, { __mode = 'k' })
 
-local function HideForeignCC()
-	for _, child in ipairs(LightingService:GetChildren()) do
-		if child:IsA('ColorCorrectionEffect') and child ~= WorldColorCorrection then
-			if foreignCCState[child] == nil then
-				foreignCCState[child] = child.Enabled
-			end
-			if child.Enabled then
-				pcall(function() child.Enabled = false end)
-			end
+local function guardCC(inst)
+	if inst == WorldColorCorrection then return end
+	if foreignCC[inst] then return end
+	local entry = { originalEnabled = inst.Enabled, connection = nil }
+	pcall(function() inst.Enabled = false end)
+	entry.connection = inst.Changed:Connect(function(prop)
+		if prop == 'Enabled' and inst.Enabled ~= false then
+			pcall(function() inst.Enabled = false end)
+		end
+	end)
+	foreignCC[inst] = entry
+end
+
+local function unguardCC(inst)
+	local entry = foreignCC[inst]
+	if not entry then return end
+	foreignCC[inst] = nil
+	if entry.connection then entry.connection:Disconnect() end
+	if inst.Parent then
+		pcall(function() inst.Enabled = entry.originalEnabled end)
+	end
+end
+
+local function guardAtmo(inst)
+	if inst == WorldAtmosphere then return end
+	if foreignAtmo[inst] then return end
+	local entry = { originalParent = inst.Parent, connection = nil }
+	pcall(function() inst.Parent = nil end)
+	entry.connection = inst.Changed:Connect(function(prop)
+		if prop == 'Parent' and inst.Parent ~= nil then
+			pcall(function() inst.Parent = nil end)
+		end
+	end)
+	foreignAtmo[inst] = entry
+end
+
+local function unguardAtmo(inst)
+	local entry = foreignAtmo[inst]
+	if not entry then return end
+	foreignAtmo[inst] = nil
+	if entry.connection then entry.connection:Disconnect() end
+	if inst.Parent == nil and entry.originalParent then
+		pcall(function() inst.Parent = entry.originalParent end)
+	end
+end
+
+local function scanAllForeign()
+	for _, inst in ipairs(LightingService:GetDescendants()) do
+		if inst:IsA('ColorCorrectionEffect') and inst ~= WorldColorCorrection then
+			guardCC(inst)
+		elseif inst:IsA('Atmosphere') and inst ~= WorldAtmosphere then
+			guardAtmo(inst)
 		end
 	end
 end
 
-local function HideForeignAtmo()
-	for _, child in ipairs(LightingService:GetChildren()) do
-		if child:IsA('Atmosphere') and child ~= WorldAtmosphere then
-			if foreignAtmoState[child] == nil then
-				foreignAtmoState[child] = child.Parent
-			end
-			if child.Parent then
-				pcall(function() child.Parent = nil end)
-			end
-		end
-	end
-end
+scanAllForeign()
 
-local function RestoreForeign()
-	for child, originalEnabled in next, foreignCCState do
-		foreignCCState[child] = nil
-		if child.Parent then
-			pcall(function() child.Enabled = originalEnabled end)
-		end
+Library:GiveSignal(LightingService.DescendantAdded:Connect(function(inst)
+	if inst:IsA('ColorCorrectionEffect') and inst ~= WorldColorCorrection then
+		task.defer(function() guardCC(inst) end)
+	elseif inst:IsA('Atmosphere') and inst ~= WorldAtmosphere then
+		task.defer(function() guardAtmo(inst) end)
 	end
-	for child, originalParent in next, foreignAtmoState do
-		foreignAtmoState[child] = nil
-		if child.Parent == nil and originalParent ~= nil then
-			pcall(function() child.Parent = originalParent end)
-		end
+end))
+
+Library:GiveSignal(LightingService.DescendantRemoving:Connect(function(inst)
+	if inst:IsA('ColorCorrectionEffect') then
+		unguardCC(inst)
+	elseif inst:IsA('Atmosphere') then
+		unguardAtmo(inst)
 	end
-end
+end))
 
 -- =========================================================================
--- COLOR CORRECTION
+-- COLOR CORRECTION UI
 -- =========================================================================
 local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
 	Text = 'enabled',
@@ -543,7 +577,7 @@ ColorCorrectionTab:AddSlider('WorldColorCorrectionBrightness', {
 end)
 
 -- =========================================================================
--- ATMOSPHERE
+-- ATMOSPHERE UI
 -- =========================================================================
 local WorldAtmosphereToggle = AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
 	Text = 'enabled',
@@ -607,38 +641,32 @@ Options.WorldAtmosphereDecay:OnChanged(function(value)
 end)
 
 -- =========================================================================
--- Sync loop — forces our values + hides the game's, every frame
+-- Sync loop
 -- =========================================================================
 local function SyncWorldEffects()
 	if worldEffectsUnloaded then return end
 
-	-- ===== Our Color Correction =====
+	if WorldColorCorrection.Parent ~= LightingService then
+		pcall(function() WorldColorCorrection.Parent = LightingService end)
+	end
+
+	local wantAtmoParent = WorldAtmosphereToggle.Value and LightingService or nil
+	if WorldAtmosphere.Parent ~= wantAtmoParent then
+		pcall(function() WorldAtmosphere.Parent = wantAtmoParent end)
+	end
+
 	WorldColorCorrection.Enabled = WorldColorCorrectionToggle.Value
 	WorldColorCorrection.Saturation = Options.WorldColorCorrectionSaturation.Value
 	WorldColorCorrection.Contrast = Options.WorldColorCorrectionContrast.Value
 	WorldColorCorrection.Brightness = Options.WorldColorCorrectionBrightness.Value
 	WorldColorCorrection.TintColor = Options.WorldColorCorrectionTint.Value
 
-	-- ===== Our Atmosphere =====
 	WorldAtmosphere.Density = Options.WorldAtmosphereDensity.Value
 	WorldAtmosphere.Offset = Options.WorldAtmosphereOffset.Value
 	WorldAtmosphere.Haze = Options.WorldAtmosphereHaze.Value
 	WorldAtmosphere.Glare = Options.WorldAtmosphereGlare.Value
 	WorldAtmosphere.Color = Options.WorldAtmosphereColor.Value
 	WorldAtmosphere.Decay = Options.WorldAtmosphereDecay.Value
-
-	local wantParent = WorldAtmosphereToggle.Value and LightingService or nil
-	if WorldAtmosphere.Parent ~= wantParent then
-		pcall(function() WorldAtmosphere.Parent = wantParent end)
-	end
-
-	-- ===== Hide the game's own =====
-	if WorldColorCorrectionToggle.Value then
-		HideForeignCC()
-	end
-	if WorldAtmosphereToggle.Value then
-		HideForeignAtmo()
-	end
 end
 
 Library:GiveSignal(game:GetService('RunService').Heartbeat:Connect(SyncWorldEffects))
@@ -647,7 +675,10 @@ local previousWorldUnload = Library.OnUnload
 Library:OnUnload(function()
 	worldEffectsUnloaded = true
 	if previousWorldUnload then previousWorldUnload() end
-	RestoreForeign()
+
+	for inst in next, foreignCC do unguardCC(inst) end
+	for inst in next, foreignAtmo do unguardAtmo(inst) end
+
 	pcall(function() WorldColorCorrection:Destroy() end)
 	pcall(function() WorldAtmosphere:Destroy() end)
 end)
