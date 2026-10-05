@@ -479,9 +479,14 @@ local function GuardedInstance(instance)
 	}
 end
 
--- Keeps ONE of our own `className` in `parent`, disables every foreign one,
+-- Keeps ONE of our own `className` in `parent`, hides every foreign one,
 -- and auto-recreates ours if the game nukes it.
-local function EffectGuard(parent, className, namePrefix)
+--
+-- hideForeign / restoreForeign handle the class-specific way to hide a
+-- foreign instance:
+--   * ColorCorrectionEffect — has `Enabled`, just set it false
+--   * Atmosphere           — no `Enabled`, must be unparented
+local function EffectGuard(parent, className, namePrefix, hideForeign, restoreForeign)
 	namePrefix = namePrefix or 'Gumball'
 	local foreign = {}
 	local ourInstance
@@ -512,9 +517,7 @@ local function EffectGuard(parent, className, namePrefix)
 		for _, child in ipairs(parent:GetChildren()) do
 			if child:IsA(className) and not isOurs(child) then
 				if foreign[child] == nil then
-					local g = GuardedInstance(child)
-					g:SetOverride('Enabled', false)
-					foreign[child] = g
+					foreign[child] = hideForeign(child)
 				end
 			end
 		end
@@ -527,12 +530,15 @@ local function EffectGuard(parent, className, namePrefix)
 		if destroyed then return end
 		if child:IsA(className) then
 			task.defer(function()
-				if not destroyed then
-					disableForeign()
-					if not isOurs(child) then
-						ensureOurs()
-					end
+				if destroyed then return end
+				if not isOurs(child) and foreign[child] == nil then
+					foreign[child] = hideForeign(child)
 				end
+				if findOurs() == nil then
+					ensureOurs()
+					ourGuard = GuardedInstance(ourInstance)
+				end
+				disableForeign()
 			end)
 		end
 	end)
@@ -550,7 +556,11 @@ local function EffectGuard(parent, className, namePrefix)
 		Destroy = function(_)
 			destroyed = true
 			connAdded:Disconnect()
-			for _, g in next, foreign do g:Destroy() end
+			for child, stash in next, foreign do
+				pcall(function()
+					restoreForeign(child, stash)
+				end)
+			end
 			table.clear(foreign)
 			ourGuard:Destroy()
 			if ourInstance and ourInstance.Parent then
@@ -563,7 +573,20 @@ end
 -- =========================================================================
 -- Color Correction (guarded)
 -- =========================================================================
-local ColorCorrectionGuard = EffectGuard(LightingService, 'ColorCorrectionEffect')
+local ColorCorrectionGuard = EffectGuard(
+	LightingService,
+	'ColorCorrectionEffect',
+	'Gumball',
+	function(child)
+		-- hide foreign CC by disabling it
+		local g = GuardedInstance(child)
+		g:SetOverride('Enabled', false)
+		return g
+	end,
+	function(_child, guard)
+		guard:Destroy()
+	end
+)
 
 local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorrectionEnabled', {
 	Text = 'enabled',
@@ -615,7 +638,22 @@ end)
 -- =========================================================================
 -- Atmosphere (guarded)
 -- =========================================================================
-local AtmosphereGuard = EffectGuard(LightingService, 'Atmosphere')
+local AtmosphereGuard = EffectGuard(
+	LightingService,
+	'Atmosphere',
+	'Gumball',
+	function(child)
+		-- hide foreign Atmosphere by unparenting it
+		local originalParent = child.Parent
+		child.Parent = nil
+		return originalParent
+	end,
+	function(child, originalParent)
+		pcall(function()
+			child.Parent = originalParent or LightingService
+		end)
+	end
+)
 
 local WorldAtmosphereToggle = AtmosphereTab:AddToggle('WorldAtmosphereEnabled', {
 	Text = 'enabled',
