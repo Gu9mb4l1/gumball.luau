@@ -428,10 +428,6 @@ local ColorCorrectionTab = WorldTabbox:AddTab('color correction')
 local AtmosphereTab = WorldTabbox:AddTab('atmosphere')
 local LightingService = game:GetService('Lighting')
 
--- Holds the game's own Lighting effects while ours are active.
-local WorldEffectStash = Instance.new('Folder')
-WorldEffectStash.Name = 'GumballWorldEffectStash'
-
 local WorldColorCorrection = Instance.new('ColorCorrectionEffect')
 WorldColorCorrection.Name = 'GumballColorCorrection'
 WorldColorCorrection.Enabled = false
@@ -449,60 +445,69 @@ WorldAtmosphere.Haze = 0
 WorldAtmosphere.Glare = 0
 WorldAtmosphere.Color = Color3.new(1, 1, 1)
 WorldAtmosphere.Decay = Color3.new(1, 1, 1)
+
 local worldEffectsUnloaded = false
 
-local stashedAtmospheres = {}
-local stashedColorCorrections = {}
+-- Weak-keyed stashes so we never leak instances
+local foreignCCStash = setmetatable({}, { __mode = 'k' })
+local foreignAtmosphereStash = setmetatable({}, { __mode = 'k' })
 
-local function StashForeignAtmospheres()
-	for _, inst in ipairs(LightingService:GetChildren()) do
-		if inst:IsA('Atmosphere') and inst ~= WorldAtmosphere then
-			if stashedAtmospheres[inst] == nil then
-				stashedAtmospheres[inst] = inst.Parent or LightingService
-			end
-			inst.Parent = WorldEffectStash
-		end
-	end
-end
-
-local function RestoreForeignAtmospheres()
-	for inst, originalParent in pairs(stashedAtmospheres) do
-		pcall(function()
-			inst.Parent = originalParent
-		end)
-	end
-	table.clear(stashedAtmospheres)
-end
-
-local function StashForeignColorCorrections()
-	for _, inst in ipairs(LightingService:GetChildren()) do
+local function HideForeignColorCorrections()
+	for _, inst in ipairs(LightingService:GetDescendants()) do
 		if inst:IsA('ColorCorrectionEffect') and inst ~= WorldColorCorrection then
-			if stashedColorCorrections[inst] == nil then
-				stashedColorCorrections[inst] = inst.Parent or LightingService
+			if foreignCCStash[inst] == nil then
+				foreignCCStash[inst] = inst.Parent
 			end
-			inst.Parent = WorldEffectStash
+			pcall(function() inst.Parent = nil end)
 		end
 	end
 end
 
 local function RestoreForeignColorCorrections()
-	for inst, originalParent in pairs(stashedColorCorrections) do
-		pcall(function()
-			inst.Parent = originalParent
-		end)
+	for inst, originalParent in pairs(foreignCCStash) do
+		if inst and inst.Parent == nil then
+			pcall(function()
+				inst.Parent = originalParent or LightingService
+			end)
+		end
 	end
-	table.clear(stashedColorCorrections)
+	for inst in pairs(foreignCCStash) do
+		foreignCCStash[inst] = nil
+	end
+end
+
+local function HideForeignAtmospheres()
+	for _, inst in ipairs(LightingService:GetDescendants()) do
+		if inst:IsA('Atmosphere') and inst ~= WorldAtmosphere then
+			if foreignAtmosphereStash[inst] == nil then
+				foreignAtmosphereStash[inst] = inst.Parent
+			end
+			pcall(function() inst.Parent = nil end)
+		end
+	end
+end
+
+local function RestoreForeignAtmospheres()
+	for inst, originalParent in pairs(foreignAtmosphereStash) do
+		if inst and inst.Parent == nil then
+			pcall(function()
+				inst.Parent = originalParent or LightingService
+			end)
+		end
+	end
+	for inst in pairs(foreignAtmosphereStash) do
+		foreignAtmosphereStash[inst] = nil
+	end
 end
 
 local previousUnloadCallback = Library.OnUnload
 Library:OnUnload(function()
 	worldEffectsUnloaded = true
+	RestoreForeignColorCorrections()
+	RestoreForeignAtmospheres()
 	if previousUnloadCallback then
 		previousUnloadCallback()
 	end
-	RestoreForeignAtmospheres()
-	RestoreForeignColorCorrections()
-	pcall(function() WorldEffectStash:Destroy() end)
 	pcall(function() WorldColorCorrection:Destroy() end)
 	pcall(function() WorldAtmosphere:Destroy() end)
 end)
@@ -512,6 +517,7 @@ local WorldColorCorrectionToggle = ColorCorrectionTab:AddToggle('WorldColorCorre
 	Default = false
 })
 WorldColorCorrectionToggle:OnChanged(function(value)
+	if worldEffectsUnloaded then return end
 	WorldColorCorrection.Enabled = value
 end)
 
@@ -573,7 +579,9 @@ WorldAtmosphereToggle:OnChanged(function(value)
 	if worldEffectsUnloaded then
 		return
 	end
-	WorldAtmosphere.Parent = value and LightingService or nil
+	pcall(function()
+		WorldAtmosphere.Parent = value and LightingService or nil
+	end)
 end)
 
 local function EnableWorldAtmosphereForEdit()
@@ -662,65 +670,55 @@ local function SyncWorldEffects()
 	end
 
 	-- ===== Color Correction =====
-	local colorCorrectionValues = {
-		Enabled = WorldColorCorrectionToggle.Value,
-		Saturation = Options.WorldColorCorrectionSaturation.Value,
-		Contrast = Options.WorldColorCorrectionContrast.Value,
-		Brightness = Options.WorldColorCorrectionBrightness.Value,
-		TintColor = Options.WorldColorCorrectionTint.Value
-	}
-	for property, value in pairs(colorCorrectionValues) do
-		if WorldColorCorrection[property] ~= value then
-			WorldColorCorrection[property] = value
-		end
+	-- Keep ours alive & parented in Lighting
+	if WorldColorCorrection and WorldColorCorrection.Parent ~= LightingService then
+		pcall(function() WorldColorCorrection.Parent = LightingService end)
 	end
 
-	-- Keep our CC in Lighting in case the game cleaned it up
-	if WorldColorCorrection.Parent ~= LightingService then
-		WorldColorCorrection.Parent = LightingService
+	-- Force values every frame so nothing can silently turn it off
+	local wantCCEnabled = WorldColorCorrectionToggle.Value
+	if WorldColorCorrection.Enabled ~= wantCCEnabled then
+		pcall(function() WorldColorCorrection.Enabled = wantCCEnabled end)
 	end
+	pcall(function()
+		WorldColorCorrection.Saturation = Options.WorldColorCorrectionSaturation.Value
+		WorldColorCorrection.Contrast = Options.WorldColorCorrectionContrast.Value
+		WorldColorCorrection.Brightness = Options.WorldColorCorrectionBrightness.Value
+		WorldColorCorrection.TintColor = Options.WorldColorCorrectionTint.Value
+		WorldColorCorrection.Enabled = wantCCEnabled
+	end)
 
-	-- While ours is on, hide the game's CC so ours is clearly visible
-	if WorldColorCorrectionToggle.Value then
-		StashForeignColorCorrections()
+	if wantCCEnabled then
+		HideForeignColorCorrections()
 	else
 		RestoreForeignColorCorrections()
 	end
 
 	-- ===== Atmosphere =====
-	local atmosphereParent = WorldAtmosphereToggle.Value and LightingService or nil
-	if WorldAtmosphere.Parent ~= atmosphereParent then
-		local success = pcall(function()
-			WorldAtmosphere.Parent = atmosphereParent
-		end)
-		if not success then
-			WorldAtmosphere = Instance.new('Atmosphere')
-			WorldAtmosphere.Name = 'GumballAtmosphere'
-			WorldAtmosphere.Parent = atmosphereParent
-		end
+	local wantAtmo = WorldAtmosphereToggle.Value
+	local desiredParent = wantAtmo and LightingService or nil
+	if WorldAtmosphere.Parent ~= desiredParent then
+		pcall(function() WorldAtmosphere.Parent = desiredParent end)
 	end
 
-	local atmosphereValues = {
-		Density = Options.WorldAtmosphereDensity.Value,
-		Offset = Options.WorldAtmosphereOffset.Value,
-		Haze = Options.WorldAtmosphereHaze.Value,
-		Glare = Options.WorldAtmosphereGlare.Value,
-		Color = Options.WorldAtmosphereColor.Value,
-		Decay = Options.WorldAtmosphereDecay.Value
-	}
-	for property, value in pairs(atmosphereValues) do
-		if WorldAtmosphere[property] ~= value then
-			WorldAtmosphere[property] = value
-		end
-	end
+	pcall(function()
+		WorldAtmosphere.Density = Options.WorldAtmosphereDensity.Value
+		WorldAtmosphere.Offset = Options.WorldAtmosphereOffset.Value
+		WorldAtmosphere.Haze = Options.WorldAtmosphereHaze.Value
+		WorldAtmosphere.Glare = Options.WorldAtmosphereGlare.Value
+		WorldAtmosphere.Color = Options.WorldAtmosphereColor.Value
+		WorldAtmosphere.Decay = Options.WorldAtmosphereDecay.Value
+	end)
 
-	-- Roblox only renders ONE Atmosphere — hide the game's while ours is on
-	if WorldAtmosphereToggle.Value then
-		StashForeignAtmospheres()
+	if wantAtmo then
+		HideForeignAtmospheres()
 	else
 		RestoreForeignAtmospheres()
 	end
 end
+
+-- Extra heartbeat pass (the existing RenderStepped also calls SyncWorldEffects)
+Library:GiveSignal(game:GetService('RunService').Heartbeat:Connect(SyncWorldEffects))
 
 local MenuGroup = Tabs.settings:AddLeftGroupbox('Menu')
 MenuGroup:AddButton('Unload', function()
