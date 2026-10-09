@@ -1,6 +1,6 @@
 --==========================================================================
---  Kicia Rebuild  -  Rivals
---  Kiciahook v3, rebuilt from a decompiled build.
+--  ProjectGumball  -  Rivals
+--  ProjectGumball  -  discord.gg/projectgumball.
 --==========================================================================
 if getgenv().KiciaRebuild and getgenv().KiciaRebuild.Unload then
     pcall(getgenv().KiciaRebuild.Unload)
