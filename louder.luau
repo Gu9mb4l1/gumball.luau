@@ -1,22 +1,23 @@
 
--- Project Gumball - Panda Auth Key UI
--- Place after PUSL.configure({ serviceId = "projectgumball" })
+-- Project Gumball | Panda Auth PUSL-V4
+-- Requires the Panda Auth library to be initialized first.
 
 local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+local PUSL = PUSL
+if not PUSL then
+    warn("[Project Gumball] Panda Auth is not initialized.")
+    return
+end
 
 local player = Players.LocalPlayer
 if not player then
-    return warn("[Panda] LocalPlayer unavailable.")
+    warn("[Project Gumball] Player unavailable.")
+    return
 end
 
-local parent = CoreGui
-if type(gethui) == "function" then
-    local ok, hiddenGui = pcall(gethui)
-    if ok and hiddenGui then
-        parent = hiddenGui
-    end
-end
+local parent = player:WaitForChild("PlayerGui")
 
 local oldGui = parent:FindFirstChild("ProjectGumballKeyUI")
 if oldGui then
@@ -26,12 +27,13 @@ end
 local gui = Instance.new("ScreenGui")
 gui.Name = "ProjectGumballKeyUI"
 gui.ResetOnSpawn = false
+gui.DisplayOrder = 999
 gui.Parent = parent
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(340, 210)
-frame.Position = UDim2.new(0.5, -170, 0.5, -105)
-frame.BackgroundColor3 = Color3.fromRGB(20, 22, 28)
+frame.Size = UDim2.fromOffset(360, 225)
+frame.Position = UDim2.new(0.5, -180, 0.5, -112)
+frame.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
 frame.BorderSizePixel = 0
 frame.Parent = gui
 
@@ -39,24 +41,50 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 10)
 corner.Parent = frame
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -40, 0, 38)
-title.Position = UDim2.fromOffset(20, 12)
-title.BackgroundTransparency = 1
-title.Text = "Project Gumball"
-title.TextColor3 = Color3.fromRGB(245, 245, 250)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = frame
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(65, 70, 82)
+stroke.Transparency = 0.25
+stroke.Parent = frame
+
+local function label(text, position, size, font, textSize, color)
+    local object = Instance.new("TextLabel")
+    object.BackgroundTransparency = 1
+    object.Position = position
+    object.Size = size
+    object.Font = font
+    object.TextSize = textSize
+    object.TextColor3 = color
+    object.Text = text
+    object.Parent = frame
+    return object
+end
+
+label(
+    "Project Gumball",
+    UDim2.fromOffset(20, 15),
+    UDim2.new(1, -40, 0, 32),
+    Enum.Font.GothamBold,
+    21,
+    Color3.fromRGB(245, 246, 250)
+).TextXAlignment = Enum.TextXAlignment.Left
+
+label(
+    "Enter your access key to continue",
+    UDim2.fromOffset(20, 45),
+    UDim2.new(1, -40, 0, 22),
+    Enum.Font.Gotham,
+    12,
+    Color3.fromRGB(160, 165, 178)
+).TextXAlignment = Enum.TextXAlignment.Left
 
 local input = Instance.new("TextBox")
-input.Size = UDim2.new(1, -40, 0, 38)
-input.Position = UDim2.fromOffset(20, 58)
+input.Position = UDim2.fromOffset(20, 78)
+input.Size = UDim2.new(1, -40, 0, 40)
 input.BackgroundColor3 = Color3.fromRGB(34, 37, 45)
-input.TextColor3 = Color3.fromRGB(255, 255, 255)
+input.BorderSizePixel = 0
 input.PlaceholderText = "Add key here..."
-input.PlaceholderColor3 = Color3.fromRGB(155, 160, 170)
+input.PlaceholderColor3 = Color3.fromRGB(145, 150, 162)
+input.TextColor3 = Color3.fromRGB(245, 246, 250)
 input.Font = Enum.Font.Gotham
 input.TextSize = 14
 input.ClearTextOnFocus = false
@@ -67,15 +95,17 @@ local inputCorner = Instance.new("UICorner")
 inputCorner.CornerRadius = UDim.new(0, 6)
 inputCorner.Parent = input
 
-local function makeButton(text, position, size)
+local function createButton(text, x, width)
     local button = Instance.new("TextButton")
-    button.Size = size
-    button.Position = position
+    button.Position = UDim2.fromOffset(x, 132)
+    button.Size = UDim2.new(0, width, 0, 36)
     button.BackgroundColor3 = Color3.fromRGB(48, 105, 190)
-    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BorderSizePixel = 0
     button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.Font = Enum.Font.GothamSemibold
-    button.TextSize = 14
+    button.TextSize = 13
+    button.AutoButtonColor = true
     button.Parent = frame
 
     local buttonCorner = Instance.new("UICorner")
@@ -85,78 +115,75 @@ local function makeButton(text, position, size)
     return button
 end
 
-local submit = makeButton(
-    "Submit",
-    UDim2.fromOffset(20, 110),
-    UDim2.new(0.5, -25, 0, 34)
-)
+local submit = createButton("Submit", 20, 150)
+local getKey = createButton("Get Key", 190, 150)
 
-local getKey = makeButton(
-    "Get Key",
-    UDim2.new(0.5, 5, 0, 110),
-    UDim2.new(0.5, -25, 0, 34)
+local status = label(
+    "Waiting for your key.",
+    UDim2.fromOffset(20, 177),
+    UDim2.new(1, -40, 0, 30),
+    Enum.Font.Gotham,
+    11,
+    Color3.fromRGB(185, 190, 202)
 )
-
-local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, -40, 0, 35)
-status.Position = UDim2.fromOffset(20, 153)
-status.BackgroundTransparency = 1
-status.Text = "Enter your Panda Auth key."
-status.TextColor3 = Color3.fromRGB(185, 190, 200)
-status.Font = Enum.Font.Gotham
-status.TextSize = 12
 status.TextWrapped = true
-status.Parent = frame
 
-getKey.MouseButton1Click:Connect(function()
+local busy = false
+
+getKey.Activated:Connect(function()
     local ok, url = pcall(function()
         return PUSL.getKeyUrl()
     end)
 
-    if ok and type(url) == "string" and url:match("^https?://") then
-        if type(setclipboard) == "function" then
-            setclipboard(url)
-            status.Text = "Get Key link copied to clipboard."
-        else
-            status.Text = "Open the Get Key link from Panda Auth."
-        end
-    else
-        status.Text = "Unable to retrieve the Get Key link."
+    if not ok or type(url) ~= "string"
+        or not url:match("^https?://") then
+        status.Text = "Could not retrieve the key URL."
+        return
     end
+
+    if type(setclipboard) == "function" then
+        local copied = pcall(setclipboard, url)
+        if copied then
+            status.Text = "Key URL copied. Open it in your browser."
+            return
+        end
+    end
+
+    status.Text = "Open Panda Auth's key URL in your browser."
+    warn("[Project Gumball] Get Key URL: " .. url)
 end)
 
-local checking = false
-
-submit.MouseButton1Click:Connect(function()
-    if checking then
+submit.Activated:Connect(function()
+    if busy then
         return
     end
 
-    local key = input.Text:gsub("^%s+", ""):gsub("%s+$", "")
+    local key = input.Text:match("^%s*(.-)%s*$")
     if key == "" then
-        status.Text = "Please enter your key."
+        status.Text = "Enter your key first."
         return
     end
 
-    checking = true
+    busy = true
     submit.Text = "Checking..."
-    status.Text = "Validating your key..."
+    status.Text = "Validating key..."
 
     local ok, result = pcall(function()
         return PUSL.validate(key)
     end)
 
-    checking = false
+    busy = false
     submit.Text = "Submit"
 
     if ok and type(result) == "table" and result.success then
-        status.Text = "Key accepted. Loading your script..."
-        gui:Destroy()
-
-        -- Put your existing menu startup code below this
-        -- block, so it runs only after successful validation.
+        status.Text = "Authentication successful."
+        print(
+            "[Project Gumball] Authenticated. Premium:",
+            result.isPremium
+        )
+        -- Start your existing menu here, after successful validation.
     else
-        status.Text = "Invalid key or validation failed. Try again."
+        status.Text = "Key invalid or validation failed."
     end
 end)
 
