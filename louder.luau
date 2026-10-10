@@ -1,20 +1,26 @@
--- Panda Auth - V3 (Pelinda)
--- The V3 library and your service ID are injected automatically when you
--- upload this script to the Kryptic Vault. Nothing to configure here.
+-- Panda Auth - PUSL-V4
+-- Paste this at the very top of your script.
 
-local result = Pelinda.Init({
-    Key = "USER_KEY_HERE",
-    SilentMode = false,
+local PUSL = loadstring(game:HttpGet("https://secure.pandauth.com/pv4/lib"))()
+if not PUSL or type(PUSL.configure) ~= "function" then
+    return warn("[Panda] Library failed to initialize.")
+end
+
+PUSL.configure({
+    serviceId = "projectgumball",
 })
 
-if result == "validated!!" then
-    print("[Panda] Authenticated. Premium:", __PELINDA_IS_PREMIUM__)
-    -- Your protected code goes below this line.
-elseif result == "error!!" then
-    warn("[Panda] Connection error.")
-else
-    warn("[Panda] Get a key: " .. Pelinda.GetKeyLink())
+local key = "USER_KEY_HERE" -- replace with your own key input
+local result = PUSL.validate(key)
+
+if not result.success then
+    warn("[Panda] Get a key: " .. PUSL.getKeyUrl())
+    return
 end
+
+print("[Panda] Authenticated. Premium:", result.isPremium)
+
+-- Your protected code goes below this line.
 --==========================================================================
 --  Kicia Rebuild  -  Rivals
 --  Kiciahook v3, rebuilt from a decompiled build.
