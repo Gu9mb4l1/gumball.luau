@@ -1,3 +1,21 @@
+-- Panda Auth - V3 (Pelinda)
+-- The V3 library and your service ID are injected automatically when you
+-- upload this script to the Kryptic Vault. Nothing to configure here.
+
+local result = Pelinda.Init({
+    Key = "USER_KEY_HERE",
+    SilentMode = false,
+})
+
+if result == "validated!!" then
+    print("[Panda] Authenticated. Premium:", __PELINDA_IS_PREMIUM__)
+    -- Your protected code goes below this line.
+elseif result == "error!!" then
+    warn("[Panda] Connection error.")
+else
+    warn("[Panda] Get a key: " .. Pelinda.GetKeyLink())
+end
+
 --==========================================================================
 --  Kicia Rebuild  -  Rivals
 --  Kiciahook v3, rebuilt from a decompiled build.
