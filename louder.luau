@@ -22899,14 +22899,61 @@ local GuiNameSpoofer = v115.new("player_spoofer.GuiNameSpoofer")
 local tbl18 = {}
 local tbl19 = {}
 local playerIdentities = arg._playerIdentities
-local function fn36(...) end
+local function fn36()
+-- Rebuild the original-name lookup table whenever a player identity is added or removed.
+table.clear(tbl19)
+for player, identity in pairs(playerIdentities._identityByPlayer) do
+if type(identity.Name) == "string" and identity.Name ~= "" then
+ table.insert(tbl19, { Player = player, Kind = "Name", Name = identity.Name })
+end
+if type(identity.DisplayName) == "string" and identity.DisplayName ~= "" and identity.DisplayName ~= identity.Name then
+ table.insert(tbl19, { Player = player, Kind = "DisplayName", Name = identity.DisplayName })
+end
+end
+end
 local function fn37(I,W)if W=="Name"then return  playerIdentities :GetPresented(I);end;return  playerIdentities :GetPresentedDisplay(I);end
 local function fn38(l,I,W)local N,P,a={},1,0;while true do local e,c=l:find(I,P,true);if e==nil or c==nil then break;end;if P<e then table.insert(N,l:sub(P,e-1));end;table.insert(N,W);a+=1;P=c+1;end;if a==0 then return l,0;end;if P<=#l then table.insert(N,l:sub(P));end;return table.concat(N),a;end
-local function fn39(I)local W={};local N=I;for I,P in  tbl19 ,nil,nil do I= fn37 (P.Player,P.Kind);local a,e= fn38 (N,P.Name,I);if e>0 then W[P.Player]=true;N=a;end;end;return W,N;end
-local function fn40(...) end
-local function fn41(...) end
+local function fn39(I)local W={};local N=I;for I,P in  tbl19 ,nil,nil do local presented=fn37(P.Player,P.Kind);local replaced,count=fn38(N,P.Name,presented);if count>0 then W[P.Player]=true;N=replaced;end;end;return W,N;end
+local function fn40(I)
+local entry=tbl18[I]
+if entry==nil or entry.Tracked==nil or not I.Parent then return end
+local tracked=entry.Tracked
+if tracked.Updating then return end
+local current=I.Text
+-- Text changes made by the game become the new source text; our own spoofed text does not.
+if current~=tracked.SpoofedText then tracked.OriginalText=current end
+local playerSet,spoofedText=fn39(tracked.OriginalText)
+tracked.PlayerSet=playerSet
+tracked.SpoofedText=spoofedText
+if current~=spoofedText then
+tracked.Updating=true
+I.Text=spoofedText
+tracked.Updating=false
+end
+end
+local function fn41(I,tracked)
+if tracked==nil then return end
+if I.Parent and I.Text==tracked.SpoofedText and tracked.SpoofedText~=tracked.OriginalText then
+tracked.Updating=true
+I.Text=tracked.OriginalText
+tracked.Updating=false
+end
+end
 local function fn42(I,W)local N= tbl18 [I];if N==nil then return;end; tbl18 [I]=nil;N.TextChangedConnection:Disconnect();N.DestroyingConnection:Disconnect();if W and N.Tracked~=nil then  fn41 (I,N.Tracked);end;end
-local function fn43(...) end
+local function fn43(I)
+if not I:IsA("TextLabel") and not I:IsA("TextButton") then return end
+if tbl18[I]~=nil then return end
+local tracked={OriginalText=I.Text,SpoofedText=I.Text,PlayerSet={},Updating=false}
+local entry={Tracked=tracked}
+tbl18[I]=entry
+entry.TextChangedConnection=I:GetPropertyChangedSignal("Text"):Connect(function()
+if not tracked.Updating then fn40(I) end
+end)
+entry.DestroyingConnection=I.Destroying:Connect(function()
+fn42(I,false)
+end)
+fn40(I)
+end
 fn36()
 
 v116(GuiNameSpoofer, function(arg2, arg3)
@@ -42186,6 +42233,17 @@ return v116.VoidOk
 end
 
 index2.LoadCoreConfig = function(arg)
+-- Create the default core config on first run before trying to load it.
+-- The cosmetics directory is prepared during bootstrap.
+if not arg._configManager:Exists("core_config") then
+local created = arg._configManager:SaveDefaultToFile("core_config")
+if not created.Ok then
+arg:_RestoreSessionState()
+arg:_ConnectAutoSave()
+return v116.err("CosmeticsConfig", "LoadCoreConfig", string.format("Failed to create default core config: %s", tostring(created.Error.Detail)))
+end
+end
+
 local coreConfig = arg._configManager:LoadFromFile("core_config")
 
 if not coreConfig.Ok then
